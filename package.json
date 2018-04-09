@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/SimonLangowski/UnoCard#readme",
   "dependencies": {
-    "express": "^4.16.3"
+    "express": "^4.16.3",
+    "start": "^5.1.0"
   }
 }
