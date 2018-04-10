@@ -1,7 +1,5 @@
 //dependencies
 const express = require('express');
-
-var mysql = require('mysql');
 var bodyParser = require('body-parser');
 //get app
 const app = express();
