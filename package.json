@@ -17,7 +17,9 @@
   },
   "homepage": "https://github.com/SimonLangowski/UnoCard#readme",
   "dependencies": {
+    "body-parser": "^1.18.2",
     "express": "^4.16.3",
+    "mysql": "^2.15.0",
     "start": "^5.1.0"
   }
 }
