@@ -13,28 +13,60 @@ var database = admin.database();
 const app = express();
 var parser = bodyParser.json();
 
-function checkUsername(username) {
+//Resolve Register Button Click
+function registerCheck(usrname, passwd, res) {
     var usersRef = database.ref("users");
-    ref.once("value").then(function (snapshot) {
-        return snapshot.child(username).exists();
-    }
-    
-}
-
-function registerUser(username, password) {
-    var usersRef = database.ref("users");
-    usersRef.set({
-        username: {
-            password: password
+    usersRef.once("value").then(function (snapshot) {
+        if (snapshot.child(usrname).exists()) {
+            //Username Taken
+            var response = {
+                status: 'failure',
+                error: 'Username Already Taken'
+            }
+            console.log(JSON.stringify(response));
+            res.send(JSON.stringify(response));
+        } else {
+            //Registering New User
+            var usersRef = database.ref("users");
+            usersRef.update({
+                [usrname]: {
+                    password: passwd
+                }
+            });
+            var response = {
+                status: 'success',
+                message: 'User Registered'
+            };
+            console.log(JSON.stringify(response));
+            res.send(JSON.stringify(response));
         }
     });
 }
 
-/*remove non alphanumeric characters from usernames for safe SQL parsing
-function cleanString(string){
-    return string.replace(/[^a-zA-z0-9]/, '')
-}*/
-
+//Resolve Sign In Button Click
+function signInCheck(usrname, passwd, res) {
+    var usersRef = database.ref("users");
+    usersRef.once("value").then(function (snapshot) {
+        if (snapshot.child(usrname).exists() && snapshot.child(usrname).child("password").val() == passwd) {
+            //User Exists
+            var response = {
+                status: 'success',
+                message: 'User Signed In',
+                userID: usrname
+            }
+            console.log(JSON.stringify(response));
+            res.send(JSON.stringify(response));
+        } else {
+            //User Doesn't Exist
+            var response = {
+                status: 'failure',
+                error: 'Username or Password Didn\'t Match'
+            }
+            console.log(JSON.stringify(response));
+            res.send(JSON.stringify(response));
+        }
+    });
+}
 
 app.use(express.static('public'))
 
@@ -47,20 +79,14 @@ app.post('/register', parser, function(req, res){
     console.log(req.body);
     var username = req.body.username;
     var password = req.body.password;
-    //check for username
-    if (checkUsername(username)) {
-        registerUser(username, password);
-    }
-    console.log(username);
-    console.log(password);
-    //
-    var test = {
-        status : 'failure',
-        userId : 12490,
-        userAuth : 'someHashThingy',
-        error : 'test'
-    }
-    res.send(JSON.stringify(test));
+    registerCheck(username, password, res);
+});
+
+app.post('/signIn', parser, function (req, res) {
+    console.log(req.body);
+    var username = req.body.username;
+    var password = req.body.password;
+    signInCheck(username, password, res);
 });
 
 app.all("/", (req, res) => {
