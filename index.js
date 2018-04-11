@@ -1,3 +1,5 @@
+import { forEach } from '../../../../AppData/Local/Microsoft/TypeScript/2.6/node_modules/@types/async';
+
 //dependencies
 const express = require('express');
 var bodyParser = require('body-parser');
@@ -20,8 +22,15 @@ function queryDatabase(query){
 
 }
 
-function checkUsername(username){
-    
+function checkUsername(username) {
+    var usersRef = database.collection('users');
+    var allUsers = usersRef.get().then(snapshot => {
+        snapshot.forEach(doc => {
+            if (doc.data() == username)
+                return true;
+        });
+    });
+    return false;
 }
 
 //remove non alphanumeric characters from usernames for safe SQL parsing (To Simon: Sill Needed?)
@@ -42,8 +51,8 @@ app.route('/register').post(function(req, res){
     var username = req.body.username;
     var password = res.body.password;
     //check for username
-    if (checkUsername(username)){
-        
+    if (checkUsername(username)) {
+
     }
     console.log(username);
     console.log(password);
