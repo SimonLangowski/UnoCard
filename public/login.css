@@ -1,0 +1,17 @@
+body {
+        background: #B0E0E6;
+    }
+    
+    .title {
+        font-family: Georgia, serif;
+        color: blue;
+        text-align: center;
+        font-size: 125%;
+    }
+
+    .login {
+        padding: 10px;
+        font-family: Georgia, serif;
+        color: blue;
+        text-align: center;
+    }

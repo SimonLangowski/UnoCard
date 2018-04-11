@@ -51,9 +51,9 @@
       <input type="password" id="passwordInput">
       <input type="checkbox" onclick="showPassword()">Show Password
       <br><br>
-      <input type="submit" value="Sign in" onclick="sendSignInRequest(usernameInput.value, passwordInput.value)">
+      <input type="submit" value="Sign in" onclick="sendSignInRequest()">
       
-      <input type="submit" value="Register" onclick="sendRegistrationRequest(usernameInput.value, passwordInput.value)">
+      <input type="submit" value="Register" onclick="sendRegistrationRequest()">
       </form>
   </div>
   
@@ -84,13 +84,15 @@
   
   <script>
   //function to submit request for registration
-  function sendRegistrationRequest(username, password){
+  function sendRegistrationRequest(){
+    var username = document.getElementById("usernameInput").value;
+    var password = document.getElementById("passwordInput").value
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function(){
       if (this.readyState === XMLHttpRequest.DONE && this.status === 200){
          var response = JSON.parse(xhttp.response);
          //check for successful registration
-         if (response.status == "success"){
+         if (response.status === "success"){
          //set cookie
          document.cookie = "userID=" + response.userID + ";path=/";
          document.cookie = "userAuth=" + response.userAuth + ";path=/";
@@ -107,6 +109,7 @@
       }
     }
     var data = JSON.stringify({"username:": username, "password": password});
+    console.log(data);
     xhttp.open("POST", "/register", true);
     xhttp.send(data);
   }
