@@ -1,126 +1,30 @@
-<!doctype html>
-
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="utf-8">
+    <meta charset="utf-8">
 
-  <title>Login</title>
-  <style>
-    body {
-        background: #B0E0E6;
-    }
+    <title>Login</title>
     
-    .title {
-        font-family: Georgia, serif;
-        color: blue;
-        text-align: center;
-        font-size: 125%;
-    }
-
-    .login {
-        padding: 10px;
-        font-family: Georgia, serif;
-        color: blue;
-        text-align: center;
-    }
-    
-    #snackbar {
-        visibility: hidden;
-        z-index: 1;
-        text-align: center;
-        border-radius: 3px;
-        
-    #snackbar.show {
-        visibility: visible;
-        
-    }
-}
-
-    </style>
+    <link rel="stylesheet" href="login.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script src="login.js"></script>
 </head>
-
 <body>
-  <div class="login">
-      <p class="title">
-        Welcome to Uno Card!
-      </p>
-      <form>
-      Username:
-      <input type="text" id="usernameInput" onkeyup="cleanFunction(this)"><br><br>
-      Password:
-      <input type="password" id="passwordInput">
-      <input type="checkbox" onclick="showPassword()">Show Password
-      <br><br>
-      <input type="submit" value="Sign in" onclick="sendSignInRequest(usernameInput.value, passwordInput.value)">
-      
-      <input type="submit" value="Register" onclick="sendRegistrationRequest(usernameInput.value, passwordInput.value)">
-      </form>
-  </div>
-  
-  <div id="snackbar">
-    <p id="snackbarText">Error</p>
-  </div>
-  
-  <script>
-  //this function removes characters that would cause sql problems
-  //it will also be executed server side, but this is so the user isn't surprised if their username changes
-  function cleanFunction(element){
-     element.value = element.value.replace(/[^a-zA-z0-9]/, '')
-  }
-  
-  </script>
-  
-  <script>
-  //function to show and hide password text
-  function showPassword() {
-    var passwordBox = document.getElementById("passwordInput");
-    if (passwordBox.type === "password") {
-        passwordBox.type = "text";
-    } else {
-        passwordBox.type = "password";
-    }
-  }
-  </script>
-  
-  <script>
-  //function to submit request for registration
-  function sendRegistrationRequest(username, password){
-    var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function(){
-      if (this.readyState === XMLHttpRequest.DONE && this.status === 200){
-         var response = JSON.parse(xhttp.response);
-         //check for successful registration
-         if (response.status == "success"){
-         //set cookie
-         document.cookie = "userID=" + response.userID + ";path=/";
-         document.cookie = "userAuth=" + response.userAuth + ";path=/";
-         //redirect
-         window.location.href = "/lobby.html";
-        } else {
-          //display message from server
-          //ex "Username already taken"
-          showError(response.error);
-        }
-      } else if (this.readState === XMLHttpRequest.DONE){
-        //display server error message
-        showError("Error code: " + this.status);
-      }
-    }
-    var data = JSON.stringify({"username:": username, "password": password});
-    xhttp.open("POST", "/register", true);
-    xhttp.send(data);
-  }
-  </script>
-  
-  <script>
-    function showError(string){
-       var snackbarText = document.getElementById("snackbarText");
-       snackbarText.innerHTML = string;
-       var snackbar = document.getElementById("snackbar");
-       snackbar.className = "show";
-       setTimeout(function() {snackbar.className = snackbar.className.replace("show", ""); }, 3000);
-    }
-  </script>
-  
+    <div class="login">
+        <p class="title">
+           Welcome to Uno Card!
+        </p>
+        <div ng-app="loginApp">
+        <form ng-submit="login" ng-controller="loginController">
+            <input type="text" ng-model="formData.username"placeholder="Username">
+            <br><br>
+            <input type="text" ng-model="formData.password" placeholder="Password">
+            <br><br>
+            <input type="submit" value="Sign in" ng-click="signIn()">
+            <input type="submit" value="Register" ng-click="register()">
+            <br>
+        </form>
+        </div>
+    </div>
 </body>
 </html>
