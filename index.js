@@ -1,10 +1,18 @@
 //dependencies
 const express = require('express');
 var bodyParser = require('body-parser');
+//Firebase Database
+const admin = require('firebase-admin');
+var serviceAccount = require('./unocard-4576b-firebase-adminsdk-zypmv-763eaf0cfb.json');
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+});
+var database = admin.firestore();
 //get app
 const app = express();
 app.use(bodyParser.json());
-/*var connection = mysql.createConnection({
+/*To Simon: Still Needed?
+var connection = mysql.createConnection({
     
 });*/ //TODO finish
 
@@ -16,7 +24,7 @@ function checkUsername(username){
     
 }
 
-//remove non alphanumeric characters from usernames for safe SQL parsing
+//remove non alphanumeric characters from usernames for safe SQL parsing (To Simon: Sill Needed?)
 function cleanString(string){
     return string.replace(/[^a-zA-z0-9]/, '')
 }
