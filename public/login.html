@@ -16,13 +16,17 @@
         </p>
         <div ng-app="loginApp">
         <form ng-submit="login" ng-controller="loginController">
-            <input type="text" ng-model="formData.username"placeholder="Username">
+            <input type="text" ng-model="formData.username"placeholder="Username" ng-required="true">
             <br><br>
-            <input type="text" ng-model="formData.password" placeholder="Password">
+            <input type="text" ng-model="formData.password" placeholder="Password" ng-required="true">
             <br><br>
             <input type="submit" value="Sign in" ng-click="signIn()">
             <input type="submit" value="Register" ng-click="register()">
             <br>
+            <br>
+            <div ng-show="formData.isError" class="onError">
+            <p>{{formData.error}}</p>
+            </div>
         </form>
         </div>
     </div>

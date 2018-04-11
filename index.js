@@ -17,7 +17,7 @@ function checkUsername(username) {
     var usersRef = database.ref("users");
     ref.once("value").then(function (snapshot) {
         return snapshot.child(username).exists();
-    }
+    });
     
 }
 
@@ -47,10 +47,6 @@ app.post('/register', parser, function(req, res){
     console.log(req.body);
     var username = req.body.username;
     var password = req.body.password;
-    //check for username
-    if (checkUsername(username)) {
-        registerUser(username, password);
-    }
     console.log(username);
     console.log(password);
     //

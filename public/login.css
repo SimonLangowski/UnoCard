@@ -21,3 +21,9 @@ body {
         margin: auto;
         margin-top: 50px;
     }
+    
+    .onError {
+        color: red;
+        background: #FFE4E1;
+        margin-bottom: 10px;
+    }
