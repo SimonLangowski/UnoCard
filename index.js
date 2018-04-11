@@ -16,6 +16,7 @@ var parser = bodyParser.json();
 //Resolve Register Button Click
 function registerCheck(usrname, passwd, res) {
     var usersRef = database.ref("users");
+<<<<<<< HEAD
     usersRef.once("value").then(function (snapshot) {
         if (snapshot.child(usrname).exists()) {
             //Username Taken
@@ -41,6 +42,12 @@ function registerCheck(usrname, passwd, res) {
             res.send(JSON.stringify(response));
         }
     });
+=======
+    ref.once("value").then(function (snapshot) {
+        return snapshot.child(username).exists();
+    });
+    
+>>>>>>> 578c9c9bc5ae88ffb701a9dc0799449e5241a735
 }
 
 //Resolve Sign In Button Click
@@ -79,6 +86,7 @@ app.post('/register', parser, function(req, res){
     console.log(req.body);
     var username = req.body.username;
     var password = req.body.password;
+<<<<<<< HEAD
     registerCheck(username, password, res);
 });
 
@@ -87,6 +95,18 @@ app.post('/signIn', parser, function (req, res) {
     var username = req.body.username;
     var password = req.body.password;
     signInCheck(username, password, res);
+=======
+    console.log(username);
+    console.log(password);
+    //
+    var test = {
+        status : 'failure',
+        userId : 12490,
+        userAuth : 'someHashThingy',
+        error : 'test'
+    }
+    res.send(JSON.stringify(test));
+>>>>>>> 578c9c9bc5ae88ffb701a9dc0799449e5241a735
 });
 
 app.all("/", (req, res) => {
