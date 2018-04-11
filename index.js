@@ -1,5 +1,3 @@
-import { forEach } from '../../../../AppData/Local/Microsoft/TypeScript/2.6/node_modules/@types/async';
-
 //dependencies
 const express = require('express');
 var bodyParser = require('body-parser');
@@ -8,31 +6,34 @@ const admin = require('firebase-admin');
 var serviceAccount = require('./unocard-4576b-firebase-adminsdk-zypmv-763eaf0cfb.json');
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
+    databaseURL: 'https://unocard-4576b.firebaseio.com'
 });
-var database = admin.firestore();
+var database = admin.database();
 //get app
 const app = express();
 var parser = bodyParser.json();
 
-function queryDatabase(query){
-
-}
-
 function checkUsername(username) {
-    var usersRef = database.collection('users');
-    var allUsers = usersRef.get().then(snapshot => {
-        snapshot.forEach(doc => {
-            if (doc.data() == username)
-                return true;
-        });
-    });
-    return false;
+    var usersRef = database.ref("users");
+    ref.once("value").then(function (snapshot) {
+        return snapshot.child(username).exists();
+    }
+    
 }
 
-//remove non alphanumeric characters from usernames for safe SQL parsing (To Simon: Sill Needed?)
+function registerUser(username, password) {
+    var usersRef = database.ref("users");
+    usersRef.set({
+        username: {
+            password: password
+        }
+    });
+}
+
+/*remove non alphanumeric characters from usernames for safe SQL parsing
 function cleanString(string){
     return string.replace(/[^a-zA-z0-9]/, '')
-}
+}*/
 
 
 app.use(express.static('public'))
@@ -42,14 +43,13 @@ app.route('/profiles/:userId').get(function(req, res){
 });
 
 
-
 app.post('/register', parser, function(req, res){
     console.log(req.body);
     var username = req.body.username;
     var password = req.body.password;
     //check for username
     if (checkUsername(username)) {
-
+        registerUser(username, password);
     }
     console.log(username);
     console.log(password);
