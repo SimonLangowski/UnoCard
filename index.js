@@ -79,7 +79,6 @@ app.post('/register', parser, function(req, res){
     console.log(req.body);
     var username = req.body.username;
     var password = req.body.password;
-<<<<<<< HEAD
     registerCheck(username, password, res);
 });
 
