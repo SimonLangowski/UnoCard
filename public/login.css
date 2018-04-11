@@ -1,0 +1,23 @@
+body {
+        background: #B0E0E6;
+    }
+    
+    .title {
+        font-family: Georgia, serif;
+        color: blue;
+        text-align: center;
+        font-size: 125%;
+    }
+
+    .login {
+        font-family: Georgia, serif;
+        color: blue;
+        text-align: center;
+        background: white;
+        border-style: solid;
+        border-radius: 15px;
+        border-color: black;
+        max-width: 250px;
+        margin: auto;
+        margin-top: 50px;
+    }

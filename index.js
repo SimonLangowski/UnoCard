@@ -12,11 +12,7 @@ admin.initializeApp({
 var database = admin.firestore();
 //get app
 const app = express();
-app.use(bodyParser.json());
-/*To Simon: Still Needed?
-var connection = mysql.createConnection({
-    
-});*/ //TODO finish
+var parser = bodyParser.json();
 
 function queryDatabase(query){
 
@@ -47,9 +43,10 @@ app.route('/profiles/:userId').get(function(req, res){
 
 
 
-app.route('/register').post(function(req, res){
+app.post('/register', parser, function(req, res){
+    console.log(req.body);
     var username = req.body.username;
-    var password = res.body.password;
+    var password = req.body.password;
     //check for username
     if (checkUsername(username)) {
 
@@ -58,10 +55,10 @@ app.route('/register').post(function(req, res){
     console.log(password);
     //
     var test = {
-        status : success,
+        status : 'failure',
         userId : 12490,
-        userAuth : someHashThingy,
-        error : none
+        userAuth : 'someHashThingy',
+        error : 'test'
     }
     res.send(JSON.stringify(test));
 });
