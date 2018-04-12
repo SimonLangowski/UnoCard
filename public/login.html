@@ -25,7 +25,10 @@
             <br>
             <br>
             <div ng-show="formData.isError" class="onError">
-            <p>{{formData.error}}</p>
+            <p>{{formData.message}}</p>
+            </div>
+            <div ng-show="formData.isSuccess" class="onSuccess">
+            <p>{{formData.message}}</p>
             </div>
         </form>
         </div>

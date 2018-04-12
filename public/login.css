@@ -27,3 +27,9 @@ body {
         background: #FFE4E1;
         margin-bottom: 10px;
     }
+    
+    .onSuccess {
+        color: green;
+        background: #90EE90;
+        margin-bottom: 10px;
+    }
