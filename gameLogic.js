@@ -1,15 +1,5 @@
 module.exports = {
-    
-    function Card(number, color){
-        this.number = number;
-        this.color = color;
-        this.type = "normal";
-        this.url = "/drawableResources/"+ color + number; 
-        if (number == -1){ // lets number checking establish type
-            this.type = "special";
-            this.url = "/drawableResources/" + color + "knight";
-        } // are there other cards like reverse and skip?
-    }
+
     
     getNewDeck: function(){
         var Deck = [];
@@ -18,7 +8,7 @@ module.exports = {
            for (number = 1; number <= 6; number++){
                Deck.push(new Card(number, color));
            }
-           Deck.push(new Card(-1, color);
+           Deck.push(new Card(-1, color));
         });
         return Deck;
     }
@@ -51,23 +41,15 @@ module.exports = {
         }
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-    
-    
-    
-    
 };
+
+    function Card(number, color){
+        this.number = number;
+        this.color = color;
+        this.type = "normal";
+        this.url = "/drawableResources/"+ color + number; 
+        if (number == -1){ // lets number checking establish type
+            this.type = "special";
+            this.url = "/drawableResources/" + color + "knight";
+        } // are there other cards like reverse and skip?
+    }

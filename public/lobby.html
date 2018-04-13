@@ -11,26 +11,22 @@
     
 </head>
 <body>
-<div ng-app="lobbyApp" ng-controller = "lobbyController">
-<span ng-bind="message"></span>
-<div class="lobby" ng-repeat="lobby in lobbies">
+<div ng-app="lobbyApp" ng-controller = "lobbyController" ng-init="init()">
+    <span ng-bind="message"></span>
+    <div class="lobby" ng-repeat="lobby in lobbies">
     
-    <div ng-repeat="name in lobbies.names">
-        <span class="name" ng-bind="name"></span>
+        <div ng-repeat="name in lobbies.names">
+            <span class="name" ng-bind="name"></span>
+        </div>
+        <form>
+            <input type="submit" value="Join lobby" ng-click="joinLobby(lobby.gameID)" ng-show="!currentLobbies.includes(lobby.gameID)">
+            <input type="submit" value="Leave lobby" ng-click="leaveLobby(lobby.gameID)" ng-show="currentLobbies.includes(lobby.gameID)">
+            <input type="submit" value="Start game" ng-click="startGame(lobby.gameID)" ng-show="lobby.names.length == 4">
+        </form>  
     </div>
     <form>
-        <input type="submit" value="Join lobby" ng-click="joinLobby(lobby.gameID)" ng-show="!currentLobbies.includes(lobby.gameID)">
-        <input type="submit" value="Leave lobby" ng-click="leaveLobby(lobby.gameID)" ng-show="currentLobbies.includes(lobby.gameID)">
-        <input type="submit" value="Start game" ng-click="startGame(lobby.gameID)" ng-show="lobby.names.length == 4">
-    </form>  
-<div>
-    <form>
     <input type="submit" value="Create lobby" ng-click="createLobby()">
-    </form>
-    <script> 
-        window.onload = "init()"
-    </script> 
-    
+    </form> 
 </div>    
 </body>
 </html>

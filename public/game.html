@@ -11,7 +11,7 @@
     
 </head>
 <body>
-<div ng-app="gameApp" ng-controller = "gameController">
+<div ng-app="gameApp" ng-controller = "gameController" ng-init="init()">
     <span ng-bind="data.table.acrossName" class="center"></span>
     <span ng-bind="data.table.acrossCount" class="center"></span>
     <div>
@@ -35,10 +35,6 @@
         <img ng-src="{{card.url}}" alt="Image of card" height="100px" ng-click="playCard(card.index)">
         </div>
     </div>
-
-    <script> 
-        window.onload = "init()"
-    </script>  
 </div>    
 </body>
 </html>

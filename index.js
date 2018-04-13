@@ -13,7 +13,7 @@ var database = admin.database();
 const app = express();
 var parser = bodyParser.json();
 
-var gameLogic = require('./gameLogic.js');
+//var gameLogic = require('./gameLogic.js');
 
 //Resolve Register Button Click
 function registerCheck(usrname, passwd, res) {
