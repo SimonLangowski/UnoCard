@@ -1,7 +1,19 @@
+body {
+        background: #B0E0E6;
+    }
+    
+.statusBar{
+    border-style: solid;
+    border-radius:15px;
+    border-color: blue;
+    background: #40f7f7;
+}
+
 .row {
     display: flex;
     flex-direction:row;
     justify-content: space-around;
+    padding: 10px;
 }
 
 .column {
@@ -11,12 +23,23 @@
 
 .center {
     text-align: center;
+    float: center;
 }
 
 .left {
     text-align: left;
+    float: left;
 }
 
 .right {
     text-align: right;
+    float: right;
 }
+
+.cardBox {
+    background: white;
+    border-style: solid;
+    border-radius: 15px;
+    border-color: black;
+}
+

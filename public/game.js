@@ -145,10 +145,12 @@ angular.module('gameApp', [])
         }
         $http.post('/game/play', data)
         .then(function(response){
-            $scope.message = response.data.message;
             if (response.data.status === "success"){
+                $scope.message = response.data.message;
                 $scope.getHand();
                 $scope.getBoard();
+            } else {
+                $scope.message = response.data.error;
             }
         }),
         function(response){
