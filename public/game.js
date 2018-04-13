@@ -7,14 +7,17 @@ angular.module('gameApp', [])
     }
     
     function Table(){
-        //the first seven cards will start face down, until the server deals them to us
-        //the last 11 cards will be transparent
+        //the first seven cards will start with the face down image, until the server deals them to us
         this.topCard = new Card();
         this.hand = [new Card(), new Card(), new Card(), new Card(), new Card(), new Card(), new Card()];
         this.leftCount = 7;
+        this.leftName = "";
         this.rightCount = 7;
+        this.rightName = "";
         this.acrossCount = 7;
+        this.acrossName = "";
         this.myCount = 7;
+        this.myName = "";
         this.myPlayerId = 1;
         this.turnPlayerId = 0;
     }
@@ -26,13 +29,57 @@ angular.module('gameApp', [])
     $scope.auth.userID = 0;
     $scope.auth.gameID = 0;
     
+    
+    
     $scope.message = "";
     
     $scope.init = function(){
-        $scope.getHand();
-        $scope.getBoard();
-        $scope.update();
+        $scope.auth.userID = $scope.getCookie("USER_ID");
+        $scope.auth.gameID = $scope.getCookie("GAME_ID");
+        $http.post('game/init', $scope.auth)
+        .then(function(response){
+            $scope.data.table.myPlayerId = response.data.myPlayerID;
+            $scope.calculateRotationNames(response.data.username1, response.data.username2, response.data.username3, response.data.username4);
+            $scope.getHand();
+            $scope.getBoard();
+            $scope.update();
+        }),
+        function(response){
+            console.log("Error: " + response);
+        }
     }
+    
+    // https://stackoverflow.com/questions/10730362/get-cookie-by-name
+    $scope.getCookie = function(name){
+        match = document.cookie.match(new RegExp(name + '=([^;]+)'));
+        if (match) return match[1];
+    }
+    
+    $scope.calculateRotationNames = function(p1,p2,p3,p4){
+        if ($scope.data.table.myPlayerId == 1){
+            $scope.data.table.leftName = p4;
+            $scope.data.table.myName = p1;
+            $scope.data.table.rightName = p2;
+            $scope.data.table.acrossName = p3;
+        } else if ($scope.data.table.myPlayerId == 2){
+            $scope.data.table.leftName = p1;
+            $scope.data.table.myName = p2;
+            $scope.data.table.rightName = p3;
+            $scope.data.table.acrossName = p4;
+        } else if ($scope.data.table.myPlayerId == 3){
+            $scope.data.table.leftName = p2;
+            $scope.data.table.myName = p3;
+            $scope.data.table.rightName = p4;
+            $scope.data.table.acrossName = p1;
+        } else if ($scope.data.table.myPlayerId == 4){
+            $scope.data.table.leftName = p3;
+            $scope.data.table.myName = p4;
+            $scope.data.table.rightName = p1;
+            $scope.data.table.acrossName = p2;
+        } else {
+            console.log("Error: myPlayerId is " + $scope.data.table.myPlayerId);
+        }
+    };
     
     $scope.calculateRotation = function(p1,p2,p3,p4){
         if ($scope.data.table.myPlayerId == 1){
@@ -59,7 +106,7 @@ angular.module('gameApp', [])
             console.log("Error: myPlayerId is " + $scope.data.table.myPlayerId);
         }
         
-    }
+    };
 
     $scope.getBoard = function(){
         //make request to server
@@ -108,11 +155,11 @@ angular.module('gameApp', [])
         $http.post('/game/update', $scope.auth)
         .then(function(response){
         if (response.data.status === "no change"){
-            $scope.update();
+            setTimeout($scope.update(), 1000); // Let's wait a second before asking the server again
         } else if (response.data.status === "update"){
             $scope.getBoard();
             if ($scope.data.table.myPlayerId != $scope.data.table.turnPlayerId){
-                $scope.update();
+                setTimeout($scope.update(), 1000); // Let's give them a second to make a move
             } else {
                 $scope.message = "It's your turn";
             }
