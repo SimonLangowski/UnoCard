@@ -33,7 +33,8 @@ function registerCheck(usrname, passwd, res) {
             usersRef.update({
                 [usrname]: {
                     password: passwd,
-                    signedIn: 'false'
+                    signedIn: 'false',
+                    inLobby: 'false'
                 }
             });
             var response = {
@@ -113,11 +114,20 @@ function signOutCheck(userID, res) {
 
 //Resolve Create Game Click
 function createLobbyCheck(userID, res) {
-    var usersRef = database.ref("users");
+    /*var usersRef = database.ref("users");
     userRef.once("value").then(function (snapshot) {
-        if (snapshot.child(userID).exists()) { //&& NOT IN ANOTHER GAME
+        if (snapshot.child(userID).exists() && snapshot.child(userID).child("signedIn").val() == 'true' &&
+            snapshot.child(userID).child("inLobby").val() == 'false') { 
+            var currentUserRef = database.ref("users/" + userID);
+            currentUserRef.update({
+                inLobby: 'true'
+            })
+            var response = {
+                status: 'success',
+                message: 'Game Created'
+            }
         }
-    });
+    });*/
 }
 
 app.use(express.static('public'))
