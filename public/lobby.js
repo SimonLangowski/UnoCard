@@ -90,6 +90,29 @@ angular.module('lobbyApp', [])
         
     }
     
+    $scope.signOut = function(){
+        $http.post('/signOut', $scope.userID)
+        .then(function(response){
+            if (response.data.status === "success"){
+                $scope.message = response.data.message;
+                //need to remove cookie
+                $scope.delete_cookie("USER_ID");
+                window.location.href = "/login.html";
+            } else {
+                $scope.message = response.data.error;
+            }
+        }),
+        function(response){
+            console.log("Error: " + response);
+        };
+        
+    }
+    
+    // https://stackoverflow.com/questions/10593013/delete-cookie-by-name
+    $scope.deleteCookie = function(name) {
+        document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    }
+    
     // https://stackoverflow.com/questions/10730362/get-cookie-by-name
     $scope.getCookie = function(name){
         match = document.cookie.match(new RegExp(name + '=([^;]+)'));

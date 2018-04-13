@@ -20,6 +20,7 @@ angular.module('gameApp', [])
         this.myName = "";
         this.myPlayerId = 1;
         this.turnPlayerId = 0;
+        this.displayTurnId = -1;
     }
     
     $scope.data = {};
@@ -36,13 +37,12 @@ angular.module('gameApp', [])
     $scope.init = function(){
         $scope.auth.userID = $scope.getCookie("USER_ID");
         $scope.auth.gameID = $scope.getCookie("GAME_ID");
-        $http.post('game/init', $scope.auth)
+        $http.post('/game/init', $scope.auth)
         .then(function(response){
             $scope.data.table.myPlayerId = response.data.myPlayerID;
             $scope.calculateRotationNames(response.data.username1, response.data.username2, response.data.username3, response.data.username4);
             $scope.getHand();
             $scope.getBoard();
-            $scope.update();
         }),
         function(response){
             console.log("Error: " + response);
@@ -112,10 +112,16 @@ angular.module('gameApp', [])
         //make request to server
         $http.post('/game/board', $scope.auth)
         .then(function(response){
+            $scope.data.table.displayTurnId = response.data.turnID;
             $scope.data.table.topCard = response.data.topCard;
             $scope.data.table.turnPlayerId = response.data.turnPlayerID;
             $scope.data.table.myPlayerId = response.data.myPlayerID;
             $scope.calculateRotation(response.data.player1CardCount, response.data.player2CardCount, response.data.player3CardCount, response.data.player4CardCount);
+            if ($scope.data.table.myPlayerId != $scope.data.table.turnPlayerId){
+                setTimeout($scope.update(), 1000); // Let's give them a second to make a move
+            } else {
+                $scope.message = "It's your turn";
+            }
         }),
         function(response){
             console.log("Error: " + reponse);
@@ -143,7 +149,6 @@ angular.module('gameApp', [])
             if (response.data.status === "success"){
                 $scope.getHand();
                 $scope.getBoard();
-                $scope.update();
             }
         }),
         function(response){
@@ -152,28 +157,27 @@ angular.module('gameApp', [])
     }
     
     $scope.update = function(){
-        $http.post('/game/update', $scope.auth)
+        $http.post('/game/getTurn', $scope.auth)
         .then(function(response){
-        if (response.data.status === "no change"){
+        if (response.data.turnID == $scope.data.table.displayTurnId){
             setTimeout($scope.update(), 1000); // Let's wait a second before asking the server again
-        } else if (response.data.status === "update"){
-            $scope.getBoard();
-            if ($scope.data.table.myPlayerId != $scope.data.table.turnPlayerId){
-                setTimeout($scope.update(), 1000); // Let's give them a second to make a move
-            } else {
-                $scope.message = "It's your turn";
-            }
-        } else if (response.data.status === "victory"){
-            $scope.message = "You won!";
-        } else if (response.data.status === "defeat"){
-            $scope.message = response.data.victor + " won!";
         } else {
-            console.log("Error: server gave status: " + response.data.status);
+            $scope.getBoard();
         }
         }),
         function(response){
             console.log("Error: " + response);
         }
+    }
+    
+    $scope.getResults = function(){
+        $http.post('/game/results', $scope.auth)
+        .then(function(response){
+            $scope.message = response.data.results;
+        }),
+        function(response){
+            console.log("Error: " + response);
+        };
     }
     
 }]);
