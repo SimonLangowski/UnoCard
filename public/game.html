@@ -13,15 +13,19 @@
 <body>
 <div ng-app="gameApp" ng-controller = "gameController">
 
-    <div class="row">
-        <div class="column" ng-repeat="card in data.table.hand">
-        <img ng-src="/drawingResources/{{card.color}}-{{card.number}}-{{card.type}}.png" alt="Image of card" height="100px" onclick="playCard(card.index)">
-        </div>
+    <div>
+        <img ng-src="{{data.table.topCard.url}}">
+    </div>
+
+    <div>
+        <span ng-bind="data.message"></span>
     </div>
     
-    <form>
-    <input type="submit" ng-click="addTestCard()" value="Add Card">
-    </form>
+    <div class="row">
+        <div class="column" ng-repeat="card in data.table.hand">
+        <img ng-src="{{card.url}}" alt="Image of card" height="100px" ng-click="playCard(card.index)">
+        </div>
+    </div>
 
     <script> 
         window.onload = "init()"
