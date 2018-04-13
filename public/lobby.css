@@ -1,3 +1,8 @@
+body {
+        background: #B0E0E6;
+    }
+    
+
 .lobby{
     text-align: center;
     background: white;
@@ -10,4 +15,17 @@
     font-family: Georgia, serif;
     color: blue;
     margin: 10px;
+}
+
+.statusBar{
+    border-style: solid;
+    border-radius:15px;
+    border-color: blue;
+    background: #40f7f7;
+}
+
+.right{
+    text-align: right;
+    margin-right: 10px;
+    margin-bottom: 5px;
 }
