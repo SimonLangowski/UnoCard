@@ -1,0 +1,13 @@
+.lobby{
+    text-align: center;
+    background: white;
+    border-style: solid;
+    border-radius: 15px;
+    border-color: black;
+}
+
+.name{
+    font-family: Georgia, serif;
+    color: blue;
+    margin: 10px;
+}

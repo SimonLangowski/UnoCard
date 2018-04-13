@@ -12,16 +12,29 @@
 </head>
 <body>
 <div ng-app="gameApp" ng-controller = "gameController">
+    <span ng-bind="data.table.acrossName" class="center"></span>
+    <span ng-bind="data.table.acrossCount" class="center"></span>
+    <div>
+    <span ng-bind="data.table.leftCount" class = "left"></span>
+        <img ng-src="{{data.table.topCard.url}}" height="200px">
+    <span ng-bind="data.table.rightCount" class="right"></span>
+    </div>
+    <div>
+        <span ng-bind="data.table.leftName" class = "left"></span>
+        <span ng-bind="data.table.rightName" class="right"></span>
+    </div>
 
+    
+    <span ng-bind="data.message" class="center"></span>
+    <br>
+    <span ng-bind="data.table.myCount" class="center"></span>
+    <br>
+    <span ng-bind="data.table.myName" class="center"></span>
     <div class="row">
         <div class="column" ng-repeat="card in data.table.hand">
-        <img ng-src="/drawingResources/{{card.color}}-{{card.number}}-{{card.type}}.png" alt="Image of card" height="100px" onclick="playCard(card.index)">
+        <img ng-src="{{card.url}}" alt="Image of card" height="100px" ng-click="playCard(card.index)">
         </div>
     </div>
-    
-    <form>
-    <input type="submit" ng-click="addTestCard()" value="Add Card">
-    </form>
 
     <script> 
         window.onload = "init()"
