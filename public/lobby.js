@@ -3,27 +3,44 @@ angular.module('lobbyApp', [])
     
     $scope.lobbies = {};
     $scope.message = "";
-    $scope.currentLobbies = [];
+    $scope.currentLobby = 0;
+    $scope.lobbyState = 0;
     
     $scope.init = function(){
         $scope.userID = $scope.getCookie("USER_ID");
+        $scope.updateLobbies;
+    }
+    
+    $scope.updateLobbies = function(){
         $http.post('/lobby/info', $scope.userID)
         .then(function(response){
+            $scope.lobbyState = response.data.stateID;
             $scope.lobbies = response.data.lobbies;
-            setTimeout($scope.updateLobbies, 1000);
+            for (i = 0; i < $scope.lobbies.length; i++){
+                if (($scope.lobbies[i].gameID == currentLobby) && ($scope.lobbies[i].isStarted == true)){
+                    document.cookie = "GAME_ID=" + $scope.currentLobby + ";path=/";
+                    //redirect
+                    window.location.href = "/game.html";
+                    return;
+                }
+            }
+            setTimeout($scope.checkLobbyState, 1000);
         }),
         function(response){
             console.log("Error: " + response);
         }
+        
     }
     
     $scope.createLobby = function(){
         $http.post('/lobby/create', $scope.userID)
         .then(function(response){
             //should not call updateLobbies because then there will be two sets of async calls running
-            $scope.message = response.data.message;
             if (response.data.status === "success"){
+                $scope.message = response.data.message;
                 $scope.lobbies.push(gameId);
+            } else {
+                $scope.message = response.data.error;
             }
         }),
         function(response){
@@ -31,22 +48,13 @@ angular.module('lobbyApp', [])
         }
     }
     
-    $scope.updateLobbies = function(){
-        $http.post('/lobby/update', $scope.userID)
+    $scope.checkLobbyState = function(){
+        $http.post('/lobby/getState', $scope.userID)
         .then(function(response){
-            if (response.data.status === "no change"){
-                setTimeout($scope.updateLobbies, 1000); //check back in a second
-            } else if (response.data.status === "update"){
-                $http.post('/lobby/info', $scope.userID)
-                .then(function(response){
-                    $scope.lobbies = response.data.lobbies;
-                    setTimeout($scope.updateLobbies, 1000);
-                }),
-                function(response){
-                    console.log("Error: " + response);
-                }
+            if (response.data.stateID == $scope.lobbyState){
+                setTimeout($scope.checkLobbyState, 1000); //check back in a second
             } else {
-                console.log("Unknown server status: " + response.data.status);
+                $scope.updateLobbies();
             }
         }),
         function(response){
@@ -61,9 +69,11 @@ angular.module('lobbyApp', [])
         }
         $http.post('/lobby/join', data)
         .then(function(response){
-            $scope.message = response.data.message;
             if (response.data.status === "success"){
+                $scope.message = response.data.message;
                 $scope.currentLobbies.push(gameId);
+            } else {
+                $scope.message = response.data.error;
             }
         }),
         function(response){
@@ -78,11 +88,13 @@ angular.module('lobbyApp', [])
         }
         $http.post('/lobby/leave', data)
         .then(function(response){
-            $scope.message = response.data.message;
             if (response.data.status === "success"){
+                $scope.message = response.data.message;
                 var index = $scope.currentLobbies.indexof(gameId);
                 $scope.currentLobbies.splice(index, 1);
-            }   
+            } else {
+                $scope.message = response.data.error;
+            }
         }),
         function(response){
             console.log("Error: " + message);
@@ -106,6 +118,24 @@ angular.module('lobbyApp', [])
             console.log("Error: " + response);
         };
         
+    }
+    
+    $scope.startGame = function(gameId){
+        var data = {
+            userID: $scope.userID;
+            gameID: gameId;
+        };
+        $http.post('/lobby/startgame', data)
+        .then(function(response){    
+            if (response.data.status === "success"){
+                $scope.message = response.data.message;
+            } else {
+                $scope.message = response.data.error;
+            }
+        }),
+        function(response){
+            console.log("Error: " + response);
+        }
     }
     
     // https://stackoverflow.com/questions/10593013/delete-cookie-by-name

@@ -12,29 +12,44 @@
 </head>
 <body>
 <div ng-app="gameApp" ng-controller = "gameController" ng-init="init()">
-    <span ng-bind="data.table.acrossName" class="center"></span>
-    <span ng-bind="data.table.acrossCount" class="center"></span>
-    <div>
-    <span ng-bind="data.table.leftCount" class = "left"></span>
+<div class="statusBar">
+    <h1> Uno Card </h1> 
+</div>
+<div class="center">
+    <span ng-bind="data.table.acrossName" ></span>
+    :
+    <span ng-bind="data.table.acrossCount"></span>
+</div>
+<div>
+    <div class = "left">
+    <span ng-bind="data.table.leftName"></span>
+    :
+    <span ng-bind="data.table.leftCount"></span>
+    </div>
+    <div class="right">
+    <span ng-bind="data.table.rightName"></span> 
+    :
+    <span ng-bind="data.table.rightCount"></span>
+    </div>
+    <div class="center">
         <img ng-src="{{data.table.topCard.url}}" height="200px">
-    <span ng-bind="data.table.rightCount" class="right"></span>
     </div>
-    <div>
-        <span ng-bind="data.table.leftName" class = "left"></span>
-        <span ng-bind="data.table.rightName" class="right"></span>
-    </div>
-
     
-    <span ng-bind="data.message" class="center"></span>
+</div>
+<div class="center">
     <br>
-    <span ng-bind="data.table.myCount" class="center"></span>
+    <span ng-bind="data.table.myName"></span>
+    :
+    <span ng-bind="data.table.myCount"></span>
     <br>
-    <span ng-bind="data.table.myName" class="center"></span>
-    <div class="row">
+    <div class="row cardBox">
         <div class="column" ng-repeat="card in data.table.hand">
         <img ng-src="{{card.url}}" alt="Image of card" height="100px" ng-click="playCard(card.index)">
         </div>
     </div>
+    <br>
+    <span ng-bind="data.message"></span>
+</div>
 </div>    
 </body>
 </html>
