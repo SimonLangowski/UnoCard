@@ -10,7 +10,7 @@
     <script src="game.js"></script>
     
 </head>
-<body>
+<body background="/drawingResources/background.jpg">
 <div ng-app="gameApp" ng-controller = "gameController" ng-init="init()">
 <div class="statusBar">
     <h1> Uno Card </h1> 
@@ -19,36 +19,43 @@
     <span ng-bind="data.table.acrossName" ></span>
     :
     <span ng-bind="data.table.acrossCount"></span>
+    cards
 </div>
 <div>
     <div class = "left">
     <span ng-bind="data.table.leftName"></span>
     :
     <span ng-bind="data.table.leftCount"></span>
+    cards
     </div>
     <div class="right">
     <span ng-bind="data.table.rightName"></span> 
     :
     <span ng-bind="data.table.rightCount"></span>
+    cards
     </div>
     <div class="center">
         <img ng-src="{{data.table.topCard.url}}" height="200px">
     </div>
     
 </div>
+<br>
+<div class="messageBox">
+<span ng-bind="message"></span>
+</div>
 <div class="center">
     <br>
     <span ng-bind="data.table.myName"></span>
     :
     <span ng-bind="data.table.myCount"></span>
+    cards
     <br>
     <div class="row cardBox">
         <div class="column" ng-repeat="card in data.table.hand">
         <img ng-src="{{card.url}}" alt="Image of card" height="100px" ng-click="playCard(card.index)">
         </div>
     </div>
-    <br>
-    <span ng-bind="data.message"></span>
+    
 </div>
 </div>    
 </body>

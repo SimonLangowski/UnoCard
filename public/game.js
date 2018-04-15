@@ -32,7 +32,7 @@ angular.module('gameApp', [])
     
     
     
-    $scope.message = "";
+    $scope.message = "Loading...";
     
     $scope.init = function(){
         $scope.auth.userID = $scope.getCookie("USER_ID");
