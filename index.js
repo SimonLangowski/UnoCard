@@ -29,7 +29,6 @@ function registerCheck(usrname, passwd, res) {
             res.send(JSON.stringify(response));
         } else {
             //Registering New User
-            var usersRef = database.ref("users");
             usersRef.update({
                 [usrname]: {
                     password: passwd,
@@ -112,22 +111,48 @@ function signOutCheck(userID, res) {
     });
 }
 
-//Resolve Create Game Click
+//Resolve Create Lobby Click
 function createLobbyCheck(userID, res) {
-    /*var usersRef = database.ref("users");
+    var usersRef = database.ref("users");
     userRef.once("value").then(function (snapshot) {
         if (snapshot.child(userID).exists() && snapshot.child(userID).child("signedIn").val() == 'true' &&
             snapshot.child(userID).child("inLobby").val() == 'false') { 
+            //Create New Lobby
             var currentUserRef = database.ref("users/" + userID);
             currentUserRef.update({
                 inLobby: 'true'
             })
-            var response = {
-                status: 'success',
-                message: 'Game Created'
-            }
-        }
-    });*/
+            var gamesRef = database.ref("games");
+            gamesRef.once("value").then(function (snapshot) {
+                var generatedID = createGameID();
+                while (snapshot.child(generatedID).exists() == true) {
+                    generatedID = createdGameID();
+                }
+                gamesRef.update({
+                    [generatedID]: {
+                        //TODO: LOBBY ELEMENTS
+                    }
+                });
+                var response = {
+                    status: 'success',
+                    message: 'Game Created',
+                    gameID: Number(generatedID)
+                }
+                console.log(JSON.stringify(response));
+                res.send(JSON.stringify(response));
+            });
+        } //TODO: ELSE CREATE LOBBY FAILED
+    });
+}
+
+function createGameID() {
+    var gameID = "";
+    var possibleChars = "123456789";
+    for (var i = 0; i < 5; i++) {
+        gameID += possibleChars.charAt(Math.floor(Math.random() * Math.floor(possibleChars.length)));
+    }
+    console.log("GameID: ", gameID);
+    return gameID;
 }
 
 app.use(express.static('public'))
@@ -157,11 +182,11 @@ app.post('/signIn', parser, function (req, res) {
 //User Clicked Sign Out Button
 app.post('/signOut', parser, function (req, res) {
     console.log(req.body);
-    var userId = req.body.userID;
-    signOutCheck(userId, res);
+    var userID = req.body.userID;
+    signOutCheck(userID, res);
 });
 
-//User Clicked Create Game Button
+//User Clicked Create Lobby Button
 app.post('/lobby/create', parser, function (req, res) {
     console.log(req.body);
     var userID = req.body.userID;
