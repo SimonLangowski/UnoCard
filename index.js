@@ -12,7 +12,7 @@ var database = admin.database();
 //Get App
 const app = express();
 var parser = bodyParser.json();
-
+var bcrypt = require('bcrypt-nodejs');
 //var gameLogic = require('./gameLogic.js');
 
 //Resolve Register Button Click
@@ -29,13 +29,15 @@ function registerCheck(usrname, passwd, res) {
             res.send(JSON.stringify(response));
         } else {
             //Registering New User
+            var hash = bcrypt.hashSync(passwd);
             usersRef.update({
                 [usrname]: {
-                    password: passwd,
+                    password: hash,
                     signedIn: 'false',
                     inLobby: 'false'
                 }
             });
+            //console.log(hash);
             var response = {
                 status: 'success',
                 message: 'User Registered'
@@ -50,38 +52,43 @@ function registerCheck(usrname, passwd, res) {
 function signInCheck(usrname, passwd, res) {
     var usersRef = database.ref("users");
     usersRef.once("value").then(function (snapshot) {
-        if (snapshot.child(usrname).exists() && snapshot.child(usrname).child("password").val() == passwd &&
-            snapshot.child(usrname).child("signedIn").val() == 'false') {
-            //User Exists And Not Already Signed In
-            var currentUserRef = database.ref("users/" + usrname);
-            currentUserRef.update({
-                signedIn: 'true'
-            });
-            var response = {
-                status: 'success',
-                message: 'User Signed In',
-                userID: usrname
+        if (snapshot.child(usrname).exists()){
+            if (snapshot.child(usrname).child("signedIn").val() == 'true'){
+                //User Already Signed In
+                var response = {
+                    status: 'failure',
+                    error: 'User Already Signed In'
+                }
+                console.log(JSON.stringify(response));
+                res.send(JSON.stringify(response));
+                return;
             }
-            console.log(JSON.stringify(response));
-            res.send(JSON.stringify(response));
-        } else if (snapshot.child(usrname).exists() && snapshot.child(usrname).child("password").val() == passwd &&
-            snapshot.child(usrname).child("signedIn").val() == 'true') {
-            //User Already Signed In
-            var response = {
-                status: 'failure',
-                error: 'User Already Signed In'
+            var hash = snapshot.child(usrname).child("password").val();
+            //console.log(hash);
+            if (bcrypt.compareSync(passwd, hash)){
+                //User Exists And Not Already Signed In
+                 var currentUserRef = database.ref("users/" + usrname);
+                currentUserRef.update({
+                    signedIn: 'true'
+                });
+                var response = {
+                    status: 'success',
+                    message: 'User Signed In',
+                    userID: usrname
+                }
+                console.log(JSON.stringify(response));
+                res.send(JSON.stringify(response));
+                return;
             }
-            console.log(JSON.stringify(response));
-            res.send(JSON.stringify(response));
-        } else {
-            //Username or Password Didnt Match
-            var response = {
-                status: 'failure',
-                error: 'Username or Password Didn\'t Match'
-            }
-            console.log(JSON.stringify(response));
-            res.send(JSON.stringify(response));
         }
+        //Username or Password Didnt Match
+        var response = {
+            status: 'failure',
+            error: 'Username or Password Didn\'t Match'
+        }
+        console.log(JSON.stringify(response));
+        res.send(JSON.stringify(response));
+                
     });
 }
 
