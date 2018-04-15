@@ -1,12 +1,11 @@
-body {
+/*body {
         background: #B0E0E6;
-    }
+    }*/
     
 .statusBar{
-    border-style: solid;
+    max-width: 300px;
     border-radius:15px;
-    border-color: blue;
-    background: #40f7f7;
+    background: linear-gradient(to right, rgba(40,247,247,1), rgba(40,247,247,0));
 }
 
 .row {
@@ -41,5 +40,14 @@ body {
     border-style: solid;
     border-radius: 15px;
     border-color: black;
+}
+
+.messageBox {
+    text-align: center;  
+    background: rgba(1,1,1,0.1);
+    max-width: 300px;
+    font-size: 125%;
+    float: center;
+    margin: auto;
 }
 
