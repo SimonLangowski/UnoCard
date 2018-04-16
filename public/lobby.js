@@ -108,7 +108,7 @@ angular.module('lobbyApp', [])
             if (response.data.status === "success"){
                 $scope.message = response.data.message;
                 //need to remove cookie
-                $scope.delete_cookie("USER_ID");
+                $scope.deleteCookie("USER_ID");
                 window.location.href = "/login.html";
             } else {
                 $scope.message = response.data.error;

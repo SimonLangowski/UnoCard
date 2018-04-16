@@ -47,4 +47,17 @@ angular.module('loginApp', [])
             });
         
     }
+    
+    $scope.testForLoggedIn = function(){
+        if ($scope.getCookie("USER_ID")){
+            window.location.href = "/lobby.html";
+        }
+    }
+    
+    // https://stackoverflow.com/questions/10730362/get-cookie-by-name
+    $scope.getCookie = function(name){
+        match = document.cookie.match(new RegExp(name + '=([^;]+)'));
+        if (match) return match[1];
+    }
+    
 }]);
