@@ -1,18 +1,18 @@
 angular.module('lobbyApp', [])
 .controller('lobbyController', ['$scope', '$http', function($scope, $http){
     
-    $scope.lobbies = {};
+    $scope.lobbies = [];
     $scope.message = "";
     $scope.currentLobby = 0;
     $scope.lobbyState = 0;
     
     $scope.init = function(){
         $scope.userID = $scope.getCookie("USER_ID");
-        if ($scope.getCookie("GAME_ID)){
+        if ($scope.getCookie("GAME_ID")){
             window.location.href = "/game.html";
             return;
         }
-        $scope.updateLobbies;
+        $scope.updateLobbies();
     }
     
     $scope.updateLobbies = function(){
@@ -21,7 +21,7 @@ angular.module('lobbyApp', [])
             $scope.lobbyState = response.data.stateID;
             $scope.lobbies = response.data.lobbies;
             for (i = 0; i < $scope.lobbies.length; i++){
-                if (($scope.lobbies[i].gameID == currentLobby) && ($scope.lobbies[i].isStarted == true)){
+                if (($scope.lobbies[i].gameID == $scope.currentLobby) && ($scope.lobbies[i].isStarted == true)){
                     document.cookie = "GAME_ID=" + $scope.currentLobby + ";path=/";
                     //redirect
                     window.location.href = "/game.html";
@@ -42,7 +42,7 @@ angular.module('lobbyApp', [])
             //should not call updateLobbies because then there will be two sets of async calls running
             if (response.data.status === "success"){
                 $scope.message = response.data.message;
-                $scope.lobbies.push(gameId);
+                $scope.lobbies.push(response.data.gameID);
             } else {
                 $scope.message = response.data.error;
             }

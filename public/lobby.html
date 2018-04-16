@@ -22,13 +22,13 @@
     <span ng-bind="message"></span>
     <div class="lobby" ng-repeat="lobby in lobbies">
     
-        <div ng-repeat="name in lobbies.names">
+        <div ng-repeat="name in lobby.names">
             <span class="name" ng-bind="name"></span>
         </div>
         <form>
             <input type="submit" value="Join lobby" ng-click="joinLobby(lobby.gameID)" ng-show="currentLobby == 0">
             <input type="submit" value="Leave lobby" ng-click="leaveLobby(lobby.gameID)" ng-show="currentLobby == lobby.gameID">
-            <input type="submit" value="Start game" ng-click="startGame(lobby.gameID)" ng-show="(lobby.names.length == 4) && (lobby.partyLeader = userIDs)">
+            <input type="submit" value="Start game" ng-click="startGame(lobby.gameID)" ng-show="(lobby.names.length == 4) && (lobby.partyLeader == userID)">
         </form>  
     </div>
     <form>

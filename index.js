@@ -120,7 +120,7 @@ function signOutCheck(userID, res) {
 
 //Resolve Create Lobby Click
 function createLobbyCheck(userID, res) {
-    var usersRef = database.ref("users");
+    var userRef = database.ref("users");
     userRef.once("value").then(function (snapshot) {
         if (snapshot.child(userID).exists() && snapshot.child(userID).child("signedIn").val() == 'true' &&
             snapshot.child(userID).child("inLobby").val() == 'false') {
@@ -184,7 +184,7 @@ function lobbyInfoCheck(userID, res) {
             var gamesRef = database.ref("games");
             gamesRef.once("value").then(function (snapshot) {
                 snapshot.forEach(function (childSnapshot) {
-                    var childData = childSnapshot.val();
+                    var childData = childSnapshot;
                     var lobby = {
                         names: childData.child("names").val(),
                         gameID: Number(childData.child("gameID").val()),
@@ -226,7 +226,7 @@ function lobbyJoinCheck(userID, gameID, res){
                     currentUserRef.update({
                         inLobby: 'true'
                     });
-                    var players = currentGameRef.child("players").val();
+                    var players = currentGameRef.child("names").val();
                     players.push(userID);
                     currentGameRef.update({
                         stateID: currentUserRef.child("stateID").val() + 1,
