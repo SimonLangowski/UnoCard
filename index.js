@@ -14,6 +14,8 @@ const app = express();
 var parser = bodyParser.json();
 var bcrypt = require('bcrypt-nodejs');
 //var gameLogic = require('./gameLogic.js');
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
 
 //Resolve Register Button Click
 function registerCheck(usrname, passwd, res) {
@@ -466,3 +468,11 @@ app.all("/", (req, res) => {
 app.listen(8000, function(){
     console.log("Server Started"); 
 });
+/*
+io.on('/lobby/join', function(socket, gameID){
+    socket.join(String(gameID));
+}
+
+io.on('/game/playCard', function(socket, gameID){
+    socket.to(String(gameID)).emit("Next Turn");
+}*/

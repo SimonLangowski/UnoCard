@@ -43,15 +43,17 @@
 <div class="messageBox">
 <span ng-bind="message"></span>
 </div>
-<div class="center">
     <br>
+<div class="center">
     <span ng-bind="data.table.myName"></span>
     :
     <span ng-bind="data.table.myCount"></span>
     cards
     <br>
-    <div class="row cardBox">
-        <div class="column" ng-repeat="card in data.table.hand">
+</div>
+<div class="center cardBox">
+    <div class="row" ng-repeat="cardRow in data.table.hand">
+        <div class="column" ng-repeat="card in cardRow">
         <img ng-src="{{card.url}}" alt="Image of card" height="100px" ng-click="playCard(card.index)">
         </div>
     </div>

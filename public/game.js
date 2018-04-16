@@ -9,7 +9,7 @@ angular.module('gameApp', [])
     function Table(){
         //the first seven cards will start with the face down image, until the server deals them to us
         this.topCard = new Card();
-        this.hand = [new Card(), new Card(), new Card(), new Card(), new Card(), new Card(), new Card()];
+        this.hand = [[]];
         this.leftCount = 7;
         this.leftName = "";
         this.rightCount = 7;
@@ -25,7 +25,7 @@ angular.module('gameApp', [])
     
     $scope.data = {};
     $scope.data.table = new Table();
-    
+   
     $scope.auth = {};
     $scope.auth.userID = 0;
     $scope.auth.gameID = 0;
@@ -107,7 +107,37 @@ angular.module('gameApp', [])
         }
         
     };
-
+    
+    $scope.calculateHandRows = function(hand){
+        var width = window.innerWidth;
+        var cardWidth = 68.0 + 10; // actual width is 68, let's give 10 for padding
+        var maxCardsPerRow = Math.floor(width / cardWidth);
+        var rowsNeeded = Math.ceil(hand.length / maxCardsPerRow);
+        var cardsPerRow = [];
+        $scope.data.table.hand = [[]];
+        for (var i = 0; i < rowsNeeded; i++){
+            cardsPerRow[i] = 0;
+            $scope.data.table.hand[i] = [];
+        }
+        for (var i = 0; i < hand.length; i++){
+            cardsPerRow[i % rowsNeeded]++;
+        }
+        var currentRow = 0;
+        var currentPos = 0;
+        for (var i = 0; i < hand.length; i++){
+            if (cardsPerRow[currentRow] > 0){
+                cardsPerRow[currentRow]--;
+            } else {
+                currentRow++;
+                currentPos = 0;
+            }
+            $scope.data.table.hand[currentRow][currentPos] = hand[i];
+            currentPos++;
+        }
+    }
+    
+    $scope.calculateHandRows([new Card(), new Card(), new Card(), new Card(), new Card(), new Card(), new Card()]);
+    
     $scope.getBoard = function(){
         //make request to server
         var auth = {userID: $scope.auth.userID,
@@ -139,7 +169,7 @@ angular.module('gameApp', [])
             gameID: $scope.auth.gameID};
         $http.post('/game/hand', auth)
         .then(function(response){
-            $scope.data.table.hand = response.data.hand;
+            $scope.calculateHandRows(response.data.hand);
         }),
         function(response){
             console.log("Error: " + response);
