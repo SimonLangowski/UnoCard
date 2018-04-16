@@ -8,6 +8,10 @@ angular.module('lobbyApp', [])
     
     $scope.init = function(){
         $scope.userID = $scope.getCookie("USER_ID");
+        if ($scope.getCookie("GAME_ID)){
+            window.location.href = "/game.html";
+            return;
+        }
         $scope.updateLobbies;
     }
     

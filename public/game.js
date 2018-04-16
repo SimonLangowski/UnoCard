@@ -30,10 +30,6 @@ angular.module('gameApp', [])
     $scope.auth.userID = 0;
     $scope.auth.gameID = 0;
     
-    {userID: $scope.auth.userID,
-    gameID: $scope.auth.gameID}
-    
-    
     $scope.message = "Loading...";
     
     $scope.init = function(){
@@ -123,10 +119,14 @@ angular.module('gameApp', [])
             $scope.data.table.turnPlayerId = response.data.turnPlayerID;
             $scope.data.table.myPlayerId = response.data.myPlayerID;
             $scope.calculateRotation(response.data.player1CardCount, response.data.player2CardCount, response.data.player3CardCount, response.data.player4CardCount);
-            if ($scope.data.table.myPlayerId != $scope.data.table.turnPlayerId){
-                setTimeout($scope.update(), 1000); // Let's give them a second to make a move
+            if (response.data.status === "finished"){
+                $scope.getResults();
             } else {
-                $scope.message = "It's your turn";
+                if ($scope.data.table.myPlayerId != $scope.data.table.turnPlayerId){
+                    setTimeout($scope.update(), 1000); // Let's give them a second to make a move
+                } else {
+                    $scope.message = "It's your turn";
+                }
             }
         }),
         function(response){
@@ -188,10 +188,21 @@ angular.module('gameApp', [])
         $http.post('/game/results', auth)
         .then(function(response){
             $scope.message = response.data.results;
+            $scope.deleteCookie("GAME_ID"); //remove cookie to allow making other games
         }),
         function(response){
             console.log("Error: " + response);
         };
+    }
+    
+    $scope.deleteCookie = function(name) {
+        document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    }
+    
+    // https://stackoverflow.com/questions/10730362/get-cookie-by-name
+    $scope.getCookie = function(name){
+        match = document.cookie.match(new RegExp(name + '=([^;]+)'));
+        if (match) return match[1];
     }
     
 }]);

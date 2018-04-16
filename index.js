@@ -53,7 +53,7 @@ function signInCheck(usrname, passwd, res) {
     var usersRef = database.ref("users");
     usersRef.once("value").then(function (snapshot) {
         if (snapshot.child(usrname).exists()){
-            if (snapshot.child(usrname).child("signedIn").val() == 'true'){
+            /*if (snapshot.child(usrname).child("signedIn").val() == 'true'){
                 //User Already Signed In
                 var response = {
                     status: 'failure',
@@ -62,7 +62,7 @@ function signInCheck(usrname, passwd, res) {
                 console.log(JSON.stringify(response));
                 res.send(JSON.stringify(response));
                 return;
-            }
+            }*/
             var hash = snapshot.child(usrname).child("password").val();
             //console.log(hash);
             if (bcrypt.compareSync(passwd, hash)){
