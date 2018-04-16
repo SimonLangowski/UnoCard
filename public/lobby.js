@@ -12,7 +12,7 @@ angular.module('lobbyApp', [])
     }
     
     $scope.updateLobbies = function(){
-        $http.post('/lobby/info', $scope.userID)
+        $http.post('/lobby/info', {userID: $scope.userID})
         .then(function(response){
             $scope.lobbyState = response.data.stateID;
             $scope.lobbies = response.data.lobbies;
@@ -33,7 +33,7 @@ angular.module('lobbyApp', [])
     }
     
     $scope.createLobby = function(){
-        $http.post('/lobby/create', $scope.userID)
+        $http.post('/lobby/create', {userID: $scope.userID})
         .then(function(response){
             //should not call updateLobbies because then there will be two sets of async calls running
             if (response.data.status === "success"){
@@ -49,7 +49,7 @@ angular.module('lobbyApp', [])
     }
     
     $scope.checkLobbyState = function(){
-        $http.post('/lobby/getState', $scope.userID)
+        $http.post('/lobby/getState', {userID: $scope.userID})
         .then(function(response){
             if (response.data.stateID == $scope.lobbyState){
                 setTimeout($scope.checkLobbyState, 1000); //check back in a second
@@ -103,7 +103,7 @@ angular.module('lobbyApp', [])
     }
     
     $scope.signOut = function(){
-        $http.post('/signOut', $scope.userID)
+        $http.post('/signOut', {userID: $scope.userID})
         .then(function(response){
             if (response.data.status === "success"){
                 $scope.message = response.data.message;
@@ -122,9 +122,9 @@ angular.module('lobbyApp', [])
     
     $scope.startGame = function(gameId){
         var data = {
-            userID: $scope.userID;
-            gameID: gameId;
-        };
+            userID: $scope.userID,
+            gameID: gameId
+        }
         $http.post('/lobby/startgame', data)
         .then(function(response){    
             if (response.data.status === "success"){

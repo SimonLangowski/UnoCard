@@ -30,6 +30,8 @@ angular.module('gameApp', [])
     $scope.auth.userID = 0;
     $scope.auth.gameID = 0;
     
+    {userID: $scope.auth.userID,
+    gameID: $scope.auth.gameID}
     
     
     $scope.message = "Loading...";
@@ -37,7 +39,9 @@ angular.module('gameApp', [])
     $scope.init = function(){
         $scope.auth.userID = $scope.getCookie("USER_ID");
         $scope.auth.gameID = $scope.getCookie("GAME_ID");
-        $http.post('/game/init', $scope.auth)
+        var auth = {userID: $scope.auth.userID,
+            gameID: $scope.auth.gameID};
+        $http.post('/game/init', auth)
         .then(function(response){
             $scope.data.table.myPlayerId = response.data.myPlayerID;
             $scope.calculateRotationNames(response.data.username1, response.data.username2, response.data.username3, response.data.username4);
@@ -110,7 +114,9 @@ angular.module('gameApp', [])
 
     $scope.getBoard = function(){
         //make request to server
-        $http.post('/game/board', $scope.auth)
+        var auth = {userID: $scope.auth.userID,
+            gameID: $scope.auth.gameID};
+        $http.post('/game/board', auth)
         .then(function(response){
             $scope.data.table.displayTurnId = response.data.turnID;
             $scope.data.table.topCard = response.data.topCard;
@@ -129,7 +135,9 @@ angular.module('gameApp', [])
     }
     
     $scope.getHand = function(){
-        $http.post('/game/hand', $scope.auth)
+        var auth = {userID: $scope.auth.userID,
+            gameID: $scope.auth.gameID};
+        $http.post('/game/hand', auth)
         .then(function(response){
             $scope.data.table.hand = response.data.hand;
         }),
@@ -159,7 +167,9 @@ angular.module('gameApp', [])
     }
     
     $scope.update = function(){
-        $http.post('/game/getTurn', $scope.auth)
+        var auth = {userID: $scope.auth.userID,
+            gameID: $scope.auth.gameID};
+        $http.post('/game/getTurn', auth)
         .then(function(response){
         if (response.data.turnID == $scope.data.table.displayTurnId){
             setTimeout($scope.update(), 1000); // Let's wait a second before asking the server again
@@ -173,7 +183,9 @@ angular.module('gameApp', [])
     }
     
     $scope.getResults = function(){
-        $http.post('/game/results', $scope.auth)
+        var auth = {userID: $scope.auth.userID,
+            gameID: $scope.auth.gameID};
+        $http.post('/game/results', auth)
         .then(function(response){
             $scope.message = response.data.results;
         }),
