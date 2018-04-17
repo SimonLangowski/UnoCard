@@ -33,19 +33,19 @@ var app = angular.module('lobbyApp', [])
         $scope.updateLobbies();
     });
     
+    socket.on('Start Game', function(data){
+        if (data.gameID === currentLobby){
+           document.cookie = "GAME_ID=" + $scope.currentLobby + ";path=/";
+            //redirect
+            window.location.href = "/game.html";
+        }
+    });
+    
     $scope.updateLobbies = function(){
         $http.post('/lobby/info', {userID: $scope.userID})
         .then(function(response){
             $scope.lobbyState = response.data.stateID;
             $scope.lobbies = response.data.lobbies;
-            for (i = 0; i < $scope.lobbies.length; i++){
-                if (($scope.lobbies[i].gameID == $scope.currentLobby) && ($scope.lobbies[i].isStarted == true)){
-                    document.cookie = "GAME_ID=" + $scope.currentLobby + ";path=/";
-                    //redirect
-                    window.location.href = "/game.html";
-                    return;
-                }
-            }
         }),
         function(response){
             console.log("Error: " + response);
@@ -164,6 +164,7 @@ var app = angular.module('lobbyApp', [])
     
 }]);
 
+// https://www.html5rocks.com/en/tutorials/frameworks/angular-websockets/
 app.factory('socket', function ($rootScope) {
   var socket = io.connect();
   return {

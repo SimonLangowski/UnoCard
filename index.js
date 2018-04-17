@@ -521,23 +521,27 @@ server.listen(8000, function(){
     console.log("Server Started"); 
 });
 
+//These need to be called from things within the io.on section I think
+//However then they cannot be called from outside it
+//thus it will be necessary to do all lobby updates and playing cards from within the socket io section
 function updateAllLobbies(){
-    io.emit("LobbyUpdate");
+    io.broadcast.emit("LobbyUpdate");
 }
 
-function updateGame(socket, gameID){
-    
-}
-/*
-
-io.on('/game/init', function(socket, gameID){
-    socket.join(String(gameID));
+function updateGame(gameID){
+    io.in(String(gameID)).emit("GameUpdate");
 }
 
-io.on('/lobby/join', function(socket, gameID){
-    socket.join(String(gameID));
-}
+io.on('connection', function(socket){
 
-io.on('/game/playCard', function(socket, gameID){
-    socket.to(String(gameID)).emit("Next Turn");
-}*/
+    socket.on('Register', function(gameID){
+        socket.join(String(gameID));
+        console.log(socket + " joined " + gameID);
+        //socket io makes sockets leave rooms automatically upon disconnect.  Game page will call this upon page load
+    });
+
+    socket.on('disconnect', function(){
+        console.log(socket + " disconnected");
+       //can store the sockets (they're just numbers) when they call register if you want to make them auto lose when they disconnect 
+    });
+});

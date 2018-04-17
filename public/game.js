@@ -1,5 +1,5 @@
-angular.module('gameApp', [])
-.controller('gameController', ['$scope', '$http', function($scope, $http, socket){
+var app = angular.module('gameApp', [])
+.controller('gameController', ['$scope', '$http', 'socket', function($scope, $http, socket){
     
     function Card(){
         this.index = 0;
@@ -35,6 +35,7 @@ angular.module('gameApp', [])
     $scope.init = function(){
         $scope.auth.userID = $scope.getCookie("USER_ID");
         $scope.auth.gameID = $scope.getCookie("GAME_ID");
+        socket.emit('Register', {gameID: $scope.auth.gameID});
         var auth = {userID: $scope.auth.userID,
             gameID: $scope.auth.gameID};
         $http.post('/game/init', auth)
@@ -54,6 +55,8 @@ angular.module('gameApp', [])
         match = document.cookie.match(new RegExp(name + '=([^;]+)'));
         if (match) return match[1];
     }
+    
+    
     
     $scope.calculateRotationNames = function(p1,p2,p3,p4){
         if ($scope.data.table.myPlayerId == 1){
@@ -138,25 +141,21 @@ angular.module('gameApp', [])
     
     $scope.calculateHandRows([new Card(), new Card(), new Card(), new Card(), new Card(), new Card(), new Card()]);
     
+    socket.on("GameUpdate", function(){
+        $scope.getBoard();
+    });
+    
     $scope.getBoard = function(){
         //make request to server
         var auth = {userID: $scope.auth.userID,
             gameID: $scope.auth.gameID};
         $http.post('/game/board', auth)
         .then(function(response){
-            $scope.data.table.displayTurnId = response.data.turnID;
             $scope.data.table.topCard = response.data.topCard;
-            $scope.data.table.turnPlayerId = response.data.turnPlayerID;
-            $scope.data.table.myPlayerId = response.data.myPlayerID;
             $scope.calculateRotation(response.data.player1CardCount, response.data.player2CardCount, response.data.player3CardCount, response.data.player4CardCount);
+            $scope.message = response.data.message;
             if (response.data.status === "finished"){
                 $scope.getResults();
-            } else {
-                if ($scope.data.table.myPlayerId != $scope.data.table.turnPlayerId){
-                    setTimeout($scope.update(), 1000); // Let's give them a second to make a move
-                } else {
-                    $scope.message = "It's your turn";
-                }
             }
         }),
         function(response){
@@ -196,22 +195,6 @@ angular.module('gameApp', [])
         };
     }
     
-    $scope.update = function(){
-        var auth = {userID: $scope.auth.userID,
-            gameID: $scope.auth.gameID};
-        $http.post('/game/getTurn', auth)
-        .then(function(response){
-        if (response.data.turnID == $scope.data.table.displayTurnId){
-            setTimeout($scope.update(), 1000); // Let's wait a second before asking the server again
-        } else {
-            $scope.getBoard();
-        }
-        }),
-        function(response){
-            console.log("Error: " + response);
-        }
-    }
-    
     $scope.getResults = function(){
         var auth = {userID: $scope.auth.userID,
             gameID: $scope.auth.gameID};
@@ -236,3 +219,28 @@ angular.module('gameApp', [])
     }
     
 }]);
+
+// https://www.html5rocks.com/en/tutorials/frameworks/angular-websockets/
+app.factory('socket', function ($rootScope) {
+  var socket = io.connect();
+  return {
+    on: function (eventName, callback) {
+      socket.on(eventName, function () {  
+        var args = arguments;
+        $rootScope.$apply(function () {
+          callback.apply(socket, args);
+        });
+      });
+    },
+    emit: function (eventName, data, callback) {
+      socket.emit(eventName, data, function () {
+        var args = arguments;
+        $rootScope.$apply(function () {
+          if (callback) {
+            callback.apply(socket, args);
+          }
+        });
+      })
+    }
+  };
+});
