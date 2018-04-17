@@ -99,7 +99,7 @@ function signInCheck(usrname, passwd, res) {
 function signOutCheck(userID, res) {
     var usersRef = database.ref("users");
     usersRef.once("value").then(function (snapshot) {
-        if (snapshot.child(userID).exists() && snapshot.child(userID).child("signedIn").val() == 'true') {
+        if (snapshot.child(userID).exists()) {
             var currentUserRef = database.ref("users/" + userID);
             currentUserRef.update({
                 signedIn: 'false'
@@ -114,12 +114,25 @@ function signOutCheck(userID, res) {
                     inLobby: 'false',
                     lobbyID: 0
                 });
-                var lobbyNames = snapshot.child(gameID).child("names").val();
-                var currentIndex = lobbyNames.indexOf(userID);
-                lobbyNames.splice(currentIndex, 1);
-                var currentGameRef = database.ref("games/" + gameID);
-                currentGameRef.update({
-                    names: lobbyNames
+                var gamesRef = database.ref("games");
+                gamesRef.once("value").then(function (snapshot) {
+                    var currentGameRef = database.ref("games/" + gameID)
+                    var players = snapshot.child(gameID).child("names").val();
+                    if (players.length == 1) {
+                        console.log(players);
+                        currentGameRef.set(null);
+                    } else {
+                        players.splice(players.indexOf(userID), 1);
+                        console.log(players);
+                        if (snapshot.child(gameID).child("partyLeader").val() == userID) {
+                            currentGameRef.update({
+                                partyLeader: players[0]
+                            });
+                        }
+                        currentGameRef.update({
+                            names: players
+                        });
+                    }
                 });
             }
             console.log(JSON.stringify(response));
@@ -127,7 +140,7 @@ function signOutCheck(userID, res) {
         } else {
             var response = {
                 status: 'failure',
-                error: 'User Not Signed In'
+                error: 'User Does Not Exist'
             };
             console.log(JSON.stringify(response));
             res.send(JSON.stringify(response));
@@ -142,7 +155,6 @@ function createLobbyCheck(userID, res) {
         if (snapshot.child(userID).exists() && snapshot.child(userID).child("signedIn").val() == 'true' &&
             snapshot.child(userID).child("inLobby").val() == 'false') {
             //Create New Lobby
-            
             var gamesRef = database.ref("games");
             gamesRef.once("value").then(function (snapshot) {
                 var generatedID = createGameID();
@@ -176,7 +188,7 @@ function createLobbyCheck(userID, res) {
         } else {
             var response = {
                 status: 'failure',
-                error: 'You Already Made A Lobby'
+                error: 'You Are Already In A Lobby'
             }
             console.log(JSON.stringify(response));
             res.send(response);
@@ -245,18 +257,27 @@ function lobbyJoinCheck(userID, gameID, res){
                         inLobby: 'true',
                         lobbyID: gameID
                     });
-                    var players = currentGameRef.child("names");
-                    players.push(userID);
-                    currentGameRef.update({
-                        names: players
-                    });
-                    var response = {
-                        status: 'success',
-                        message: 'User Joined Lobby'
+                    var players = snapshot.child(gameID).child("names").val();
+                    if (players.indexOf(userID) < 0) {
+                        players.push(userID);
+                        currentGameRef.update({
+                            names: players
+                        });
+                        var response = {
+                            status: 'success',
+                            message: 'User Joined Lobby'
+                        }
+                        res.updateAllLobbies();
+                        console.log(JSON.stringify(response));
+                        res.send(response);
+                    } else {
+                        var response = {
+                            status: 'failure',
+                            error: 'Player Already In This Lobby'
+                        }
+                        console.log(JSON.stringify(response));
+                        res.send(response);
                     }
-                    res.updateAllLobbies();
-                    console.log(JSON.stringify(response));
-                    res.send(response);
                 } else if (snapshot.child(gameID).exists() && snapshot.child(gameID).child("names").val().length >= 4) {
                     var response = {
                         status: 'failure',
@@ -315,7 +336,6 @@ function getCurrentLobby(userID, res){
     )
 }
 
-/**********ALSO NEEDS TO DELETE LOBBY WHEN ALL PLAYERS LEAVE*************/
 
 function lobbyLeaveCheck(userID, gameID, res) {
     var userRef = database.ref("users");
@@ -332,11 +352,21 @@ function lobbyLeaveCheck(userID, gameID, res) {
                         lobbyID: 0
                     });
                     var players = snapshot.child(gameID).child("names").val();
-                    players = players.splice(players.indexOf(userID), 1);
-                    console.log(players);
-                    currentGameRef.update({
-                        names: players
-                    });
+                    if (players.length == 1) {
+                        console.log(players);
+                        currentGameRef.set(null);
+                    } else {
+                        players.splice(players.indexOf(userID), 1);
+                        console.log(players);
+                        if (snapshot.child(gameID).child("partyLeader").val() == userID) {
+                            currentGameRef.update({
+                                partyLeader: players[0]
+                            });
+                        }
+                        currentGameRef.update({
+                            names: players
+                        });
+                    }
                     var response = {
                         status: 'success',
                         message: 'User Left Lobby'
@@ -344,6 +374,7 @@ function lobbyLeaveCheck(userID, gameID, res) {
                     res.updateAllLobbies();
                     console.log(JSON.stringify(response));
                     res.send(response);
+                    
                 } else if (snapshot.child(gameID).exists() && snapshot.child(gameID).child("names").val().indexOf(userID) < 0) {
                     var response = {
                         status: 'failure',
@@ -386,8 +417,8 @@ function startGameCheck(userID, gameID, res) {
             snapshot.child(userID).child("inLobby").val() == 'true') {
             gamesRef = database.ref("games");
             gamesRef.once(value).then(function (snapshot) {
-                if (gamesRef.child(gameID).child("partyLeader").val() == userID &&
-                    gamesRef.child(gameID).child("names").val().length == 4) {
+                if (snapshot.child(gameID).child("partyLeader").val() == userID &&
+                    snapshot.child(gameID).child("names").val().length == 4) {
                     var currentGameRef = database.ref("games/" + gameID);
                     currentGameRef.update({
                         isStarted: true
@@ -399,8 +430,8 @@ function startGameCheck(userID, gameID, res) {
                     res.updateAllLobbies();
                     console.log(JSON.stringify(response));
                     res.send(response);
-                } else if (gamesRef.child(gameID).child("partyLeader").val() == userID &&
-                    gamesRef.child(gameID).child("names").val().length != 4) {
+                } else if (snapshot.child(gameID).child("partyLeader").val() == userID &&
+                    snapshot.child(gameID).child("names").val().length != 4) {
                     var response = {
                         status: 'failure',
                         error: 'Lobby Does Not Have 4 Players'
