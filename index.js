@@ -14,8 +14,8 @@ const app = express();
 var parser = bodyParser.json();
 var bcrypt = require('bcrypt-nodejs');
 //var gameLogic = require('./gameLogic.js');
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
 
 //Resolve Register Button Click
 function registerCheck(usrname, passwd, res) {
@@ -517,13 +517,12 @@ app.all("/", (req, res) => {
 });
 
 //Start Server
-app.listen(8000, function(){
+server.listen(8000, function(){
     console.log("Server Started"); 
 });
 
-function updateAllLobbies(socket){
-    var lobbySpace = io.of('/lobby');
-    lobbySpace.emit("LobbyUpdate");
+function updateAllLobbies(){
+    io.emit("LobbyUpdate");
 }
 
 function updateGame(socket, gameID){

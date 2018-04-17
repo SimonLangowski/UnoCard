@@ -1,5 +1,6 @@
-angular.module('lobbyApp', [])
-.controller('lobbyController', ['$scope', '$http', function($scope, $http){
+
+var app = angular.module('lobbyApp', [])
+.controller('lobbyController', ['$scope', '$http', 'socket', function($scope, $http, socket){
     
     $scope.lobbies = [];
     $scope.message = "";
@@ -28,6 +29,10 @@ angular.module('lobbyApp', [])
         }
     }
     
+    socket.on('Lobby Update', function(){
+        $scope.updateLobbies();
+    });
+    
     $scope.updateLobbies = function(){
         $http.post('/lobby/info', {userID: $scope.userID})
         .then(function(response){
@@ -41,13 +46,14 @@ angular.module('lobbyApp', [])
                     return;
                 }
             }
-            setTimeout($scope.checkLobbyState, 1000);
         }),
         function(response){
             console.log("Error: " + response);
         }
         
     }
+    
+    
     
     $scope.createLobby = function(){
         $http.post('/lobby/create', {userID: $scope.userID})
@@ -59,20 +65,6 @@ angular.module('lobbyApp', [])
                 $scope.updateLobbies();
             } else {
                 $scope.message = response.data.error;
-            }
-        }),
-        function(response){
-            console.log("Error: " + response);
-        }
-    }
-    
-    $scope.checkLobbyState = function(){
-        $http.post('/lobby/getState', {userID: $scope.userID})
-        .then(function(response){
-            if (response.data.stateID == $scope.lobbyState){
-                setTimeout($scope.checkLobbyState, 1000); //check back in a second
-            } else {
-                $scope.updateLobbies();
             }
         }),
         function(response){
@@ -171,4 +163,28 @@ angular.module('lobbyApp', [])
     }
     
 }]);
+
+app.factory('socket', function ($rootScope) {
+  var socket = io.connect();
+  return {
+    on: function (eventName, callback) {
+      socket.on(eventName, function () {  
+        var args = arguments;
+        $rootScope.$apply(function () {
+          callback.apply(socket, args);
+        });
+      });
+    },
+    emit: function (eventName, data, callback) {
+      socket.emit(eventName, data, function () {
+        var args = arguments;
+        $rootScope.$apply(function () {
+          if (callback) {
+            callback.apply(socket, args);
+          }
+        });
+      })
+    }
+  };
+});
     

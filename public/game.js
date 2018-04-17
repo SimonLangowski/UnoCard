@@ -1,5 +1,5 @@
 angular.module('gameApp', [])
-.controller('gameController', ['$scope', '$http', function($scope, $http){
+.controller('gameController', ['$scope', '$http', function($scope, $http, socket){
     
     function Card(){
         this.index = 0;
