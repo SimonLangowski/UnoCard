@@ -482,11 +482,7 @@ server.listen(8000, function(){
     console.log("Server Started"); 
 });
 
-//These need to be called from things within the io.on section I think
-//However then they cannot be called from outside it
-//thus it will be necessary to do all lobby updates and playing cards from within the socket io section
-
-
+//all socket io calls must originate within the following block of code
 
 io.on('connection', function(socket){
     
@@ -496,12 +492,16 @@ io.on('connection', function(socket){
             this.socket = socket;
             this.route = route;
         }
+        
+        //this takes the place of the response send method
         send(data){
             this.socket.emit(this.route, data);
         }
+        
+        //these two methods are also included for convenience
         updateAllLobbies(){
-            socket.broadcast.emit("LobbyUpdate"); //broadcast sends to all but calling socket
-            this.socket.emit("LobbyUpdate"); //also send to calling socket
+            socket.broadcast.emit("Lobby Update"); //broadcast sends to all but calling socket
+            this.socket.emit("Lobby Update"); //also send to calling socket
         }
         updateGame(gameID){
             socket.in(String(gameID)).emit("GameUpdate");
