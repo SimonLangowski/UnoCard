@@ -1,6 +1,5 @@
 module.exports = {
 
-    
     getNewDeck: function(){
         var Deck = [];
         var colors = ["red", "yellow", "blue", "green"];

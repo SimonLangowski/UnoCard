@@ -8,11 +8,24 @@ angular.module('lobbyApp', [])
     
     $scope.init = function(){
         $scope.userID = $scope.getCookie("USER_ID");
-        if ($scope.getCookie("GAME_ID")){
-            window.location.href = "/game.html";
-            return;
-        }
+        $scope.getCurrentLobby();
         $scope.updateLobbies();
+    }
+    
+    $scope.getCurrentLobby = function(){
+        $http.post('/lobby/current', {userID: $scope.userID})
+        .then(function(response){
+            if (response.data.status === "success"){
+                $scope.currentLobby = response.data.gameID;
+                document.cookie = "GAME_ID=" + $scope.currentLobby + ";path=/";
+                console.log($scope.currentLobby);
+            } else {
+                console.log(response);
+            }
+        }),
+        function(response){
+            console.log("Error: " + response);
+        }
     }
     
     $scope.updateLobbies = function(){
@@ -42,7 +55,8 @@ angular.module('lobbyApp', [])
             //should not call updateLobbies because then there will be two sets of async calls running
             if (response.data.status === "success"){
                 $scope.message = response.data.message;
-                $scope.lobbies.push(response.data.gameID);
+                $scope.currentLobby = response.data.gameID;
+                $scope.updateLobbies();
             } else {
                 $scope.message = response.data.error;
             }
@@ -75,7 +89,8 @@ angular.module('lobbyApp', [])
         .then(function(response){
             if (response.data.status === "success"){
                 $scope.message = response.data.message;
-                $scope.currentLobbies.push(gameId);
+                $scope.currentLobby = gameID;
+                $scope.updateLobbies();
             } else {
                 $scope.message = response.data.error;
             }
@@ -94,8 +109,8 @@ angular.module('lobbyApp', [])
         .then(function(response){
             if (response.data.status === "success"){
                 $scope.message = response.data.message;
-                var index = $scope.currentLobbies.indexof(gameId);
-                $scope.currentLobbies.splice(index, 1);
+                $scope.currentLobby = 0;
+                $scope.updateLobbies();
             } else {
                 $scope.message = response.data.error;
             }
@@ -116,6 +131,8 @@ angular.module('lobbyApp', [])
                 window.location.href = "/login.html";
             } else {
                 $scope.message = response.data.error;
+                $scope.deleteCookie("USER_ID");
+                window.location.href = "/login.html";
             }
         }),
         function(response){

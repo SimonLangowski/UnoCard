@@ -36,7 +36,8 @@ function registerCheck(usrname, passwd, res) {
                 [usrname]: {
                     password: hash,
                     signedIn: 'false',
-                    inLobby: 'false'
+                    inLobby: 'false',
+                    lobbyID: 0
                 }
             });
             //console.log(hash);
@@ -107,6 +108,20 @@ function signOutCheck(userID, res) {
                 status: 'success',
                 message: 'User Signed Out'
             }
+            if (snapshot.child(userID).child("inLobby").val() == 'true') {
+                var gameID = snapshot.child(userID).child("lobbyID").val();
+                currentUserRef.update({
+                    inLobby: 'false',
+                    lobbyID: 0
+                });
+                var lobbyNames = snapshot.child(gameID).child("names").val();
+                var currentIndex = lobbyNames.indexOf(userID);
+                lobbyNames.splice(currentIndex, 1);
+                var currentGameRef = database.ref("games/" + gameID);
+                currentGameRef.update({
+                    names: lobbyNames
+                });
+            }
             console.log(JSON.stringify(response));
             res.send(JSON.stringify(response));
         } else {
@@ -127,16 +142,18 @@ function createLobbyCheck(userID, res) {
         if (snapshot.child(userID).exists() && snapshot.child(userID).child("signedIn").val() == 'true' &&
             snapshot.child(userID).child("inLobby").val() == 'false') {
             //Create New Lobby
-            var currentUserRef = database.ref("users/" + userID);
-            currentUserRef.update({
-                inLobby: 'true'
-            })
+            
             var gamesRef = database.ref("games");
             gamesRef.once("value").then(function (snapshot) {
                 var generatedID = createGameID();
                 while (snapshot.child(generatedID).exists() == true) {
                     generatedID = createdGameID();
                 }
+                var currentUserRef = database.ref("users/" + userID);
+                currentUserRef.update({
+                    inLobby: 'true',
+                    lobbyID: generatedID
+                })
                 var players = [];
                 players.push(userID);
                 gamesRef.update({
@@ -144,8 +161,7 @@ function createLobbyCheck(userID, res) {
                         names: players,
                         gameID: generatedID,
                         isStarted: false,
-                        partyLeader: userID,
-                        stateID: 1
+                        partyLeader: userID
                     }
                 });
                 var response = {
@@ -153,6 +169,7 @@ function createLobbyCheck(userID, res) {
                     message: 'Lobby Created',
                     gameID: Number(generatedID)
                 }
+                updateAllLobbies();
                 console.log(JSON.stringify(response));
                 res.send(JSON.stringify(response));
             });
@@ -191,8 +208,7 @@ function lobbyInfoCheck(userID, res) {
                         names: childData.child("names").val(),
                         gameID: Number(childData.child("gameID").val()),
                         isStarted: childData.child("isStarted").val(),
-                        partyLeader: childData.child("partyLeader").val(),
-                        stateID: Number(childData.child("stateID").val())
+                        partyLeader: childData.child("partyLeader").val()
                     }
                     lobbies.push(lobby);
                 });
@@ -201,6 +217,7 @@ function lobbyInfoCheck(userID, res) {
                     message: 'Current Lobbies',
                     lobbies: lobbies
                 }
+                updateAllLobbies();
                 console.log(JSON.stringify(response));
                 res.send(JSON.stringify(response));
             });
@@ -226,18 +243,19 @@ function lobbyJoinCheck(userID, gameID, res){
                     var currentUserRef = database.ref("users/" + userID);
                     var currentGameRef = database.ref("games/" + gameID);
                     currentUserRef.update({
-                        inLobby: 'true'
+                        inLobby: 'true',
+                        lobbyID: gameID
                     });
                     var players = currentGameRef.child("names");
                     players.push(userID);
                     currentGameRef.update({
-                        stateID: currentGameRef.child("stateID").val() + 1,
                         names: players
                     });
                     var response = {
                         status: 'success',
                         message: 'User Joined Lobby'
                     }
+                    updateAllLobbies();
                     console.log(JSON.stringify(response));
                     res.send(JSON.stringify(response));
                 } else if (snapshot.child(gameID).exists() && snapshot.child(gameID).child("names").val().length >= 4) {
@@ -275,32 +293,59 @@ function lobbyJoinCheck(userID, gameID, res){
     });
 }
 
-function lobbyLeaveCheck(userID, gameID, res) {
+function getCurrentLobby(userID, res){
     var usersRef = database.ref("users");
+    usersRef.once("value").then(function (snapshot) {
+    if (snapshot.child(userID).exists() && snapshot.child(userID).child("signedIn").val() == 'true' &&
+        snapshot.child(userID).child("inLobby").val() == 'true') {
+        var response = {
+            status: 'success',
+            gameID: Number(snapshot.child(userID).child("lobbyID").val())
+        }
+        console.log(JSON.stringify(response));
+        res.send(JSON.stringify(response));
+    } else {
+        var response = {
+            status: 'failure',
+            error: 'User Not In A Lobby'
+        }
+        console.log(JSON.stringify(response));
+        res.send(JSON.stringify(response));
+    }
+    }
+    )
+}
+
+/**********ALSO NEEDS TO DELETE LOBBY WHEN ALL PLAYERS LEAVE*************/
+
+function lobbyLeaveCheck(userID, gameID, res) {
+    var userRef = database.ref("users");
     userRef.once("value").then(function (snapshot) {
         if (snapshot.child(userID).exists() && snapshot.child(userID).child("signedIn").val() == 'true' &&
             snapshot.child(userID).child("inLobby").val() == 'true') {
             gamesRef = database.ref("games");
             gamesRef.once("value").then(function (snapshot) {
-                if (gamesRef.child(gameID).exists() && gamesRef.child(gameID).child("players").val().indexOf(userID) > -1) {
+                if (snapshot.child(gameID).exists() && snapshot.child(gameID).child("names").val().indexOf(userID) > -1) {
                     var currentUserRef = database.ref("users/" + userID);
                     var currentGameRef = database.ref("games/" + gameID);
                     currentUserRef.update({
-                        inLobby: 'false'
+                        inLobby: 'false',
+                        lobbyID: 0
                     });
-                    var players = currentGameRef.child("names").val();
+                    var players = snapshot.child(gameID).child("names").val();
                     players = players.splice(players.indexOf(userID), 1);
+                    console.log(players);
                     currentGameRef.update({
-                        stateID: currentGameRef.child("stateID").val() - 1,
                         names: players
                     });
                     var response = {
                         status: 'success',
                         message: 'User Left Lobby'
                     }
+                    updateAllLobbies();
                     console.log(JSON.stringify(response));
                     res.send(JSON.stringify(response));
-                } else if (gamesRef.child(gameID).exists() && gamesRef.child(gameID).child("players").val().indexOf(userID) < 0) {
+                } else if (snapshot.child(gameID).exists() && snapshot.child(gameID).child("names").val().indexOf(userID) < 0) {
                     var response = {
                         status: 'failure',
                         error: 'Lobby Does Not Contain This User'
@@ -346,13 +391,13 @@ function startGameCheck(userID, gameID, res) {
                     gamesRef.child(gameID).child("names").val().length == 4) {
                     var currentGameRef = database.ref("games/" + gameID);
                     currentGameRef.update({
-                        isStarted: true,
-                        stateID: currentGameRef.child("stateId").val() + 1
+                        isStarted: true
                     });
                     var response = {
                         status: 'success',
                         message: 'Game Start'
                     }
+                    updateAllLobbies();
                     console.log(JSON.stringify(response));
                     res.send(JSON.stringify(response));
                 } else if (gamesRef.child(gameID).child("partyLeader").val() == userID &&
@@ -460,6 +505,13 @@ app.post('/lobby/startgame', parser, function (req, res) {
     startGameCheck(userID, gameID, res);
 });
 
+app.post('/lobby/current', parser, function(req, res) {
+    console.log(req.body);
+    var userID = req.body.userID;
+    getCurrentLobby(userID, res);
+});
+
+
 app.all("/", (req, res) => {
     res.redirect(301, "/login.html");
 });
@@ -468,7 +520,21 @@ app.all("/", (req, res) => {
 app.listen(8000, function(){
     console.log("Server Started"); 
 });
+
+function updateAllLobbies(socket){
+    var lobbySpace = io.of('/lobby');
+    lobbySpace.emit("LobbyUpdate");
+}
+
+function updateGame(socket, gameID){
+    
+}
 /*
+
+io.on('/game/init', function(socket, gameID){
+    socket.join(String(gameID));
+}
+
 io.on('/lobby/join', function(socket, gameID){
     socket.join(String(gameID));
 }
