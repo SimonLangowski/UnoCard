@@ -169,9 +169,9 @@ function createLobbyCheck(userID, res) {
                     message: 'Lobby Created',
                     gameID: Number(generatedID)
                 }
-                updateAllLobbies();
+                res.updateAllLobbies();
                 console.log(JSON.stringify(response));
-                res.send(JSON.stringify(response));
+                res.send(response);
             });
         } else {
             var response = {
@@ -179,7 +179,7 @@ function createLobbyCheck(userID, res) {
                 error: 'You Already Made A Lobby'
             }
             console.log(JSON.stringify(response));
-            res.send(JSON.stringify(response));
+            res.send(response);
         }
     });
 }
@@ -217,7 +217,6 @@ function lobbyInfoCheck(userID, res) {
                     message: 'Current Lobbies',
                     lobbies: lobbies
                 }
-                updateAllLobbies();
                 console.log(JSON.stringify(response));
                 res.send(JSON.stringify(response));
             });
@@ -255,23 +254,23 @@ function lobbyJoinCheck(userID, gameID, res){
                         status: 'success',
                         message: 'User Joined Lobby'
                     }
-                    updateAllLobbies();
+                    res.updateAllLobbies();
                     console.log(JSON.stringify(response));
-                    res.send(JSON.stringify(response));
+                    res.send(response);
                 } else if (snapshot.child(gameID).exists() && snapshot.child(gameID).child("names").val().length >= 4) {
                     var response = {
                         status: 'failure',
                         error: 'Lobby Is Full'
                     }
                     console.log(JSON.stringify(response));
-                    res.send(JSON.stringify(response));
+                    res.send(response);
                 } else {
                     var response = {
                         status: 'failure',
                         error: 'Lobby Does Not Exist'
                     }
                     console.log(JSON.stringify(response));
-                    res.send(JSON.stringify(response));
+                    res.send(response);
                 }
             });
         } else if (snapshot.child(userID).exists() && snapshot.child(userID).child("signedIn").val() == 'true' &&
@@ -281,14 +280,14 @@ function lobbyJoinCheck(userID, gameID, res){
                 error: 'User Already In A Lobby'
             }
             console.log(JSON.stringify(response));
-            res.send(JSON.stringify(response));
+            res.send(response);
         } else {
             var response = {
                 status: 'failure',
                 error: 'User Not Signed In or User Does Not Exist'
             }
             console.log(JSON.stringify(response));
-            res.send(JSON.stringify(response));
+            res.send(response);
         }
     });
 }
@@ -303,14 +302,14 @@ function getCurrentLobby(userID, res){
             gameID: Number(snapshot.child(userID).child("lobbyID").val())
         }
         console.log(JSON.stringify(response));
-        res.send(JSON.stringify(response));
+        res.send(response);
     } else {
         var response = {
             status: 'failure',
             error: 'User Not In A Lobby'
         }
         console.log(JSON.stringify(response));
-        res.send(JSON.stringify(response));
+        res.send(response);
     }
     }
     )
@@ -342,23 +341,23 @@ function lobbyLeaveCheck(userID, gameID, res) {
                         status: 'success',
                         message: 'User Left Lobby'
                     }
-                    updateAllLobbies();
+                    res.updateAllLobbies();
                     console.log(JSON.stringify(response));
-                    res.send(JSON.stringify(response));
+                    res.send(response);
                 } else if (snapshot.child(gameID).exists() && snapshot.child(gameID).child("names").val().indexOf(userID) < 0) {
                     var response = {
                         status: 'failure',
                         error: 'Lobby Does Not Contain This User'
                     }
                     console.log(JSON.stringify(response));
-                    res.send(JSON.stringify(response));
+                    res.send(response);
                 } else {
                     var response = {
                         status: 'failure',
                         error: 'Lobby Does Not Exist'
                     }
                     console.log(JSON.stringify(response));
-                    res.send(JSON.stringify(response));
+                    res.send(response);
                 }
             });
         } else if (snapshot.child(userID).exists() && snapshot.child(userID).child("signedIn").val() == 'true' &&
@@ -368,14 +367,14 @@ function lobbyLeaveCheck(userID, gameID, res) {
                 error: 'User Not In A Lobby'
             }
             console.log(JSON.stringify(response));
-            res.send(JSON.stringify(response));
+            res.send(response);
         } else {
             var response = {
                 status: 'failure',
                 error: 'User Not Signed In or User Does Not Exist'
             }
             console.log(JSON.stringify(response));
-            res.send(JSON.stringify(response));
+            res.send(response);
         }
     });
 }
@@ -397,9 +396,9 @@ function startGameCheck(userID, gameID, res) {
                         status: 'success',
                         message: 'Game Start'
                     }
-                    updateAllLobbies();
+                    res.updateAllLobbies();
                     console.log(JSON.stringify(response));
-                    res.send(JSON.stringify(response));
+                    res.send(response);
                 } else if (gamesRef.child(gameID).child("partyLeader").val() == userID &&
                     gamesRef.child(gameID).child("names").val().length != 4) {
                     var response = {
@@ -407,14 +406,14 @@ function startGameCheck(userID, gameID, res) {
                         error: 'Lobby Does Not Have 4 Players'
                     }
                     console.log(JSON.stringify(response));
-                    res.send(JSON.stringify(response));
+                    res.send(response);
                 } else {
                     var response = {
                         status: 'failure',
                         error: 'User Not The Party Leader'
                     }
                     console.log(JSON.stringify(response));
-                    res.send(JSON.stringify(response));
+                    res.send(response);
                 }
             })
         } else if (snapshot.child(userID).exists() && snapshot.child(userID).child("signedIn").val() == 'true' &&
@@ -424,14 +423,14 @@ function startGameCheck(userID, gameID, res) {
                 error: 'User Not In A Lobby'
             }
             console.log(JSON.stringify(response));
-            res.send(JSON.stringify(response));
+            res.send(response);
         } else {
             var response = {
                 status: 'failure',
                 error: 'User Not Signed In or User Does Not Exist'
             }
             console.log(JSON.stringify(response));
-            res.send(JSON.stringify(response));
+            res.send(response);
         }
     });
 }
@@ -467,50 +466,12 @@ app.post('/signOut', parser, function (req, res) {
     signOutCheck(userID, res);
 });
 
-//User Clicked Create Lobby Button
-app.post('/lobby/create', parser, function (req, res) {
-    console.log(req.body);
-    var userID = req.body.userID;
-    createLobbyCheck(userID, res);
-});
-
 //Display List of Lobbies
 app.post('/lobby/info', parser, function (req, res) {
     console.log(req.body);
     var userID = req.body.userID;
     lobbyInfoCheck(userID, res);
 });
-
-//User Asking To Join A Lobby
-app.post('/lobby/join', parser, function (req, res) {
-    console.log(req.body);
-    var gameID = req.body.gameID;
-    var userID = req.body.userID;
-    lobbyJoinCheck(userID, gameID, res);
-});
-
-//User Asking To Leave A Lobby
-app.post('/lobby/leave', parser, function (req, res) {
-    console.log(req.body);
-    var gameID = req.body.gameID;
-    var userID = req.body.userID;
-    lobbyLeaveCheck(userID, gameID, res);
-});
-
-//Party Leader User Asking To Start Game
-app.post('/lobby/startgame', parser, function (req, res) {
-    console.log(req.body);
-    var gameID = req.body.gameID;
-    var userID = req.body.userID;
-    startGameCheck(userID, gameID, res);
-});
-
-app.post('/lobby/current', parser, function(req, res) {
-    console.log(req.body);
-    var userID = req.body.userID;
-    getCurrentLobby(userID, res);
-});
-
 
 app.all("/", (req, res) => {
     res.redirect(301, "/login.html");
@@ -524,24 +485,75 @@ server.listen(8000, function(){
 //These need to be called from things within the io.on section I think
 //However then they cannot be called from outside it
 //thus it will be necessary to do all lobby updates and playing cards from within the socket io section
-function updateAllLobbies(){
-    io.broadcast.emit("LobbyUpdate");
-}
 
-function updateGame(gameID){
-    io.in(String(gameID)).emit("GameUpdate");
-}
+
 
 io.on('connection', function(socket){
+    
+    //I made this so I don't have to change so much code
+    class SocketWrapper {
+        constructor(socket, route){
+            this.socket = socket;
+            this.route = route;
+        }
+        send(data){
+            this.socket.emit(this.route, data);
+        }
+        updateAllLobbies(){
+            socket.broadcast.emit("LobbyUpdate"); //broadcast sends to all but calling socket
+            this.socket.emit("LobbyUpdate"); //also send to calling socket
+        }
+        updateGame(gameID){
+            socket.in(String(gameID)).emit("GameUpdate");
+            //this.socket.emit("GameUpdate"); //gameUpdate method is already called on response in client so this isn't needed
+        }
+    }
+        
+    //User Asking To Join A Lobby
+    socket.on('/lobby/join', function (data) {
+        console.log(data);
+        var gameID = data.gameID;
+        var userID = data.userID;
+        lobbyJoinCheck(userID, gameID, new SocketWrapper(socket, '/lobby/join'));
+    });
 
-    socket.on('Register', function(gameID){
-        socket.join(String(gameID));
-        console.log(socket + " joined " + gameID);
+    //User Asking To Leave A Lobby
+    socket.on('/lobby/leave', function (data) {
+        console.log(data);
+        var gameID = data.gameID;
+        var userID = data.userID;
+        lobbyLeaveCheck(userID, gameID, new SocketWrapper(socket, '/lobby/leave'));
+    });
+
+    //Party Leader User Asking To Start Game
+    socket.on('/lobby/startgame', function (data) {
+        console.log(data);
+        var gameID = data.gameID;
+        var userID = data.userID;
+        startGameCheck(userID, gameID, new SocketWrapper(socket, '/lobby/current'));
+    });
+
+    socket.on('/lobby/current', function(data) {
+        console.log(data);
+        var userID = data.userID;
+        getCurrentLobby(userID, new SocketWrapper(socket, '/lobby/current'));
+    });
+
+    //User Clicked Create Lobby Button
+    socket.on('/lobby/create', function(data){
+        console.log(data);
+        var userID = data.userID;
+        createLobbyCheck(userID, new SocketWrapper(socket, '/lobby/create'));
+    });
+
+    socket.on('Register', function(data){
+        socket.join(String(data.gameID));
+        console.log(socket.id + " joined " + data.gameID);
         //socket io makes sockets leave rooms automatically upon disconnect.  Game page will call this upon page load
     });
 
     socket.on('disconnect', function(){
-        console.log(socket + " disconnected");
+        console.log(socket.id + " disconnected");
        //can store the sockets (they're just numbers) when they call register if you want to make them auto lose when they disconnect 
     });
 });

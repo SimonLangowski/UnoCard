@@ -13,21 +13,22 @@ var app = angular.module('lobbyApp', [])
         $scope.updateLobbies();
     }
     
+    socket.on('error', function(response){
+        console.log("Error: " + response);
+    });
+    
     $scope.getCurrentLobby = function(){
-        $http.post('/lobby/current', {userID: $scope.userID})
-        .then(function(response){
-            if (response.data.status === "success"){
-                $scope.currentLobby = response.data.gameID;
-                document.cookie = "GAME_ID=" + $scope.currentLobby + ";path=/";
-                console.log($scope.currentLobby);
-            } else {
-                console.log(response);
-            }
-        }),
-        function(response){
-            console.log("Error: " + response);
-        }
+        socket.emit('/lobby/current', {userID: $scope.userID}, );
     }
+    socket.on('/lobby/current', function(response){
+        if (response.status === "success"){
+            $scope.currentLobby = response.gameID;
+            document.cookie = "GAME_ID=" + $scope.currentLobby + ";path=/";
+            console.log($scope.currentLobby);
+        } else {
+            console.log(response);
+        }
+    });
     
     socket.on('Lobby Update', function(){
         $scope.updateLobbies();
@@ -56,62 +57,55 @@ var app = angular.module('lobbyApp', [])
     
     
     $scope.createLobby = function(){
-        $http.post('/lobby/create', {userID: $scope.userID})
-        .then(function(response){
-            //should not call updateLobbies because then there will be two sets of async calls running
-            if (response.data.status === "success"){
-                $scope.message = response.data.message;
-                $scope.currentLobby = response.data.gameID;
-                $scope.updateLobbies();
-            } else {
-                $scope.message = response.data.error;
-            }
-        }),
-        function(response){
-            console.log("Error: " + response);
-        }
+        socket.emit('/lobby/create', {userID: $scope.userID});
     }
+    socket.on('/lobby/create', function(response){
+        //should not call updateLobbies because then there will be two sets of async calls running
+        if (response.status === "success"){
+            $scope.message = response.message;
+            $scope.currentLobby = response.gameID;
+            $scope.updateLobbies();
+        } else {
+            $scope.message = response.error;
+        }
+    })
+    
     
     $scope.joinLobby = function(gameId){
         var data = {
             userID: $scope.userID,
             gameID: gameId
         }
-        $http.post('/lobby/join', data)
-        .then(function(response){
-            if (response.data.status === "success"){
-                $scope.message = response.data.message;
-                $scope.currentLobby = gameID;
-                $scope.updateLobbies();
-            } else {
-                $scope.message = response.data.error;
-            }
-        }),
-        function(response){
-            console.log("Error: " + message);
-        }
+        socket.emit('/lobby/join', data);
     }
+    socket.on('/lobby/join', function(response){
+        if (response.status === "success"){
+            $scope.message = response.message;
+            $scope.currentLobby = gameID;
+            $scope.updateLobbies();
+        } else {
+            $scope.message = response.error;
+        }
+    })
+    
     
     $scope.leaveLobby = function(gameId){
         var data = {
             userID: $scope.userID,
             gameID: gameId
         }
-        $http.post('/lobby/leave', data)
-        .then(function(response){
-            if (response.data.status === "success"){
-                $scope.message = response.data.message;
-                $scope.currentLobby = 0;
-                $scope.updateLobbies();
-            } else {
-                $scope.message = response.data.error;
-            }
-        }),
-        function(response){
-            console.log("Error: " + message);
-        }
-        
+        socket.emit('/lobby/leave', data);
     }
+    socket.on('/lobby/leave', function(response){
+        if (response.status === "success"){
+            $scope.message = response.message;
+            $scope.currentLobby = 0;
+            $scope.updateLobbies();
+        } else {
+            $scope.message = response.error;
+        }
+    })
+    
     
     $scope.signOut = function(){
         $http.post('/signOut', {userID: $scope.userID})
@@ -138,18 +132,15 @@ var app = angular.module('lobbyApp', [])
             userID: $scope.userID,
             gameID: gameId
         }
-        $http.post('/lobby/startgame', data)
-        .then(function(response){    
-            if (response.data.status === "success"){
-                $scope.message = response.data.message;
-            } else {
-                $scope.message = response.data.error;
-            }
-        }),
-        function(response){
-            console.log("Error: " + response);
-        }
+        socket.emit('/lobby/startgame', data);
     }
+    socket.on('/lobby/startgame', function(response){    
+        if (response.status === "success"){
+            $scope.message = response.message;
+        } else {
+            $scope.message = response.error;
+        }
+    })
     
     // https://stackoverflow.com/questions/10593013/delete-cookie-by-name
     $scope.deleteCookie = function(name) {
