@@ -1,26 +1,24 @@
 body {
-        background: #B0E0E6;
-    }
-    
-
+    font-family: Georgia, serif;
+}
 .lobby{
     text-align: center;
     background: white;
     border-style: solid;
     border-radius: 15px;
     border-color: black;
+    max-width: 300px;
+    margin: auto;
 }
 
 .name{
-    font-family: Georgia, serif;
-    color: blue;
     margin: 10px;
 }
 
 .statusBar{
     border-style: solid;
     border-radius:15px;
-    border-color: blue;
+    border-color: black;
     background: #40f7f7;
 }
 
@@ -28,4 +26,13 @@ body {
     text-align: right;
     margin-right: 10px;
     margin-bottom: 5px;
+}
+
+.messageBox {
+    text-align: center;  
+    background: rgba(1,1,1,0.1);
+    max-width: 300px;
+    font-size: 125%;
+    float: center;
+    margin: auto;
 }
