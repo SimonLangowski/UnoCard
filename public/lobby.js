@@ -34,19 +34,31 @@ var app = angular.module('lobbyApp', [])
         $scope.updateLobbies();
     });
     
-    socket.on('Start Game', function(data){
-        if (data.gameID === currentLobby){
-           document.cookie = "GAME_ID=" + $scope.currentLobby + ";path=/";
-            //redirect
-            window.location.href = "/game.html";
+    $scope.goToGame = function(){
+        document.cookie = "GAME_ID=" + $scope.currentLobby + ";path=/";
+        //redirect
+        window.location.href = "/game.html";
+    }
+    
+    socket.on('Start Game', function(gameID){
+        console.log(gameID);
+        if (gameID === $scope.currentLobby){
+           $scope.goToGame();
         }
     });
+    
+
     
     $scope.updateLobbies = function(){
         $http.post('/lobby/info', {userID: $scope.userID})
         .then(function(response){
             $scope.lobbyState = response.data.stateID;
             $scope.lobbies = response.data.lobbies;
+            for (var i = 0; i < $scope.lobbies.length; i++){
+                if (($scope.lobbies[i].gameID === $scope.currentLobby) && ($scope.lobbies[i].isStarted)){
+                    $scope.goToGame();
+                }
+            }
         }),
         function(response){
             console.log("Error: " + response);

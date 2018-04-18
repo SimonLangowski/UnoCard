@@ -412,12 +412,12 @@ function lobbyLeaveCheck(userID, gameID, res) {
 }
 
 function startGameCheck(userID, gameID, res) {
-    userRef = database.ref("users");
-    usersRef.once("value").then(function (snapshot) {
+    var userRef = database.ref("users");
+    userRef.once("value").then(function (snapshot) {
         if (snapshot.child(userID).exists() && snapshot.child(userID).child("signedIn").val() == 'true' &&
             snapshot.child(userID).child("inLobby").val() == 'true') {
-            gamesRef = database.ref("games");
-            gamesRef.once(value).then(function (snapshot) {
+            var gamesRef = database.ref("games");
+            gamesRef.once("value").then(function (snapshot) {
                 if (snapshot.child(gameID).child("partyLeader").val() == userID &&
                     snapshot.child(gameID).child("names").val().length == 4) {
                     var currentGameRef = database.ref("games/" + gameID);
@@ -428,7 +428,8 @@ function startGameCheck(userID, gameID, res) {
                         status: 'success',
                         message: 'Game Start'
                     }
-                    res.updateAllLobbies();
+                    //res.updateAllLobbies();
+                    res.start(gameID);
                     console.log(JSON.stringify(response));
                     res.send(response);
                 } else if (snapshot.child(gameID).child("partyLeader").val() == userID &&
@@ -538,6 +539,11 @@ io.on('connection', function(socket){
         updateGame(gameID){
             socket.in(String(gameID)).emit("GameUpdate");
             //this.socket.emit("GameUpdate"); //gameUpdate method is already called on response in client so this isn't needed
+        }
+        
+        start(gameID){
+            socket.broadcast.emit("Start Game", gameID);
+            this.socket.emit("Start Game", gameID);
         }
     }
         
