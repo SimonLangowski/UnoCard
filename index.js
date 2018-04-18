@@ -265,7 +265,8 @@ function lobbyJoinCheck(userID, gameID, res){
                         });
                         var response = {
                             status: 'success',
-                            message: 'User Joined Lobby'
+                            message: 'User Joined Lobby',
+                            gameID: gameID
                         }
                         res.updateAllLobbies();
                         console.log(JSON.stringify(response));

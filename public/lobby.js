@@ -64,7 +64,7 @@ var app = angular.module('lobbyApp', [])
         if (response.status === "success"){
             $scope.message = response.message;
             $scope.currentLobby = response.gameID;
-            $scope.updateLobbies();
+            //$scope.updateLobbies();
         } else {
             $scope.message = response.error;
         }
@@ -81,8 +81,8 @@ var app = angular.module('lobbyApp', [])
     socket.on('/lobby/join', function(response){
         if (response.status === "success"){
             $scope.message = response.message;
-            $scope.currentLobby = gameID;
-            $scope.updateLobbies();
+            $scope.currentLobby = response.gameID;
+            //$scope.updateLobbies();
         } else {
             $scope.message = response.error;
         }
@@ -100,7 +100,7 @@ var app = angular.module('lobbyApp', [])
         if (response.status === "success"){
             $scope.message = response.message;
             $scope.currentLobby = 0;
-            $scope.updateLobbies();
+            //$scope.updateLobbies();
         } else {
             $scope.message = response.error;
         }
