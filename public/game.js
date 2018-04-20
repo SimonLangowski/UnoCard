@@ -219,7 +219,7 @@ var app = angular.module('gameApp', [])
     }
     
      $scope.signOut = function(){
-        $http.post('/signOut', {userID: $scope.userID})
+        $http.post('/signOut', {userID: $scope.auth.userID})
         .then(function(response){
             if (response.data.status === "success"){
                 $scope.message = response.data.message;
