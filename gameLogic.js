@@ -10,7 +10,7 @@ module.exports = {
            Deck.push(new Card(-1, color));
         });
         return Deck;
-    }
+    },
     
     shuffle: function(array){
     //https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array
@@ -28,7 +28,7 @@ module.exports = {
         array[counter] = array[index];
         array[index] = temp;
     }
-    }
+    },
     
     validateCard: function(card1, card2){
         if (card1.color === card2.color){
@@ -52,3 +52,14 @@ module.exports = {
             this.url = "/drawableResources/" + color + "knight";
         } // are there other cards like reverse and skip?
     }
+
+/*Colors: Blue (B), Yellow (Y), Green (G), Red (R), Purple (P)
+ * Numbers: 1-6 in B, Y, G, R
+ * 7: One More in B, Y, G, R
+ * 8: Skip in B, Y, G, R
+ * 9: Reverse in B, Y, G, R
+ * 10: Change Color in B, Y, G, R
+ * 11: Attack 2 in B, Y, G, R
+ * 12: Attack 3 in B, Y, G, R
+ * Special Number: -1 in B, Y, G, R, P
+ */
