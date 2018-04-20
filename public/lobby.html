@@ -17,10 +17,10 @@
 <div ng-app="lobbyApp" ng-controller = "lobbyController" ng-init="init()">
 <div class="statusBar">
     <h1> Uno Card Lobby </h1> 
-    <form class="right">
+    <div class="right">
         <span ng-bind="userID"></span>
-        <input type="submit" value="Sign Out" ng-click="signOut()">
-    </form>
+        <button type="button" class="btn btn-primary right" ng-click="signOut()">Sign Out</button>
+    </div>
 </div>
     <div class="lobby" ng-repeat="lobby in lobbies">
         <div class="left">

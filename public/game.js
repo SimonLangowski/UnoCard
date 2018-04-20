@@ -218,6 +218,26 @@ var app = angular.module('gameApp', [])
         if (match) return match[1];
     }
     
+     $scope.signOut = function(){
+        $http.post('/signOut', {userID: $scope.userID})
+        .then(function(response){
+            if (response.data.status === "success"){
+                $scope.message = response.data.message;
+                //need to remove cookie
+                $scope.deleteCookie("USER_ID");
+                window.location.href = "/login.html";
+            } else {
+                $scope.message = response.data.error;
+                $scope.deleteCookie("USER_ID");
+                window.location.href = "/login.html";
+            }
+        }),
+        function(response){
+            console.log("Error: " + response);
+        };
+        
+    }
+    
 }]);
 
 // https://www.html5rocks.com/en/tutorials/frameworks/angular-websockets/
