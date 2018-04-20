@@ -519,7 +519,7 @@ app.all("/", (req, res) => {
 });
 
 //Start Server
-server.listen(80, function(){
+server.listen(8000, function(){
     console.log("Server Started"); 
 });
 
