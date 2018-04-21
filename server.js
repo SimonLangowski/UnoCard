@@ -13,7 +13,7 @@ var database = admin.database();
 const app = express();
 var parser = bodyParser.json();
 var bcrypt = require('bcrypt-nodejs');
-//var gameLogic = require('./gameLogic.js');
+var gameLogic = require('./gameLogic.js');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
@@ -250,7 +250,8 @@ function lobbyJoinCheck(userID, gameID, res){
             snapshot.child(userID).child("inLobby").val() == 'false') {
             var gamesRef = database.ref("games");
             gamesRef.once("value").then(function (snapshot) {
-                if (snapshot.child(gameID).exists() && snapshot.child(gameID).child("names").val().length <= 3) {
+                if (snapshot.child(gameID).exists() && snapshot.child(gameID).child("names").val().length <= 3 &&
+                    snapshot.child(gameID).child(isStarted) == false) {
                     var currentUserRef = database.ref("users/" + userID);
                     var currentGameRef = database.ref("games/" + gameID);
                     currentUserRef.update({
@@ -283,6 +284,13 @@ function lobbyJoinCheck(userID, gameID, res){
                     var response = {
                         status: 'failure',
                         error: 'Lobby Is Full'
+                    }
+                    console.log(JSON.stringify(response));
+                    res.send(response);
+                } else if (snapshot.child(gameID).exists() && snapshot.child(gameID).child(isStarted) == true) {
+                    var response = {
+                        status: 'failure',
+                        error: 'Game Already Started'
                     }
                     console.log(JSON.stringify(response));
                     res.send(response);
