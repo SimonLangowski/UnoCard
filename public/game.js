@@ -21,6 +21,7 @@ var app = angular.module('gameApp', [])
         this.myPlayerId = 1;
         this.turnPlayerId = 0;
         this.displayTurnId = -1;
+        this.attackCount = 0;
     }
     
     $scope.data = {};
@@ -153,6 +154,7 @@ var app = angular.module('gameApp', [])
         .then(function(response){
             $scope.data.table.topCard = response.data.topCard;
             $scope.calculateRotation(response.data.player1CardCount, response.data.player2CardCount, response.data.player3CardCount, response.data.player4CardCount);
+            $scope.data.table.attackCount = response.data.attackCount;
             $scope.message = response.data.message;
             if (response.data.status === "finished"){
                 $scope.getResults();
@@ -175,24 +177,58 @@ var app = angular.module('gameApp', [])
         }
     }
     
-    $scope.playCard = function(i){
+    $scope.playCard = function(c){
         var data = { userID: $scope.auth.userID,
             gameID: $scope.auth.gameID,
-            index: i
+            card: c
+        }
+        if ((c.number == 10) || (c.number == 15)){
+            $scope.popup(c);
+        } else {
+            $http.post('/game/play', data)
+            .then(function(response){
+                if (response.data.status === "success"){
+                    $scope.message = response.data.message;
+                    $scope.getHand();
+                    $scope.getBoard();
+                } else {
+                    $scope.message = response.data.error;
+                }
+            }),
+            function(response){
+                console.log("Error: " + response);
+            };
+        }
+    }
+    
+    $scope.temp = new Card();
+    $scope.showColorChooser = false;
+    
+    $scope.popup = function(c){
+        temp = c;
+        $scope.showColorChooser = true;
+    }
+    
+    $scope.playPopup = function(colorChosen){
+        $scope.showColorChooser = false;
+        var data = { userID: $scope.auth.userID,
+            gameID: $scope.auth.gameID,
+            card: $scope.temp,
+            color: colorChosen
         }
         $http.post('/game/play', data)
-        .then(function(response){
-            if (response.data.status === "success"){
-                $scope.message = response.data.message;
-                $scope.getHand();
-                $scope.getBoard();
-            } else {
-                $scope.message = response.data.error;
-            }
-        }),
-        function(response){
-            console.log("Error: " + response);
-        };
+            .then(function(response){
+                if (response.data.status === "success"){
+                    $scope.message = response.data.message;
+                    $scope.getHand();
+                    $scope.getBoard();
+                } else {
+                    $scope.message = response.data.error;
+                }
+            }),
+            function(response){
+                console.log("Error: " + response);
+            };
     }
     
     $scope.getResults = function(){

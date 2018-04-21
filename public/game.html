@@ -41,9 +41,13 @@
     cards
     </div>
     <div class="center">
-        <img ng-src="{{data.table.topCard.url}}" height="200px">
+        <img ng-src="{{data.table.topCard.url}}" alt="{{card.type}} {{card.color}} {{card.number}}" height="200px">
     </div>
     
+</div>
+<br>
+<div class="attackBox">
+Attack Count: <span ng-bind="data.table.attackCount"></span>
 </div>
 <br>
 <div class="messageBox">
@@ -60,11 +64,22 @@
 <div class="center cardBox">
     <div class="row" ng-repeat="cardRow in data.table.hand">
         <div class="column" ng-repeat="card in cardRow">
-        <img ng-src="{{card.url}}" alt="Image of card" height="100px" ng-click="playCard(card.index)">
+        <img ng-src="{{card.url}}" alt="{{card.type}} {{card.color}} {{card.number}}" height="100px" ng-click="playCard(card)">
         </div>
     </div>
-    
 </div>
+<br>
+<div ng-show = "showColorChooser" class="colorChooseBox">
+    Choose wild card color: <br>
+    <button type="button" class="btn btn-danger center" ng-click="playPopup('Red')">Red</button>
+    <button type="button" class="btn btn-warning center" ng-click="playPopup('Yellow')">Yellow</button>
+    <button type="button" class="btn btn-success center" ng-click="playPopup('Green')" ng-show="temp.number != 15">Green</button>
+    <button type="button" class="btn btn-primary center" ng-click="playPopup('Blue')">Blue</button>
+    <br>
+    <br>
+</div>
+<br>
+<br>
 </div>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
