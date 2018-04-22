@@ -628,6 +628,7 @@ function getBoard(userID, gameID, res) {
                 console.log(JSON.stringify(response));
                 res.send(JSON.stringify(response));
             } else {
+                var playerTurn = snapshot.child("games").child(gameID).child("gameInfo").child("currentPlayer").val();
                 var response = {
                     status: 'success',
                     message: null,
@@ -639,7 +640,6 @@ function getBoard(userID, gameID, res) {
                     player4CardCount: snapshot.child("games").child(gameID).child("gameInfo").child("playerFour").child("cardCount").val(),
                     playerTurnID: playerTurn
                 }
-                var playerTurn = snapshot.child("games").child(gameID).child("gameInfo").child("currentPlayer").val();
                 if (playerTurn == 1) {
                     response.message = "It's " + snapshot.child("games").child(gameID).child("gameInfo").child("playerOne").child("userID").val() +
                         "\'s turn";
@@ -722,7 +722,7 @@ function playCardCheck(userID, gameID, playedCard, res) {
             var topCard = snapshot.child("games").child(gameID).child("gameInfo").child("topCard").val();
             var attackCount = snapshot.child("games").child(gameID).child("gameInfo").child("attackCount").val();
             if (userID == currentPlayerUserID) {
-                if (playedCard != -1 && (topCard == null || gameLogic.validateCard(topCard, playedCard, attackCount))) {
+                if (playedCard != -1 && (gameLogic.validateCard(topCard, playedCard, attackCount))) {
                     //Player Played A Card
                     var deck = snapshot.child("games").child(gameID).child("gameInfo").child("deck").val();
                     var hand = snapshot.child("games").child(gameID).child("gameInfo").child(playerID).child("hand").val();
