@@ -82,6 +82,18 @@ module.exports = {
         for (i = 0; i < numCards; i++) {
             hand.push(deck.pop());
         }
+    },
+
+    putHandIntoDeck: function (deck, hand) {
+        for (i = 0; i < hand.length; i++) {
+            deck.push(hand.pop());
+        }
+        shuffle(deck);
+    },
+
+    putCardIntoDeck: function (deck, card) {
+        deck.push(card);
+        shuffle(deck);
     }
     
 };
