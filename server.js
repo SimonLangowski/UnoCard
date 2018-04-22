@@ -1098,8 +1098,8 @@ io.on('connection', function(socket){
             this.socket.emit("Lobby Update"); //also send to calling socket
         }
         updateGame(gameID){
-            socket.in(String(gameID)).emit("GameUpdate");
-            this.socket.emit("GameUpdate"); //gameUpdate method is already called on response in client so this isn't needed
+            socket.broadcast.emit("GameUpdate", gameID);
+            this.socket.emit("GameUpdate", gameID);
         }
         
         start(gameID){
@@ -1160,13 +1160,7 @@ io.on('connection', function(socket){
         var playedCard = data.card;
         playCardCheck(userID, gameID, playedCard, new SocketWrapper(socket, '/game/play'));
     });
-
-    socket.on('Register', function(data){
-        socket.join(String(data.gameID));
-        console.log(socket.id + " joined " + data.gameID);
-        //socket io makes sockets leave rooms automatically upon disconnect.  Game page will call this upon page load
-    });
-
+    
     socket.on('disconnect', function(){
         console.log(socket.id + " disconnected");
        //can store the sockets (they're just numbers) when they call register if you want to make them auto lose when they disconnect 

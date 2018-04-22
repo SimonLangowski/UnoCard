@@ -2,7 +2,6 @@ var app = angular.module('gameApp', [])
 .controller('gameController', ['$scope', '$http', 'socket', function($scope, $http, socket){
     
     function Card(){
-        this.index = 0;
         this.url = '/drawingResources/cardFaceDown.png';
     }
     
@@ -36,7 +35,6 @@ var app = angular.module('gameApp', [])
     $scope.init = function(){
         $scope.auth.userID = $scope.getCookie("USER_ID");
         $scope.auth.gameID = $scope.getCookie("GAME_ID");
-        socket.emit('Register', {gameID: $scope.auth.gameID});
         var auth = {userID: $scope.auth.userID,
             gameID: $scope.auth.gameID};
         $http.post('/game/init', auth)
@@ -142,8 +140,10 @@ var app = angular.module('gameApp', [])
     
     $scope.calculateHandRows([new Card(), new Card(), new Card(), new Card(), new Card(), new Card(), new Card()]);
     
-    socket.on("GameUpdate", function(){
-        $scope.getBoard();
+    socket.on("GameUpdate", function(gameID){
+        if (gameID === $scope.auth.gameID){
+            $scope.getBoard();
+        }
     });
     
     $scope.getBoard = function(){
@@ -177,6 +177,10 @@ var app = angular.module('gameApp', [])
         }
     }
     
+    $scope.drawCard = function(){
+        $scope.playCard(-1);
+    }
+    
     $scope.playCard = function(c){
         var data = { userID: $scope.auth.userID,
             gameID: $scope.auth.gameID,
@@ -190,10 +194,10 @@ var app = angular.module('gameApp', [])
     }
     socket.on('/game/play', function(response){
         if (response.status === "success"){
-            $scope.message = response.data.message;
+            $scope.message = response.message;
             $scope.getHand();
         } else {
-            $scope.message = response.data.error;
+            $scope.message = response.error;
         }
     });
     
