@@ -491,6 +491,8 @@ function setUpNewGame(gameID) {
         gameLogic.drawCard(deck, handThree, 7);
         var handFour = [];
         gameLogic.drawCard(deck, handFour, 7);
+        var topCard = deck[0];
+        deck.slice(0, 1);
         currentGameRef.update({
             gameInfo: {
                 finished: false,
@@ -498,7 +500,7 @@ function setUpNewGame(gameID) {
                 playDirection: "increasing",
                 currentPlayer: 1,
                 attackCount: 0,
-                topCard: null,
+                topCard: topCard,
                 firstPlace: null,
                 secondPlace: null,
                 thirdPlace: null,
@@ -720,20 +722,16 @@ function playCardCheck(userID, gameID, playedCard, res) {
                     var hand = snapshot.child("games").child(gameID).child("gameInfo").child(playerID).child("hand").val();
                     if (hand.length != 1) {
                         var currentGameInfoRef = database.ref("games/" + gameID + "/gameInfo/");
-                        if (topCard != null) {
+                        if (playedCard.number != 17) {
                             gameLogic.putCardIntoDeck(deck, topCard);
                             currentGameInfoRef.update({
                                 topCard: playedCard,
                                 deck: deck
                             });
-                        } else if (playedCard.number == 17) {
+                        } else {
                             gameLogic.putCardIntoDeck(deck, playedCard);
                             currentGameInfoRef.update({
                                 deck: deck
-                            });
-                        } else {
-                            currentGameInfoRef.update({
-                                topCard: playedCard,
                             });
                         }
                         var indexOfCard;
