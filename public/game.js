@@ -211,10 +211,10 @@ var app = angular.module('gameApp', [])
     
     $scope.playPopup = function(colorChosen){
         $scope.showColorChooser = false;
+        $scope.temp.setColor = colorChosen;
         var data = { userID: $scope.auth.userID,
             gameID: $scope.auth.gameID,
-            card: $scope.temp,
-            color: colorChosen
+            card: $scope.temp
         }
         socket.emit('/game/play', data);
     }
