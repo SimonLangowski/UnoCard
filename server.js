@@ -750,6 +750,30 @@ function playCardCheck(userID, gameID, playedCard, res) {
                             hand: hand
                         })
                         updateBasedOnCard(userID, gameID, playedCard);
+                        var currentGameInfoRef = database.ref("games/" + gameID + "/gameInfo/");
+                        if (snapshot.child("games").child(gameID).child("gameInfo").child("playDirection").val() == "increasing") {
+                            while (true) {
+                                playerTurn++;
+                                if (playerTurn > 4)
+                                    playerTurn = 1;
+                                if (snapshot.child("games").child(gameID).child("gameInfo").child(getPlayerNumberBasedOnID(playerTurn)).
+                                    child("hasLost").val() == false)
+                                    break;
+                            }
+                        } else {
+                            while (true) {
+                                playerTurn--;
+                                if (playerTurn < 1)
+                                    playerTurn = 4;
+                                if (snapshot.child("games").child(gameID).child("gameInfo").child(getPlayerNumberBasedOnID(playerTurn)).
+                                    child("hasLost").val() == false)
+                                    break;
+                            }
+                        }
+                        currentGameInfoRef.update({
+                            currentPlayer: playerTurn
+
+                        });
                     } else {
                         updatePlacings(snapshot, userID, gameID, playerTurn);
                     }
@@ -914,7 +938,6 @@ function updateBasedOnCard(userID, gameID, playedCard) {
     if (playedCard.number >= 1 && playedCard.number <= 6) {
         //No Additional Effects
     }
-    //Update Next Players Turn
     // update deck, hand, attackCount, etc
 }
 
