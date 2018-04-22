@@ -88,12 +88,12 @@ module.exports = {
         for (i = 0; i < hand.length; i++) {
             deck.push(hand.pop());
         }
-        shuffle(deck);
+        module.exports.shuffle(deck);
     },
 
     putCardIntoDeck: function (deck, card) {
         deck.push(card);
-        shuffle(deck);
+        module.exports.shuffle(deck);
     }
     
 };
