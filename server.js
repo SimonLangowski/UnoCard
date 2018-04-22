@@ -1123,7 +1123,7 @@ io.on('connection', function(socket){
         console.log(data);
         var gameID = data.gameID;
         var userID = data.userID;
-        startGameCheck(userID, gameID, new SocketWrapper(socket, '/lobby/current'));
+        startGameCheck(userID, gameID, new SocketWrapper(socket, '/lobby/startgame'));
     });
 
     socket.on('/lobby/current', function(data) {

@@ -192,7 +192,6 @@ var app = angular.module('gameApp', [])
         if (response.status === "success"){
             $scope.message = response.data.message;
             $scope.getHand();
-            $scope.getBoard();
         } else {
             $scope.message = response.data.error;
         }
