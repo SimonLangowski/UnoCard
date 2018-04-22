@@ -1186,6 +1186,7 @@ io.on('connection', function(socket){
         var userID = data.userID;
         var gameID = data.gameID;
         var playedCard = data.card;
+        delete playedCard.$$hashKey;
         playCardCheck(userID, gameID, playedCard, new SocketWrapper(socket, '/game/play'));
     });
     
