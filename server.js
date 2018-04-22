@@ -634,16 +634,16 @@ function getBoard(userID, gameID, res) {
                 }
                 var playerTurn = snapshot.child("games").child(gameID).child("gameInfo").child("currentPlayer").val();
                 if (playerTurn == 1) {
-                    response.message = "It's " + snapshot.child("games").child(gameID).child("gameInfo").child("playerOne").child(userID).val() +
+                    response.message = "It's " + snapshot.child("games").child(gameID).child("gameInfo").child("playerOne").child("userID").val() +
                         " turn";
                 } else if (playerTurn == 2) {
-                    response.message = "It's " + snapshot.child("games").child(gameID).child("gameInfo").child("playerTwo").child(userID).val() +
+                    response.message = "It's " + snapshot.child("games").child(gameID).child("gameInfo").child("playerTwo").child("userID").val() +
                         " turn";
                 } else if (playerTurn == 3) {
-                    response.message = "It's " + snapshot.child("games").child(gameID).child("gameInfo").child("playerThree").child(userID).val() +
+                    response.message = "It's " + snapshot.child("games").child(gameID).child("gameInfo").child("playerThree").child("userID").val() +
                         " turn";
                 } else {
-                    response.message = "It's " + snapshot.child("games").child(gameID).child("gameInfo").child("playerFour").child(userID).val() +
+                    response.message = "It's " + snapshot.child("games").child(gameID).child("gameInfo").child("playerFour").child("userID").val() +
                         " turn";
                 }
                 console.log(JSON.stringify(response));
@@ -716,11 +716,50 @@ function playCardCheck(userID, gameID, playedCard, res) {
             if (userID == currentPlayerUserID) {
                 if (playedCard != -1 && (topCard == null || gameLogic.validateCard(topCard, playedCard))) {
                     //Player Played A Card
-                    //UPDATE, put card back into deck
-                    //Update Next Players Turn
-                    //Check If Card Can be Played, play card, update all players board, update deck, hand, attackCount, etc
-                    // CHECK IF USER 0 CARDS AFTER && SET gameFinished BOOLEAN
-                    //SET top card
+                    var deck = snapshot.child("games").child(gameID).child("gameInfo").child("deck").val();
+                    var hand = snapshot.child("games").child(gameID).child("gameInfo").child(playerID).child("hand").val();
+                    if (hand.length != 1) {
+                        var currentGameInfoRef = database.ref("games/" + gameID + "/gameInfo/");
+                        if (topCard != null) {
+                            gameLogic.putCardIntoDeck(deck, topCard);
+                            currentGameInfoRef.update({
+                                topCard: playedCard,
+                                deck: deck
+                            });
+                        } else if (playedCard.number == 17) {
+                            gameLogic.putCardIntoDeck(deck, playedCard);
+                            currentGameInfoRef.update({
+                                deck: deck
+                            });
+                        } else {
+                            currentGameInfoRef.update({
+                                topCard: playedCard,
+                            });
+                        }
+                        var indexOfCard;
+                        for (i = 0; i < hand.length; i++) {
+                            if (hand[i].color == playedCard.color && hand[i].number == playedCard.number) {
+                                indexOfCard = i;
+                            }
+                        }
+                        var currentPlayerRef = database.ref("games/" + gameID + "/gameInfo/" + playerID);
+                        hand.splice(indexOfCard, 1);
+                        currentPlayerRef.update({
+                            hand: hand
+                        })
+                        updateBasedOnCard(userID, gameID, playedCard);
+                        //Update Next Players Turn
+                        // update deck, hand, attackCount, etc
+                    } else {
+                        updatePlacings(snapshot, userID, gameID, playerTurn);
+                    }
+                    var response = {
+                        status: 'success',
+                        message: 'Playing'
+                    }
+                    res.updateGame(gameID);
+                    console.log(JSON.stringify(response));
+                    res.send(response);
                 } else if (playedCard == -1) {
                     //Player Has To Draw Card(s)
                     var drawNumber = 1;
@@ -869,6 +908,87 @@ function playCardCheck(userID, gameID, playedCard, res) {
             res.send(response);
         }
     })
+}
+
+function updateBasedOnCard(userID, gameID, playedCard) {
+
+}
+
+function updatePlacings(snapshot, userID, gameID, playerTurn) {
+    var currentGameInfoRef = database.ref("games/" + gameID + "/gameInfo/");
+    currentGameInfoRef.update({
+        finished: true,
+        firstPlace: userID
+    });
+    if (snapshot.child("games").child(gameID).child("gameInfo").child("playDirection").val() == "increasing") {
+        var considerOrder = [];
+        var loop = playerTurn;
+        while (true) {
+            playerTurn++;
+            if (playerTurn > 4)
+                playerTurn = 1;
+            if (playerTurn == loop) {
+                break;
+            }
+            if (snapshot.child("games").child(gameID).child("gameInfo").child(getPlayerNumberBasedOnID(playerTurn)).child("hasLost").val() == false)
+                considerOrder.push(getPlayerNumberBasedOnID(playerTurn));
+        }
+        while (considerOrder.length > 0) {
+            var min = snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[0]).child("handCount").val();
+            var minIndex = 0;
+            for (i = 0; i < considerOrder.length; i++) {
+                if (snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[i]).child("handCount").val() < min) {
+                    min = snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[i]).child("handCount").val();
+                    minIndex = i;
+                }
+            }
+            var number = (4 - considerOrder.length) + 1;
+            currentGameInfoRef.update({
+                [getPlaceBasedOnNumber(number)]: snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[minIndex]).
+                    child("userID").val()
+            });
+            considerOrder.splice(minIndex, 1);
+        }
+    } else {
+        var considerOrder = [];
+        var loop = playerTurn;
+        while (true) {
+            playerTurn--;
+            if (playerTurn < 1)
+                playerTurn = 4;
+            if (playerTurn == loop) {
+                break;
+            }
+            if (snapshot.child("games").child(gameID).child("gameInfo").child(getPlayerNumberBasedOnID(playerTurn)).child("hasLost").val() == false)
+                considerOrder.push(getPlayerNumberBasedOnID(playerTurn));
+        }
+        while (considerOrder.length > 0) {
+            var min = snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[0]).child("handCount").val();
+            var minIndex = 0;
+            for (i = 0; i < considerOrder.length; i++) {
+                if (snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[i]).child("handCount").val() < min) {
+                    min = snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[i]).child("handCount").val();
+                    minIndex = i;
+                }
+            }
+            var number = (4 - considerOrder.length) + 1;
+            currentGameInfoRef.update({
+                [getPlaceBasedOnNumber(number)]: snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[minIndex]).
+                    child("userID").val()
+            });
+            considerOrder.splice(minIndex, 1);
+        }
+    }
+}
+
+function getPlaceBasedOnNumber(number) {
+    if (number == 2) {
+        return "secondPlace";
+    } else if (number == 3) {
+        return "thirdPlace";
+    } else {
+        return "fourthPlace";
+    }
 }
 
 function getPlayerNumberBasedOnID(playerID) {
