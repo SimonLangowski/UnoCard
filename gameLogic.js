@@ -71,7 +71,7 @@ module.exports = {
             } else {
                 return false;
             }
-        } else if (topCard == 10 || topCard == 15) {
+        } else if (topCard.number == 10 || topCard.nuber == 15) {
             if (topCard.setColor == card.color) {
                 return true;
             } else if (topCard.number == card.number) {
