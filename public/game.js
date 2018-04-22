@@ -254,25 +254,21 @@ var app = angular.module('gameApp', [])
         if (match) return match[1];
     }
     
-     $scope.signOut = function(){
-        $http.post('/signOut', {userID: $scope.auth.userID})
-        .then(function(response){
-            if (response.data.status === "success"){
-                $scope.message = response.data.message;
-                //need to remove cookie
-                $scope.deleteCookie("USER_ID");
-                window.location.href = "/login.html";
-            } else {
-                $scope.message = response.data.error;
-                $scope.deleteCookie("USER_ID");
-                window.location.href = "/login.html";
-            }
-        }),
-        function(response){
-            console.log("Error: " + response);
-        };
-        
+    $scope.signOut = function(){
+        socket.emit('/signOut', {userID: $scope.userID});
     }
+    socket.on('/signOut', function(response){
+        if (response.status === "success"){
+            $scope.message = response.message;
+            //need to remove cookie
+            $scope.deleteCookie("USER_ID");
+            window.location.href = "/login.html";
+        } else {
+            $scope.message = response.error;
+            $scope.deleteCookie("USER_ID");
+            window.location.href = "/login.html";
+        }
+    });
     
 }]);
 

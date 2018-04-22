@@ -134,16 +134,17 @@ function signOutCheck(userID, res) {
                         });
                     }
                 });
+                res.updateAllLobbies();
             }
             console.log(JSON.stringify(response));
-            res.send(JSON.stringify(response));
+            res.send(response);
         } else {
             var response = {
                 status: 'failure',
                 error: 'User Does Not Exist'
             };
             console.log(JSON.stringify(response));
-            res.send(JSON.stringify(response));
+            res.send(response);
         }
     });
 }
@@ -251,7 +252,7 @@ function lobbyJoinCheck(userID, gameID, res){
             var gamesRef = database.ref("games");
             gamesRef.once("value").then(function (snapshot) {
                 if (snapshot.child(gameID).exists() && snapshot.child(gameID).child("names").val().length <= 3 &&
-                    snapshot.child(gameID).child(isStarted) == false) {
+                    snapshot.child(gameID).child("isStarted").val() == false) {
                     var currentUserRef = database.ref("users/" + userID);
                     var currentGameRef = database.ref("games/" + gameID);
                     currentUserRef.update({
@@ -287,7 +288,7 @@ function lobbyJoinCheck(userID, gameID, res){
                     }
                     console.log(JSON.stringify(response));
                     res.send(response);
-                } else if (snapshot.child(gameID).exists() && snapshot.child(gameID).child(isStarted) == true) {
+                } else if (snapshot.child(gameID).exists() && snapshot.child(gameID).child("isStarted").val() == true) {
                     var response = {
                         status: 'failure',
                         error: 'Game Already Started'
@@ -867,7 +868,7 @@ function playCardCheck(userID, gameID, playedCard, res) {
             console.log(JSON.stringify(response));
             res.send(response);
         }
-    }
+    })
 }
 
 function getPlayerNumberBasedOnID(playerID) {
@@ -905,13 +906,6 @@ app.post('/signIn', parser, function (req, res) {
     var password = req.body.password;
     if (typeof username !== 'undefined' && username !== null && typeof password !== 'undefined' && password !== null)
         signInCheck(username, password, res);
-});
-
-//User Clicked Sign Out Button
-app.post('/signOut', parser, function (req, res) {
-    console.log(req.body);
-    var userID = req.body.userID;
-    signOutCheck(userID, res);
 });
 
 //Display List of Lobbies
@@ -1027,14 +1021,21 @@ io.on('connection', function(socket){
         createLobbyCheck(userID, new SocketWrapper(socket, '/lobby/create'));
     });
 
+    
+    //User Clicked Sign Out Button
+    socket.on('/signOut', function (data) {
+        console.log(data);
+        var userID = data.userID;
+        signOutCheck(userID, new SocketWrapper(socket, '/signOut'));
+    });
 
-    socket.on('/game/play', function (data)){
+    socket.on('/game/play', function (data){
         console.log(data);
         var userID = data.userID;
         var gameID = data.gameID;
         var playedCard = data.card;
         playCardCheck(userID, gameID, playedCard, new SocketWrapper(socket, '/game/play'));
-    }
+    });
 
     socket.on('Register', function(data){
         socket.join(String(data.gameID));
