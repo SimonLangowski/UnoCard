@@ -185,21 +185,18 @@ var app = angular.module('gameApp', [])
         if ((c.number == 10) || (c.number == 15)){
             $scope.popup(c);
         } else {
-            $http.post('/game/play', data)
-            .then(function(response){
-                if (response.data.status === "success"){
-                    $scope.message = response.data.message;
-                    $scope.getHand();
-                    $scope.getBoard();
-                } else {
-                    $scope.message = response.data.error;
-                }
-            }),
-            function(response){
-                console.log("Error: " + response);
-            };
+            socket.emit('/game/play', data);
         }
     }
+    socket.on('/game/play', function(response){
+        if (response.status === "success"){
+            $scope.message = response.data.message;
+            $scope.getHand();
+            $scope.getBoard();
+        } else {
+            $scope.message = response.data.error;
+        }
+    });
     
     $scope.temp = new Card();
     $scope.showColorChooser = false;
@@ -216,19 +213,7 @@ var app = angular.module('gameApp', [])
             card: $scope.temp,
             color: colorChosen
         }
-        $http.post('/game/play', data)
-            .then(function(response){
-                if (response.data.status === "success"){
-                    $scope.message = response.data.message;
-                    $scope.getHand();
-                    $scope.getBoard();
-                } else {
-                    $scope.message = response.data.error;
-                }
-            }),
-            function(response){
-                console.log("Error: " + response);
-            };
+        socket.emit('/game/play', data);
     }
     
     $scope.getResults = function(){
@@ -255,7 +240,7 @@ var app = angular.module('gameApp', [])
     }
     
     $scope.signOut = function(){
-        socket.emit('/signOut', {userID: $scope.userID});
+        socket.emit('/signOut', {userID: $scope.auth.userID});
     }
     socket.on('/signOut', function(response){
         if (response.status === "success"){
