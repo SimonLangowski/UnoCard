@@ -103,22 +103,22 @@ module.exports = {
         this.color = color;
         this.setColor = color;
         this.type = "normal";
-        this.url = "/drawableResources/"+ color + number; 
+        this.url = "/drawingResources/"+ color + number + ".png"; 
         if (number == 13) {
             this.type = "special";
-            this.url = "/drawableResources/" + "blueknight";
+            this.url = "/drawingResources/" + "blueknight" + ".png";
         } else if (number == 14) {
             this.type = "special";
-            this.url = "/drawableResources/" + "yellowknight";
+            this.url = "/drawingResources/" + "yellowknight" + ".png";
         } else if (number == 15) {
             this.type = "special";
-            this.url = "/drawableResources/" + "greenknight";
+            this.url = "/drawingResources/" + "greenknight" + ".png";
         } else if (number == 16) {
             this.type = "special";
-            this.url = "/drawableResources/" + "redknight";
+            this.url = "/drawingResources/" + "redknight" + ".png";
         } else if (number == 17) {
             this.type = "special";
-            this.url = "/drawableResources/" + "purpleknight";
+            this.url = "/drawingResources/" + "purpleknight" + ".png";
         }
     }
 
