@@ -493,7 +493,7 @@ function setUpNewGame(gameID) {
         gameLogic.drawCard(deck, handFour, 7);
         var topCard = deck[0];
         var i = 1;
-        while (!topCard.number >= 1 && !topCard.number <= 6) {
+        while (!(topCard.number >= 1 && topCard.number <= 6)) {
             topCard = deck[i];
         }
         deck.splice(i, 1);
@@ -719,8 +719,9 @@ function playCardCheck(userID, gameID, playedCard, res) {
                 playerID = "playerFour";
             }
             var topCard = snapshot.child("games").child(gameID).child("gameInfo").child("topCard").val();
+            var attackCount = snapshot.child("games").child(gameID).child("gameInfo").child("attackCount").val();
             if (userID == currentPlayerUserID) {
-                if (playedCard != -1 && (topCard == null || gameLogic.validateCard(topCard, playedCard))) {
+                if (playedCard != -1 && (topCard == null || gameLogic.validateCard(topCard, playedCard, attackCount))) {
                     //Player Played A Card
                     var deck = snapshot.child("games").child(gameID).child("gameInfo").child("deck").val();
                     var hand = snapshot.child("games").child(gameID).child("gameInfo").child(playerID).child("hand").val();
