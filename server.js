@@ -478,9 +478,8 @@ function startGameCheck(userID, gameID, res) {
 }
 
 function setUpNewGame(gameID) {
-    var gamesRef = database.ref("games");
-    gamesRef.once("value").then(function (snapshot) {
-        var currentGameRef = database.ref("games/" + gameID);
+    var currentGameRef = database.ref("games/" + gameID);
+    currentGameRef.once("value").then(function (snapshot) {
         var deck = gameLogic.getNewDeck();
         gameLogic.shuffle(deck);
         var handOne = [];
@@ -503,28 +502,28 @@ function setUpNewGame(gameID) {
                 thirdPlace: null,
                 fourthPlace: null,
                 playerOne: {
-                    userID: snapshot.child(gameID).child(names).val()[0],
+                    userID: snapshot.child(names).val()[0],
                     hasLost: false,
                     isCPU: false,
                     cardCount: 7,
                     hand: handOne
                 },
                 playerTwo: {
-                    userID: snapshot.child(gameID).child(names).val()[1],
+                    userID: snapshot.child(names).val()[1],
                     hasLost: false,
                     isCPU: false,
                     cardCount: 7,
                     hand: handTwo
                 },
                 playerThree: {
-                    userID: snapshot.child(gameID).child(names).val()[2],
+                    userID: snapshot.child(names).val()[2],
                     hasLost: false,
                     isCPU: false,
                     cardCount: 7,
                     hand: handThree
                 },
                 playerFour: {
-                    userID: snapshot.child(gameID).child(names).val()[3],
+                    userID: snapshot.child(names).val()[3],
                     hasLost: false,
                     isCPU: false,
                     cardCount: 7,
