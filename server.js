@@ -478,39 +478,99 @@ function startGameCheck(userID, gameID, res) {
 }
 
 function setUpNewGame(gameID) {
-    var gamesRef = database.ref("games/" + gameID);
-    gamesRef.update({
-        gameInfo: {
-            deck: gameLogic.shuffle(gameLogic.getNewDeck()),
-            playDirection: "increasing",
-            currentPlayer: 1,
-            attackCount: 0,
-            topCard: null,
-            firstPlace: null,
-            secondPlace: null,
-            thirdPlace: null,
-            fourthPlace: null
-        }
+    var gamesRef = database.ref("games");
+    gamesRef.once("value").then(function (snapshot) {
+        var currentGameRef = database.ref("games/" + gameID);
+        var deck = gameLogic.getNewDeck();
+        gameLogic.shuffle(deck);
+        var handOne = [];
+        gameLogic.drawCard(deck, handOne, 7);
+        var handTwo = [];
+        gameLogic.drawCard(deck, handTwo, 7);
+        var handThree = [];
+        gameLogic.drawCard(deck, handThree, 7);
+        var handFour = [];
+        gameLogic.drawCard(deck, handFour, 7);
+        currentGameRef.update({
+            gameInfo: {
+                deck: deck,
+                playDirection: "increasing",
+                currentPlayer: 1,
+                attackCount: 0,
+                topCard: null,
+                firstPlace: null,
+                secondPlace: null,
+                thirdPlace: null,
+                fourthPlace: null,
+                playerOne: {
+                    userID: snapshot.child(gameID).names.val()[0],
+                    hasLost: false,
+                    isCPU: false,
+                    cardCount: 7,
+                    hand: handOne
+                },
+                playerTwo: {
+                    userID: snapshot.child(gameID).names.val()[1],
+                    hasLost: false,
+                    isCPU: false,
+                    cardCount: 7,
+                    hand: handTwo
+                },
+                playerThree: {
+                    userID: snapshot.child(gameID).names.val()[2],
+                    hasLost: false,
+                    isCPU: false,
+                    cardCount: 7,
+                    hand: handThree
+                },
+                playerFour: {
+                    userID: snapshot.child(gameID).names.val()[3],
+                    hasLost: false,
+                    isCPU: false,
+                    cardCount: 7,
+                    hand: handFour
+                }
+            }
+        });
     });
-
 }
 
 function setUpPlayer(userID, gameID, res) {
-    var gamesRef = database.ref("games");
-    gamesRef.once("value").then(function (snapshot) {
-        var currentGameRef = database.ref("games/" + gameID + "/gameInfo");
-        var playerID = snapshot.child(gameID).names.val().indexOf(userID) + 1;
-        var hand = [];
-        gameLogic.drawCard(snapshot.child(gameID).child("gameInfo").child(deck).val(), hand, 7);
-        currentGameRef.update({
-            [playerID]: {
-                userID: userID,
-                hasLost: false,
-                isCPU: false,
-                cardCount: 7,
-                hand: hand
+    var ref = database.ref();
+    ref.once("value").then(function (snapshot) {
+        if (ref.child("users").child(userID).child("lobbyID").val() == gameID) {
+            var nameOne = ref.child("games").child(gameID).child("gameInfo").child("playerOne").child("userID").val();
+            var nameTwo = ref.child("games").child(gameID).child("gameInfo").child("playerTwo").child("userID").val();
+            var nameThree = ref.child("games").child(gameID).child("gameInfo").child("playerThree").child("userID").val();
+            var nameFour = ref.child("games").child(gameID).child("gameInfo").child("playerFour").child("userID").val();
+            var response = {
+                status: 'success',
+                message: 'Player Initialized',
+                myPlayerID: null,
+                username1: nameOne,
+                username2: nameTwo,
+                username3: nameThree,
+                username4: nameFour
             }
-        });
+            if (nameOne == userID) {
+                response.myPlayerID = Number("1");
+            } else if (nameTwo == userID) {
+                response.myPlayerID = Number("2");
+            } else if (nameThree == userID) {
+                response.myPlayerID = Number("3");
+            } else {
+                response.myPlayerID = Number("4");
+            }
+            console.log(JSON.stringify(response));
+            res.send(JSON.stringify(response));
+        } else {
+            var response = {
+                status: 'failure',
+                error: 'Player Not In The Lobby'
+            }
+            console.log(JSON.stringify(response));
+            res.send(JSON.stringify(response));
+        }
     });
 }
 
@@ -559,6 +619,17 @@ app.post('game/init', parser, function (req, res) {
     setUpPlayer(userID, gameID, res);
 });
 
+app.post('game/hand', parser, function (req, res) {
+});
+
+app.post('game/board', parser, function (req, res) {
+});
+
+app.post('game/play', parser, function (req, res) {
+});
+
+app.post('game/results', parser, function (req, res) {
+});
 
 app.all("/", (req, res) => {
     res.redirect(301, "/login.html");
