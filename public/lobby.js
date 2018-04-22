@@ -61,6 +61,7 @@ var app = angular.module('lobbyApp', [])
         if (response.status === "success"){
             $scope.message = response.message;
             $scope.currentLobby = response.gameID;
+            console.log($scope.currentLobby);
             //$scope.updateLobbies();
         } else {
             $scope.message = response.error;
@@ -138,6 +139,7 @@ var app = angular.module('lobbyApp', [])
     $scope.goToGame = function(){
         document.cookie = "GAME_ID=" + $scope.currentLobby + ";path=/";
         //redirect
+        console.log($scope.currentLobby);
         window.location.href = "/game.html";
     }
     
