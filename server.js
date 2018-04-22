@@ -750,31 +750,7 @@ function playCardCheck(userID, gameID, playedCard, res) {
                         currentPlayerRef.update({
                             hand: hand
                         })
-                        updateBasedOnCard(userID, gameID, playedCard);
-                        var currentGameInfoRef = database.ref("games/" + gameID + "/gameInfo/");
-                        if (snapshot.child("games").child(gameID).child("gameInfo").child("playDirection").val() == "increasing") {
-                            while (true) {
-                                playerTurn++;
-                                if (playerTurn > 4)
-                                    playerTurn = 1;
-                                if (snapshot.child("games").child(gameID).child("gameInfo").child(getPlayerNumberBasedOnID(playerTurn)).
-                                    child("hasLost").val() == false)
-                                    break;
-                            }
-                        } else {
-                            while (true) {
-                                playerTurn--;
-                                if (playerTurn < 1)
-                                    playerTurn = 4;
-                                if (snapshot.child("games").child(gameID).child("gameInfo").child(getPlayerNumberBasedOnID(playerTurn)).
-                                    child("hasLost").val() == false)
-                                    break;
-                            }
-                        }
-                        currentGameInfoRef.update({
-                            currentPlayer: playerTurn
-
-                        });
+                        updateBasedOnCard(snapshot, playerTurn, userID, gameID, playedCard);
                     } else {
                         updatePlacings(snapshot, userID, gameID, playerTurn);
                     }
@@ -935,11 +911,39 @@ function playCardCheck(userID, gameID, playedCard, res) {
     })
 }
 
-function updateBasedOnCard(userID, gameID, playedCard) {
+function updateBasedOnCard(snapshot, playerTurn, userID, gameID, playedCard) {
     if (playedCard.number >= 1 && playedCard.number <= 6) {
         //No Additional Effects
     }
     // update deck, hand, attackCount, etc
+    if (playedCard.number != 8 && playedCard.number != 9) {
+        //Can Update Turn Normally
+        var currentGameInfoRef = database.ref("games/" + gameID + "/gameInfo/");
+        if (snapshot.child("games").child(gameID).child("gameInfo").child("playDirection").val() == "increasing") {
+            while (true) {
+                playerTurn++;
+                if (playerTurn > 4)
+                    playerTurn = 1;
+                if (snapshot.child("games").child(gameID).child("gameInfo").child(getPlayerNumberBasedOnID(playerTurn)).
+                    child("hasLost").val() == false)
+                    break;
+            }
+        } else {
+            while (true) {
+                playerTurn--;
+                if (playerTurn < 1)
+                    playerTurn = 4;
+                if (snapshot.child("games").child(gameID).child("gameInfo").child(getPlayerNumberBasedOnID(playerTurn)).
+                    child("hasLost").val() == false)
+                    break;
+            }
+        }
+        currentGameInfoRef.update({
+            currentPlayer: playerTurn
+
+        });
+    } 
+    
 }
 
 function updatePlacings(snapshot, userID, gameID, playerTurn) {
