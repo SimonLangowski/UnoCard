@@ -202,11 +202,10 @@ var app = angular.module('gameApp', [])
         }
     });
     
-    $scope.temp = new Card();
     $scope.showColorChooser = false;
     
     $scope.popup = function(c){
-        temp = c;
+        $scope.temp = c;
         $scope.showColorChooser = true;
     }
     
