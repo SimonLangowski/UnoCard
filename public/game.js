@@ -19,7 +19,6 @@ var app = angular.module('gameApp', [])
         this.myName = "Loading..";
         this.myPlayerId = 1;
         this.turnPlayerId = 0;
-        this.displayTurnId = -1;
         this.attackCount = 0;
     }
     
@@ -153,11 +152,14 @@ var app = angular.module('gameApp', [])
         $http.post('/game/board', auth)
         .then(function(response){
             $scope.data.table.topCard = response.data.topCard;
+            $scope.data.table.turnPlayerID = response.data.playerTurnID;
             $scope.calculateRotation(response.data.player1CardCount, response.data.player2CardCount, response.data.player3CardCount, response.data.player4CardCount);
             $scope.data.table.attackCount = response.data.attackCount;
             $scope.message = response.data.message;
             if (response.data.status === "finished"){
                 $scope.getResults();
+            } else if ($scope.data.table.turnPlayerID == $scope.data.table.myPlayerId){
+                $scope.message = "It's your turn";
             }
         }),
         function(response){
