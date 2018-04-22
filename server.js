@@ -912,7 +912,7 @@ function playCardCheck(userID, gameID, playedCard, res) {
 }
 
 function updateBasedOnCard(snapshot, playerTurn, userID, gameID, playedCard) {
-    if (playedCard.number >= 1 && playedCard.number <= 6) {
+    if ((playedCard.number >= 1 && playedCard.number <= 6) || playedCard.number == 10) {
         //No Additional Effects
     }
     // update deck, hand, attackCount, etc
