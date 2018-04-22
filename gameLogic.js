@@ -36,7 +36,7 @@ module.exports = {
 
 
     //NOTE: The purple card always goes back into the deck when played
-    validateCard: function (topCard, card) {
+    validateCard: function (topCard, card, attackCount) {
         if ((topCard.number >= 1 && topCard.number <= 9) || topCard.number == 13 || topCard.number == 14) {
             if (topCard.color == card.color) {
                 return true;
@@ -50,17 +50,23 @@ module.exports = {
         } else if (topCard.number == 11) {
             if (card.number == 11 || card.number == 12 || card.number == 14 || card.number == 16 || card.number == 17) {
                 return true;
+            } else if (topCard.color == card.color && attackCount == 0) {
+                return true;
             } else {
                 return false;
             }
         } else if (topCard.number == 12) {
             if (card.number == 12 || card.number == 14 || card.number == 16 || card.number == 17) {
                 return true;
+            } else if (topCard.color == card.color && attackCount == 0) {
+                return true;
             } else {
                 return false;
             }
-        } else if (topCardnumber == 16) {
+        } else if (topCard.number == 16) {
             if (card.number == 14 || card.number == 17) {
+                return true;
+            } else if (topCard.color == card.color && attackCount == 0) {
                 return true;
             } else {
                 return false;
