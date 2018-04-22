@@ -492,7 +492,11 @@ function setUpNewGame(gameID) {
         var handFour = [];
         gameLogic.drawCard(deck, handFour, 7);
         var topCard = deck[0];
-        deck.slice(0, 1);
+        var i = 1;
+        while (!topCard.number >= 1 && !topCard.number <= 6) {
+            topCard = deck[i];
+        }
+        deck.splice(i, 1);
         currentGameRef.update({
             gameInfo: {
                 finished: false,
@@ -746,8 +750,6 @@ function playCardCheck(userID, gameID, playedCard, res) {
                             hand: hand
                         })
                         updateBasedOnCard(userID, gameID, playedCard);
-                        //Update Next Players Turn
-                        // update deck, hand, attackCount, etc
                     } else {
                         updatePlacings(snapshot, userID, gameID, playerTurn);
                     }
@@ -909,7 +911,11 @@ function playCardCheck(userID, gameID, playedCard, res) {
 }
 
 function updateBasedOnCard(userID, gameID, playedCard) {
-
+    if (playedCard.number >= 1 && playedCard.number <= 6) {
+        //No Additional Effects
+    }
+    //Update Next Players Turn
+    // update deck, hand, attackCount, etc
 }
 
 function updatePlacings(snapshot, userID, gameID, playerTurn) {
