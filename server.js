@@ -411,7 +411,6 @@ function lobbyLeaveCheck(userID, gameID, res) {
         } else {
             var response = {
                 status: 'failure',
-                status: 'failure',
                 error: 'User Not Signed In or User Does Not Exist'
             }
             console.log(JSON.stringify(response));
