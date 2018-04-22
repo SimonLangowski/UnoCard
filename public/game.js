@@ -181,7 +181,7 @@ var app = angular.module('gameApp', [])
         $scope.playCard(-1);
     }
     
-    $scope.playCard = function(c){
+    $scope.playCard = function(c){  
         var data = { userID: $scope.auth.userID,
             gameID: $scope.auth.gameID,
             card: c
@@ -189,6 +189,7 @@ var app = angular.module('gameApp', [])
         if ((c.number == 10) || (c.number == 15)){
             $scope.popup(c);
         } else {
+            $scope.showColorChooser = false;
             socket.emit('/game/play', data);
         }
     }
