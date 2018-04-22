@@ -11,13 +11,13 @@ var app = angular.module('gameApp', [])
         this.topCard = new Card();
         this.hand = [[]];
         this.leftCount = 7;
-        this.leftName = "";
+        this.leftName = "Loading..";
         this.rightCount = 7;
-        this.rightName = "";
+        this.rightName = "Loading..";
         this.acrossCount = 7;
-        this.acrossName = "";
+        this.acrossName = "Loading..";
         this.myCount = 7;
-        this.myName = "";
+        this.myName = "Loading..";
         this.myPlayerId = 1;
         this.turnPlayerId = 0;
         this.displayTurnId = -1;
@@ -28,7 +28,7 @@ var app = angular.module('gameApp', [])
     $scope.data.table = new Table();
    
     $scope.auth = {};
-    $scope.auth.userID = 0;
+    $scope.auth.userID = "Loading..";
     $scope.auth.gameID = 0;
     
     $scope.message = "Loading...";
