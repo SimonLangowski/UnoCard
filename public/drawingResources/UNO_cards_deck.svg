@@ -30,11 +30,11 @@
      showgrid="false"
      inkscape:zoom="0.59514821"
      inkscape:cx="743.97863"
-     inkscape:cy="862.04733"
+     inkscape:cy="593.20674"
      inkscape:window-x="-9"
      inkscape:window-y="-9"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer1" />
+     inkscape:current-layer="g6563-2-0" />
   <defs
      id="defs4" />
   <metadata
@@ -2496,7 +2496,9 @@
       </g>
       <g
          transform="matrix(4,0,0,4,-1260,-637.08653)"
-         id="g6563-6">
+         id="g6563-6"
+         inkscape:export-xdpi="96"
+         inkscape:export-ydpi="96">
         <rect
            width="60"
            height="90"
@@ -2945,7 +2947,9 @@
       </g>
       <g
          transform="matrix(4,0,0,4,-1260,-277.08653)"
-         id="g6563-5-5">
+         id="g6563-5-5"
+         inkscape:export-xdpi="96"
+         inkscape:export-ydpi="96">
         <rect
            width="60"
            height="90"
@@ -3371,7 +3375,9 @@
       </g>
       <g
          transform="matrix(4,0,0,4,-1260,82.913467)"
-         id="g6563-3-8">
+         id="g6563-3-8"
+         inkscape:export-xdpi="96"
+         inkscape:export-ydpi="96">
         <rect
            width="60"
            height="90"
@@ -3806,7 +3812,9 @@
            x="60"
            y="332.36218"
            id="rect2987-41-4"
-           style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none" />
+           style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none"
+           inkscape:export-xdpi="96"
+           inkscape:export-ydpi="96" />
         <rect
            width="50"
            height="80"
