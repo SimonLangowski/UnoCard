@@ -1095,7 +1095,7 @@ io.on('connection', function(socket){
         }
         updateGame(gameID){
             socket.in(String(gameID)).emit("GameUpdate");
-            //this.socket.emit("GameUpdate"); //gameUpdate method is already called on response in client so this isn't needed
+            this.socket.emit("GameUpdate"); //gameUpdate method is already called on response in client so this isn't needed
         }
         
         start(gameID){
