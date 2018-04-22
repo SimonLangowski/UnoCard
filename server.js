@@ -915,6 +915,7 @@ function playCardCheck(userID, gameID, playedCard, res) {
 function updateBasedOnCard(snapshot, playerTurn, userID, gameID, playedCard, deck, hand) {
     var attackCount = snapshot.child("games").child(gameID).child("gameInfo").child("attackCount").val();
     var direction = snapshot.child("games").child(gameID).child("gameInfo").child("playDirection").val();
+    var currentGameInfoRef = database.ref("games/" + gameID + "/gameInfo/");
     if ((playedCard.number >= 1 && playedCard.number <= 7) || playedCard.number == 10) {
         //No Additional Effects
     } else if (playedCard.number == 8) {
@@ -993,7 +994,6 @@ function updateBasedOnCard(snapshot, playerTurn, userID, gameID, playedCard, dec
     } else if (playedCard.number == 16) {
         attackCount += 5;
     }
-    var currentGameInfoRef = database.ref("games/" + gameID + "/gameInfo/");
     if (attackCount > 12)
         attackCount = 12;
     currentGameInfoRef.update({
