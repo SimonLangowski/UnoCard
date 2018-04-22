@@ -12,12 +12,12 @@
     <script src="game.js"></script>
     
 </head>
-<body background="/drawingResources/background.jpg">
+<body background="/drawingResources/background2.jpg">
 <div ng-app="gameApp" ng-controller = "gameController" ng-init="init()">
 <div class="right">
     <span ng-bind="auth.userID" class="smallMargin"></span>
     <a class="btn btn-primary right smallMargin" href="/instructions.html" target="_blank" role="button">Instructions</a>
-    <button type="button" class="btn btn-primary right smallMargin" ng-click="signOut()">Forfeit</button>
+    <button type="button" class="btn btn-danger right smallMargin" ng-click="signOut()">Forfeit</button>
     
 </div>
 <div class="statusBar smallMargin">
