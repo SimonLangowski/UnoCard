@@ -503,28 +503,28 @@ function setUpNewGame(gameID) {
                 thirdPlace: null,
                 fourthPlace: null,
                 playerOne: {
-                    userID: snapshot.child(gameID).names.val()[0],
+                    userID: snapshot.child(gameID).child(names).val()[0],
                     hasLost: false,
                     isCPU: false,
                     cardCount: 7,
                     hand: handOne
                 },
                 playerTwo: {
-                    userID: snapshot.child(gameID).names.val()[1],
+                    userID: snapshot.child(gameID).child(names).val()[1],
                     hasLost: false,
                     isCPU: false,
                     cardCount: 7,
                     hand: handTwo
                 },
                 playerThree: {
-                    userID: snapshot.child(gameID).names.val()[2],
+                    userID: snapshot.child(gameID).child(names).val()[2],
                     hasLost: false,
                     isCPU: false,
                     cardCount: 7,
                     hand: handThree
                 },
                 playerFour: {
-                    userID: snapshot.child(gameID).names.val()[3],
+                    userID: snapshot.child(gameID).child(names).val()[3],
                     hasLost: false,
                     isCPU: false,
                     cardCount: 7,
