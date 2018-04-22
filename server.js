@@ -504,28 +504,28 @@ function setUpNewGame(gameID) {
                 thirdPlace: null,
                 fourthPlace: null,
                 playerOne: {
-                    userID: snapshot.child(names).val()[0],
+                    userID: snapshot.child("names").val()[0],
                     hasLost: false,
                     isCPU: false,
                     cardCount: 7,
                     hand: handOne
                 },
                 playerTwo: {
-                    userID: snapshot.child(names).val()[1],
+                    userID: snapshot.child("names").val()[1],
                     hasLost: false,
                     isCPU: false,
                     cardCount: 7,
                     hand: handTwo
                 },
                 playerThree: {
-                    userID: snapshot.child(names).val()[2],
+                    userID: snapshot.child("names").val()[2],
                     hasLost: false,
                     isCPU: false,
                     cardCount: 7,
                     hand: handThree
                 },
                 playerFour: {
-                    userID: snapshot.child(names).val()[3],
+                    userID: snapshot.child("names").val()[3],
                     hasLost: false,
                     isCPU: false,
                     cardCount: 7,
@@ -1035,28 +1035,28 @@ app.post('/lobby/info', parser, function (req, res) {
     lobbyInfoCheck(userID, res);
 });
 
-app.post('game/init', parser, function (req, res) {
+app.post('/game/init', parser, function (req, res) {
     console.log(req.body);
     var userID = req.body.userID;
     var gameID = req.body.gameID;
     setUpPlayer(userID, gameID, res);
 });
 
-app.post('game/hand', parser, function (req, res) {
+app.post('/game/hand', parser, function (req, res) {
     console.log(req.body);
     var userID = req.body.userID;
     var gameID = req.body.gameID;
     searchForHand(userID, gameID, res);
 });
 
-app.post('game/board', parser, function (req, res) {
+app.post('/game/board', parser, function (req, res) {
     console.log(req.body);
     var userID = req.body.userID;
     var gameID = req.body.gameID;
     getBoard(userID, gameID, res);
 });
 
-app.post('game/results', parser, function (req, res) {
+app.post('/game/results', parser, function (req, res) {
     console.log(req.body);
     var userID = req.body.userID;
     var gameID = req.body.gameID;
