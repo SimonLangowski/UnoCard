@@ -437,6 +437,7 @@ function startGameCheck(userID, gameID, res) {
                         message: 'Game Start'
                     }
                     //res.updateAllLobbies();
+                    setUpNewGame(gameID);
                     res.start(gameID);
                     console.log(JSON.stringify(response));
                     res.send(response);
@@ -476,6 +477,412 @@ function startGameCheck(userID, gameID, res) {
     });
 }
 
+function setUpNewGame(gameID) {
+    var currentGameRef = database.ref("games/" + gameID);
+    currentGameRef.once("value").then(function (snapshot) {
+        var deck = gameLogic.getNewDeck();
+        gameLogic.shuffle(deck);
+        var handOne = [];
+        gameLogic.drawCard(deck, handOne, 7);
+        var handTwo = [];
+        gameLogic.drawCard(deck, handTwo, 7);
+        var handThree = [];
+        gameLogic.drawCard(deck, handThree, 7);
+        var handFour = [];
+        gameLogic.drawCard(deck, handFour, 7);
+        currentGameRef.update({
+            gameInfo: {
+                finished: false,
+                deck: deck,
+                playDirection: "increasing",
+                currentPlayer: 1,
+                attackCount: 0,
+                topCard: null,
+                firstPlace: null,
+                secondPlace: null,
+                thirdPlace: null,
+                fourthPlace: null,
+                playerOne: {
+                    userID: snapshot.child(names).val()[0],
+                    hasLost: false,
+                    isCPU: false,
+                    cardCount: 7,
+                    hand: handOne
+                },
+                playerTwo: {
+                    userID: snapshot.child(names).val()[1],
+                    hasLost: false,
+                    isCPU: false,
+                    cardCount: 7,
+                    hand: handTwo
+                },
+                playerThree: {
+                    userID: snapshot.child(names).val()[2],
+                    hasLost: false,
+                    isCPU: false,
+                    cardCount: 7,
+                    hand: handThree
+                },
+                playerFour: {
+                    userID: snapshot.child(names).val()[3],
+                    hasLost: false,
+                    isCPU: false,
+                    cardCount: 7,
+                    hand: handFour
+                }
+            }
+        });
+    });
+}
+
+function setUpPlayer(userID, gameID, res) {
+    var ref = database.ref();
+    ref.once("value").then(function (snapshot) {
+        if (snapshot.child("users").child(userID).child("lobbyID").val() == gameID) {
+            var nameOne = snapshot.child("games").child(gameID).child("gameInfo").child("playerOne").child("userID").val();
+            var nameTwo = snapshot.child("games").child(gameID).child("gameInfo").child("playerTwo").child("userID").val();
+            var nameThree = snapshot.child("games").child(gameID).child("gameInfo").child("playerThree").child("userID").val();
+            var nameFour = snapshot.child("games").child(gameID).child("gameInfo").child("playerFour").child("userID").val();
+            var response = {
+                status: 'success',
+                message: 'Player Initialized',
+                myPlayerID: null,
+                username1: nameOne,
+                username2: nameTwo,
+                username3: nameThree,
+                username4: nameFour
+            }
+            if (nameOne == userID) {
+                response.myPlayerID = Number("1");
+            } else if (nameTwo == userID) {
+                response.myPlayerID = Number("2");
+            } else if (nameThree == userID) {
+                response.myPlayerID = Number("3");
+            } else {
+                response.myPlayerID = Number("4");
+            }
+            console.log(JSON.stringify(response));
+            res.send(JSON.stringify(response));
+        } else {
+            var response = {
+                status: 'failure',
+                error: 'Player Not In The Lobby'
+            }
+            console.log(JSON.stringify(response));
+            res.send(JSON.stringify(response));
+        }
+    });
+}
+
+function searchForHand(userID, gameID, res) {
+    var ref = database.ref();
+    ref.once("value").then(function (snapshot) {
+        if (snapshot.child("users").child(userID).child("lobbyID").val() == gameID) {
+            var nameOne = snapshot.child("games").child(gameID).child("gameInfo").child("playerOne").child("userID").val();
+            var nameTwo = snapshot.child("games").child(gameID).child("gameInfo").child("playerTwo").child("userID").val();
+            var nameThree = snapshot.child("games").child(gameID).child("gameInfo").child("playerThree").child("userID").val();
+            var nameFour = snapshot.child("games").child(gameID).child("gameInfo").child("playerFour").child("userID").val();
+            var response = {
+                status: 'success',
+                message: 'Hand',
+                hand: null
+            }
+            if (nameOne == userID) {
+                response.hand = snapshot.child("games").child(gameID).child("gameInfo").child("playerOne").child("hand").val();
+            } else if (nameTwo == userID) {
+                response.hand = snapshot.child("games").child(gameID).child("gameInfo").child("playerTwo").child("hand").val();
+            } else if (nameThree == userID) {
+                response.hand = snapshot.child("games").child(gameID).child("gameInfo").child("playerThree").child("hand").val();
+            } else {
+                response.hand = snapshot.child("games").child(gameID).child("gameInfo").child("playerFour").child("hand").val();
+            }
+            console.log(JSON.stringify(response));
+            res.send(JSON.stringify(response));
+        } else {
+            var response = {
+                status: 'failure',
+                error: 'Player Not In The Lobby'
+            }
+            console.log(JSON.stringify(response));
+            res.send(JSON.stringify(response));
+        }
+    });
+}
+
+function getBoard(userID, gameID, res) {
+    var ref = database.ref();
+    ref.once("value").then(function (snapshot) {
+        if (snapshot.child("users").child(userID).child("lobbyID").val() == gameID) {
+            if (snapshot.child("games").child(gameID).child("gameInfo").child("finished").val() == true) {
+                var response = {
+                    status: 'finished',
+                    message: 'Game Finished'
+                }
+                console.log(JSON.stringify(response));
+                res.send(JSON.stringify(response));
+            } else {
+                var response = {
+                    status: 'success',
+                    message: null,
+                    topCard: snapshot.child("games").child(gameID).child("gameInfo").child("topCard").val(),
+                    attackCount: snapshot.child("games").child(gameID).child("gameInfo").child("attackCount").val(),
+                    player1CardCount: snapshot.child("games").child(gameID).child("gameInfo").child("playerOne").child("cardCount").val(),
+                    player2CardCount: snapshot.child("games").child(gameID).child("gameInfo").child("playerTwo").child("cardCount").val(),
+                    player3CardCount: snapshot.child("games").child(gameID).child("gameInfo").child("playerThree").child("cardCount").val(),
+                    player4CardCount: snapshot.child("games").child(gameID).child("gameInfo").child("playerFour").child("cardCount").val(),
+                }
+                var playerTurn = snapshot.child("games").child(gameID).child("gameInfo").child("currentPlayer").val();
+                if (playerTurn == 1) {
+                    response.message = "It's " + snapshot.child("games").child(gameID).child("gameInfo").child("playerOne").child(userID).val() +
+                        " turn";
+                } else if (playerTurn == 2) {
+                    response.message = "It's " + snapshot.child("games").child(gameID).child("gameInfo").child("playerTwo").child(userID).val() +
+                        " turn";
+                } else if (playerTurn == 3) {
+                    response.message = "It's " + snapshot.child("games").child(gameID).child("gameInfo").child("playerThree").child(userID).val() +
+                        " turn";
+                } else {
+                    response.message = "It's " + snapshot.child("games").child(gameID).child("gameInfo").child("playerFour").child(userID).val() +
+                        " turn";
+                }
+                console.log(JSON.stringify(response));
+                res.send(JSON.stringify(response));
+            }
+        } else {
+            var response = {
+                status: 'failure',
+                error: 'Player Not In The Lobby'
+            }
+            console.log(JSON.stringify(response));
+            res.send(JSON.stringify(response));
+        }
+    });
+}
+
+function calculateResults(userID, gameID, res) {
+    var ref = database.ref();
+    ref.once("value").then(function (snapshot) {
+        if (snapshot.child("users").child(userID).child("lobbyID").val() == gameID) {
+            var placeOne = snapshot.child("games").child(gameID).child("gameInfo").child("firstPlace").val();
+            var placeTwo = snapshot.child("games").child(gameID).child("gameInfo").child("secondPlace").val();
+            var placeThree = snapshot.child("games").child(gameID).child("gameInfo").child("thirdPlace").val();
+            var placeFour = snapshot.child("games").child(gameID).child("gameInfo").child("fourthPlace").val();
+            var resultsString = "1st Place: " + placeOne + "\n2nd Place: " + placeTwo + "\n3rd Place: " + placeThree +
+                "\n4th Place: " + placeFour;
+            var response = {
+                status: null,
+                results: resultsString
+            }
+            if (placeOne == userID) {
+                response.status = "victory";
+            } else {
+                response.status = "defeat";
+            }
+            console.log(JSON.stringify(response));
+            res.send(JSON.stringify(response));
+        } else {
+            var response = {
+                status: 'failure',
+                error: 'Player Not In The Lobby'
+            }
+            console.log(JSON.stringify(response));
+            res.send(JSON.stringify(response));
+        }
+    });
+}
+
+function playCardCheck(userID, gameID, playedCard, res) {
+    var ref = database.ref();
+    ref.once("value").then(function (snapshot) {
+        if (snapshot.child("users").child(userID).child("lobbyID").val() == gameID) {
+            var playerID;
+            var playerTurn = snapshot.child("games").child(gameID).child("gameInfo").child("currentPlayer").val();
+            var currentPlayerUserID;
+            if (playerTurn == 1) {
+                currentPlayerUserID = snapshot.child("games").child(gameID).child("gameInfo").child("playerOne").child("userID").val();
+                playerID = "playerOne";
+            } else if (playerTurn == 2) {
+                currentPlayerUserID = snapshot.child("games").child(gameID).child("gameInfo").child("playerTwo").child("userID").val();
+                playerID = "playerTwo";
+            } else if (playerTurn == 3) {
+                currentPlayerUserID = snapshot.child("games").child(gameID).child("gameInfo").child("playerThree").child("userID").val();
+                playerID = "playerThree";
+            } else {
+                currentPlayerUserID = snapshot.child("games").child(gameID).child("gameInfo").child("playerFour").child("userID").val();
+                playerID = "playerFour";
+            }
+            var topCard = snapshot.child("games").child(gameID).child("gameInfo").child("topCard").val();
+            if (userID == currentPlayerUserID) {
+                if (playedCard != -1 && (topCard == null || gameLogic.validateCard(topCard, playedCard))) {
+                    //Player Played A Card
+                    //UPDATE, put card back into deck
+                    //Update Next Players Turn
+                    //Check If Card Can be Played, play card, update all players board, update deck, hand, attackCount, etc
+                    // CHECK IF USER 0 CARDS AFTER && SET gameFinished BOOLEAN
+                    //SET top card
+                } else if (playedCard == -1) {
+                    //Player Has To Draw Card(s)
+                    var drawNumber = 1;
+                    var deck = snapshot.child("games").child(gameID).child("gameInfo").child("deck").val();
+                    var hand = snapshot.child("games").child(gameID).child("gameInfo").child(playerID).child("hand").val();
+                    if (snapshot.child("games").child(gameID).child("gameInfo").child("attackCount").val() != 0)
+                        drawNumber = snapshot.child("games").child(gameID).child("gameInfo").child("attackCount").val();
+                    if (snapshot.child("games").child(gameID).child("gameInfo").child(playerID).child("cardCount").val() + drawNumber <= 16) {
+                        //Player Has To Draw Cards and Hand Doesn't have More than 16 Cards
+                        if (snapshot.child("games").child(gameID).child("gameInfo").child("deck").val().length >= drawNumber) {
+                            gameLogic.drawCard(deck, hand, drawNumber);
+                        } else {
+                            gameLogic.drawCard(deck, hand, snapshot.child("games").child(gameID).child("gameInfo").child("deck").val().length);
+                        }
+                        var currentGameUserRef = database.ref("games/" + gameID + "/gameInfo/" + playerID);
+                        currentGameUserRef.update({
+                            hand: hand,
+                            cardCount: hand.length
+                        });
+                        var currentGameInfoRef = database.ref("games/" + gameID + "/gameInfo/");
+                        if (snapshot.child("games").child(gameID).child("gameInfo").child("playDirection").val() == "increasing") {
+                            while (true) {
+                                playerTurn++;
+                                if (playerTurn > 4)
+                                    playerTurn = 1;
+                                if (snapshot.child("games").child(gameID).child("gameInfo").child(getPlayerNumberBasedOnID(playerTurn)).
+                                    child("hasLost").val() == false)
+                                    break;
+                            }
+                        } else {
+                            while (true) {
+                                playerTurn--;
+                                if (playerTurn < 1)
+                                    playerTurn = 4;
+                                if (snapshot.child("games").child(gameID).child("gameInfo").child(getPlayerNumberBasedOnID(playerTurn)).
+                                    child("hasLost").val() == false)
+                                    break;
+                            }
+                        }
+                        currentGameInfoRef.update({
+                            deck: deck,
+                            attackCount: 0,
+                            currentPlayer: playerTurn
+                            
+                        });
+                        var response = {
+                            status: 'success',
+                            message: 'Playing'
+                        }
+                        res.updateGame(gameID);
+                        console.log(JSON.stringify(response));
+                        res.send(response);
+                    } else {
+                        //Player Lost From Drawing Too Many Cards
+                        var deck = snapshot.child("games").child(gameID).child("gameInfo").child("deck").val();
+                        var hand = snapshot.child("games").child(gameID).child("gameInfo").child(playerID).child("hand").val();
+                        var currentGameInfoRef = database.ref("games/" + gameID + "/gameInfo/");
+                        gameLogic.putHandIntoDeck(deck, hand);
+                        var currentPlayerRef = database.ref("games/" + gameID + "/gameInfo/" + playerID);
+                        currentPlayerRef.update({
+                            hasLost: true,
+                            cardCount: 0,
+                            hand: null
+                        });
+                        var loop = playerTurn;
+                        if (snapshot.child("games").child(gameID).child("gameInfo").child("playDirection").val() == "increasing") {
+                            while (true) {
+                                playerTurn++;
+                                if (playerTurn > 4)
+                                    playerTurn = 1;
+                                if (playerTurn == loop) {
+                                    break;
+                                }
+                                if (snapshot.child("games").child(gameID).child("gameInfo").child(getPlayerNumberBasedOnID(playerTurn)).
+                                    child("hasLost").val() == false)
+                                    break;
+                            }
+                        } else {
+                            while (true) {
+                                playerTurn--;
+                                if (playerTurn < 1)
+                                    playerTurn = 4;
+                                if (playerTurn == loop) {
+                                    break;
+                                }
+                                if (snapshot.child("games").child(gameID).child("gameInfo").child(getPlayerNumberBasedOnID(playerTurn)).
+                                    child("hasLost").val() == false)
+                                    break;
+                            }
+                        }
+                        var placeToUpdate;
+                        if (snapshot.child("games").child(gameID).child("gameInfo").child("fourthPlace").val() == null) {
+                            placeToUpdate = "fourthPlace";
+                        } else if (snapshot.child("games").child(gameID).child("gameInfo").child("thirdPlace").val() == null) {
+                            placeToUpdate = "thirdPlace";
+                        } else {
+                            placeToUpdate = "secondPlace";
+                        }
+                        currentGameInfoRef.update({
+                            deck: deck,
+                            attackCount: 0,
+                            currentPlayer: playerTurn,
+                            [placeToUpdate]: userID
+
+                        });
+                        if (placeToUpdate == "secondPlace") {
+                            var remaining = snapshot.child("games").child(gameID).child(names).val();
+                            remaining.splice(snapshot.child("games").child(gameID).child("gameInfo").child("fourthPlace").val(), 1);
+                            remaining.splice(snapshot.child("games").child(gameID).child("gameInfo").child("thirdPlace").val(), 1);
+                            remaining.splice(userID, 1);
+                            currentGameInfoRef.update({
+                                finished: true,
+                                firstPlace: remaining[0]
+                            });
+                        }
+                        var response = {
+                            status: 'success',
+                            message: 'Lost'
+                        }
+                        res.updateGame(gameID);
+                        console.log(JSON.stringify(response));
+                        res.send(response);
+                    }
+                } else {
+                    var response = {
+                        status: 'failure',
+                        error: 'You Can\'t Play That Card'
+                    }
+                    console.log(JSON.stringify(response));
+                    res.send(response);
+                }
+            } else {
+                var response = {
+                    status: 'failure',
+                    error: 'It\'s Not Your Turn'
+                }
+                console.log(JSON.stringify(response));
+                res.send(response);
+            }
+        } else {
+            var response = {
+                status: 'failure',
+                error: 'Player Not In The Lobby'
+            }
+            console.log(JSON.stringify(response));
+            res.send(response);
+        }
+    }
+}
+
+function getPlayerNumberBasedOnID(playerID) {
+    if (playerID == 1) {
+        return "playerOne";
+    } else if (playerID == 2) {
+        return "playerTwo";
+    } else if (playerID == 3) {
+        return"playerThree";
+    } else {
+        return "playerFour";
+    }
+
+}
+
 app.use(express.static('public'))
 
 app.route('/profiles/:userId').get(function(req, res){
@@ -512,6 +919,34 @@ app.post('/lobby/info', parser, function (req, res) {
     console.log(req.body);
     var userID = req.body.userID;
     lobbyInfoCheck(userID, res);
+});
+
+app.post('game/init', parser, function (req, res) {
+    console.log(req.body);
+    var userID = req.body.userID;
+    var gameID = req.body.gameID;
+    setUpPlayer(userID, gameID, res);
+});
+
+app.post('game/hand', parser, function (req, res) {
+    console.log(req.body);
+    var userID = req.body.userID;
+    var gameID = req.body.gameID;
+    searchForHand(userID, gameID, res);
+});
+
+app.post('game/board', parser, function (req, res) {
+    console.log(req.body);
+    var userID = req.body.userID;
+    var gameID = req.body.gameID;
+    getBoard(userID, gameID, res);
+});
+
+app.post('game/results', parser, function (req, res) {
+    console.log(req.body);
+    var userID = req.body.userID;
+    var gameID = req.body.gameID;
+    calculateResults(userID, gameID, res);
 });
 
 app.all("/", (req, res) => {
@@ -591,6 +1026,15 @@ io.on('connection', function(socket){
         var userID = data.userID;
         createLobbyCheck(userID, new SocketWrapper(socket, '/lobby/create'));
     });
+
+
+    socket.on('/game/play', function (data)){
+        console.log(data);
+        var userID = data.userID;
+        var gameID = data.gameID;
+        var playedCard = data.card;
+        playCardCheck(userID, gameID, playedCard, new SocketWrapper(socket, '/game/play'));
+    }
 
     socket.on('Register', function(data){
         socket.join(String(data.gameID));
