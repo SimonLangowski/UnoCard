@@ -748,9 +748,10 @@ function playCardCheck(userID, gameID, playedCard, res) {
                         var currentPlayerRef = database.ref("games/" + gameID + "/gameInfo/" + playerID);
                         hand.splice(indexOfCard, 1);
                         currentPlayerRef.update({
-                            hand: hand
+                            hand: hand,
+                            cardCount: hand.length
                         })
-                        updateBasedOnCard(snapshot, playerTurn, userID, gameID, playedCard);
+                        updateBasedOnCard(snapshot, playerTurn, userID, gameID, playedCard, deck, hand);
                     } else {
                         updatePlacings(snapshot, userID, gameID, playerTurn);
                     }
@@ -911,14 +912,96 @@ function playCardCheck(userID, gameID, playedCard, res) {
     })
 }
 
-function updateBasedOnCard(snapshot, playerTurn, userID, gameID, playedCard) {
-    if ((playedCard.number >= 1 && playedCard.number <= 6) || playedCard.number == 10) {
+function updateBasedOnCard(snapshot, playerTurn, userID, gameID, playedCard, deck, hand) {
+    var attackCount = snapshot.child("games").child(gameID).child("gameInfo").child("attackCount").val();
+    var direction = snapshot.child("games").child(gameID).child("gameInfo").child("playDirection").val();
+    if ((playedCard.number >= 1 && playedCard.number <= 7) || playedCard.number == 10) {
         //No Additional Effects
+    } else if (playedCard.number == 8) {
+        //Skip
+        if (snapshot.child("games").child(gameID).child("gameInfo").child("playDirection").val() == "increasing") {
+            var skipped = 0;
+            while (skipped == 0 || skipped == 1) {
+                playerTurn++;
+                if (playerTurn > 4) {
+                    playerTurn = 1;
+                }
+                if (snapshot.child("games").child(gameID).child("gameInfo").child(getPlayerNumberBasedOnID(playerTurn)).
+                    child("hasLost").val() == false)
+                    skipped++;
+            }
+        } else {
+            var skipped = 0;
+            while (skipped == 0 || skipped == 1) {
+                playerTurn--;
+                if (playerTurn < 1) {
+                    playerTurn = 4;
+                }
+                if (snapshot.child("games").child(gameID).child("gameInfo").child(getPlayerNumberBasedOnID(playerTurn)).
+                    child("hasLost").val() == false)
+                    skipped++;
+            }
+        }
+        currentGameInfoRef.update({
+            currentPlayer: playerTurn
+
+        });
+    } else if (playedCard.number == 9) {
+        //Reverse
+        if (direction == "increasing") {
+            direction = "decreasing";
+        } else {
+            direction = "increasing";
+        }
+        if (snapshot.child("games").child(gameID).child("gameInfo").child("playDirection").val() == "increasing") {
+            while (true) {
+                playerTurn--;
+                if (playerTurn < 1)
+                    playerTurn = 4;
+                if (snapshot.child("games").child(gameID).child("gameInfo").child(getPlayerNumberBasedOnID(playerTurn)).
+                    child("hasLost").val() == false)
+                    break;
+            }
+        } else {
+            while (true) {
+                playerTurn++;
+                if (playerTurn > 4)
+                    playerTurn = 1;
+                if (snapshot.child("games").child(gameID).child("gameInfo").child(getPlayerNumberBasedOnID(playerTurn)).
+                    child("hasLost").val() == false)
+                    break;
+            }
+        }
+        currentGameInfoRef.update({
+            currentPlayer: playerTurn
+
+        });
+    } else if (playedCard.number == 11) {
+        attackCount += 2;
+    } else if (playedCard.number == 12) {
+        attackCount += 3;
+    } else if (playedCard.number == 13) {
+        //Draw 2 Cards For Everyone (6)
+        //Change Number of Cards in ech players hands and hands count
+        //Check if drawing cards leads to loss
+    } else if (playedCard.number == 14) {
+        attackCount = 0;
+    } else if (playedCard.number == 15) {
+        //Get Rid of All Green Cards
+        //Check if Someone has won
+        //Change Number of Cards in each players hands, and hands
+    } else if (playedCard.number == 16) {
+        attackCount += 5;
     }
-    // update deck, hand, attackCount, etc
-    if (playedCard.number != 8 && playedCard.number != 9) {
+    var currentGameInfoRef = database.ref("games/" + gameID + "/gameInfo/");
+    if (attackCount > 12)
+        attackCount = 12;
+    currentGameInfoRef.update({
+        attackCount: attackCount,
+        playDirection: direction
+    });
+    if (playedCard.number != 8 && playedCard.number != 9 && playedCard.number != 7) {
         //Can Update Turn Normally
-        var currentGameInfoRef = database.ref("games/" + gameID + "/gameInfo/");
         if (snapshot.child("games").child(gameID).child("gameInfo").child("playDirection").val() == "increasing") {
             while (true) {
                 playerTurn++;
