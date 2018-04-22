@@ -34,21 +34,6 @@ var app = angular.module('lobbyApp', [])
         $scope.updateLobbies();
     });
     
-    $scope.goToGame = function(){
-        document.cookie = "GAME_ID=" + $scope.currentLobby + ";path=/";
-        //redirect
-        window.location.href = "/game.html";
-    }
-    
-    socket.on('Start Game', function(gameID){
-        console.log(gameID);
-        if (gameID === $scope.currentLobby){
-           $scope.goToGame();
-        }
-    });
-    
-
-    
     $scope.updateLobbies = function(){
         $http.post('/lobby/info', {userID: $scope.userID})
         .then(function(response){
@@ -149,6 +134,19 @@ var app = angular.module('lobbyApp', [])
             $scope.message = response.error;
         }
     })
+    
+    $scope.goToGame = function(){
+        document.cookie = "GAME_ID=" + $scope.currentLobby + ";path=/";
+        //redirect
+        window.location.href = "/game.html";
+    }
+    
+    socket.on('Start Game', function(gameID){
+        console.log(gameID);
+        if (gameID === $scope.currentLobby){
+           $scope.goToGame();
+        }
+    });
     
     // https://stackoverflow.com/questions/10593013/delete-cookie-by-name
     $scope.deleteCookie = function(name) {
