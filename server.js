@@ -637,20 +637,21 @@ function getBoard(userID, gameID, res) {
                     player2CardCount: snapshot.child("games").child(gameID).child("gameInfo").child("playerTwo").child("cardCount").val(),
                     player3CardCount: snapshot.child("games").child(gameID).child("gameInfo").child("playerThree").child("cardCount").val(),
                     player4CardCount: snapshot.child("games").child(gameID).child("gameInfo").child("playerFour").child("cardCount").val(),
+                    playerTurnID: playerTurn
                 }
                 var playerTurn = snapshot.child("games").child(gameID).child("gameInfo").child("currentPlayer").val();
                 if (playerTurn == 1) {
                     response.message = "It's " + snapshot.child("games").child(gameID).child("gameInfo").child("playerOne").child("userID").val() +
-                        " turn";
+                        "\'s turn";
                 } else if (playerTurn == 2) {
                     response.message = "It's " + snapshot.child("games").child(gameID).child("gameInfo").child("playerTwo").child("userID").val() +
-                        " turn";
+                        "\'s turn";
                 } else if (playerTurn == 3) {
                     response.message = "It's " + snapshot.child("games").child(gameID).child("gameInfo").child("playerThree").child("userID").val() +
-                        " turn";
+                        "\'s turn";
                 } else {
                     response.message = "It's " + snapshot.child("games").child(gameID).child("gameInfo").child("playerFour").child("userID").val() +
-                        " turn";
+                        "\'s turn";
                 }
                 console.log(JSON.stringify(response));
                 res.send(JSON.stringify(response));
