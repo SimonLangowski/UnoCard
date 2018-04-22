@@ -411,6 +411,7 @@ function lobbyLeaveCheck(userID, gameID, res) {
         } else {
             var response = {
                 status: 'failure',
+                status: 'failure',
                 error: 'User Not Signed In or User Does Not Exist'
             }
             console.log(JSON.stringify(response));
@@ -437,6 +438,7 @@ function startGameCheck(userID, gameID, res) {
                         message: 'Game Start'
                     }
                     //res.updateAllLobbies();
+                    setUpNewGame(gameID);
                     res.start(gameID);
                     console.log(JSON.stringify(response));
                     res.send(response);
@@ -473,6 +475,43 @@ function startGameCheck(userID, gameID, res) {
             console.log(JSON.stringify(response));
             res.send(response);
         }
+    });
+}
+
+function setUpNewGame(gameID) {
+    var gamesRef = database.ref("games/" + gameID);
+    gamesRef.update({
+        gameInfo: {
+            deck: gameLogic.shuffle(gameLogic.getNewDeck()),
+            playDirection: "increasing",
+            currentPlayer: 1,
+            attackCount: 0,
+            topCard: null,
+            firstPlace: null,
+            secondPlace: null,
+            thirdPlace: null,
+            fourthPlace: null
+        }
+    });
+
+}
+
+function setUpPlayer(userID, gameID, res) {
+    var gamesRef = database.ref("games");
+    gamesRef.once("value").then(function (snapshot) {
+        var currentGameRef = database.ref("games/" + gameID + "/gameInfo");
+        var playerID = snapshot.child(gameID).names.val().indexOf(userID) + 1;
+        var hand = [];
+        gameLogic.drawCard(snapshot.child(gameID).child("gameInfo").child(deck).val(), hand, 7);
+        currentGameRef.update({
+            [playerID]: {
+                userID: userID,
+                hasLost: false,
+                isCPU: false,
+                cardCount: 7,
+                hand: hand
+            }
+        });
     });
 }
 
@@ -513,6 +552,14 @@ app.post('/lobby/info', parser, function (req, res) {
     var userID = req.body.userID;
     lobbyInfoCheck(userID, res);
 });
+
+app.post('game/init', parser, function (req, res) {
+    console.log(req.body);
+    var userID = req.body.userID;
+    var gameID = req.body.gameID;
+    setUpPlayer(userID, gameID, res);
+});
+
 
 app.all("/", (req, res) => {
     res.redirect(301, "/login.html");

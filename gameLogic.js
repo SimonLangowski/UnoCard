@@ -76,6 +76,12 @@ module.exports = {
                 return false;
             }
         }
+    },
+
+    drawCard: function (deck, hand, numCards) {
+        for (i = 0; i < numCards; i++) {
+            hand.push(deck.pop());
+        }
     }
     
 };
