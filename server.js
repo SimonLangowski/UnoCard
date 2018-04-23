@@ -487,6 +487,7 @@ function setUpNewGame(gameID) {
         var i = 1;
         while (!(topCard.number >= 1 && topCard.number <= 6)) {
             topCard = deck[i];
+            i++;
         }
         deck.splice(i, 1);
         var handOne = [];
