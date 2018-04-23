@@ -32,6 +32,7 @@ var app = angular.module('gameApp', [])
     $scope.message = "Loading...";
     $scope.message2 = "";
     $scope.message2TurnsRemaining = 0;
+    $scope.showResult = "";
     
     $scope.init = function(){
         $scope.auth.userID = $scope.getCookie("USER_ID");
@@ -241,6 +242,7 @@ var app = angular.module('gameApp', [])
         .then(function(response){
             $scope.message = response.data.results;
             $scope.deleteCookie("GAME_ID"); //remove cookie to allow making other games
+            $scope.showResult = response.data.status;
         }),
         function(response){
             console.log("Error: " + response);
