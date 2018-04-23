@@ -424,6 +424,8 @@ function moreStepsIfGameStarted(snapshot, userID, gameID) {
     if (snapshot.child(gameID).child("isStarted").val() == true) {
         var player = getPlayerBasedOnUserID(snapshot, userID, gameID);
         var deck = snapshot.child(gameID).child("gameInfo").child("deck").val();
+        if (deck == null)
+            deck = [];
         var hand = snapshot.child(gameID).child("gameInfo").child(player).child("hand").val();
         var gameInfoRef = database.ref("games/" + gameID + "/gameInfo");
         var playerRef = database.ref("games/" + gameID + "/gameInfo/" + player);
@@ -944,6 +946,8 @@ function playCardCheck(userID, gameID, playedCard, res) {
 function playCard(snapshot, userID, playerID, playerTurn, gameID, playedCard, topCard, res){
     //Player Played A Card
     var deck = snapshot.child("games").child(gameID).child("gameInfo").child("deck").val();
+    if (deck == null)
+        deck = [];
     var hand = snapshot.child("games").child(gameID).child("gameInfo").child(playerID).child("hand").val();
     if (hand.length != 1) {
         var currentGameInfoRef = database.ref("games/" + gameID + "/gameInfo/");
@@ -993,9 +997,10 @@ function drawCard(snapshot, playerTurn, playerID, gameID, res){
         drawNumber = snapshot.child("games").child(gameID).child("gameInfo").child("attackCount").val();
     if (snapshot.child("games").child(gameID).child("gameInfo").child(playerID).child("cardCount").val() + drawNumber <= 16) {
         //Player Has To Draw Cards and Hand Doesn't have More than 16 Cards
-        if (snapshot.child("games").child(gameID).child("gameInfo").child("deck").val().length >= drawNumber) {
+        var deckNullCheck = snapshot.child("games").child(gameID).child("gameInfo").child("deck").val();
+        if (deckNullCheck != null && snapshot.child("games").child(gameID).child("gameInfo").child("deck").val().length >= drawNumber) {
             gameLogic.drawCard(deck, hand, drawNumber);
-        } else {
+        } else if (deckNullCheck != null && snapshot.child("games").child(gameID).child("gameInfo").child("deck").val().length >= drawNumber){
             gameLogic.drawCard(deck, hand, snapshot.child("games").child(gameID).child("gameInfo").child("deck").val().length);
         }
         var currentGameUserRef = database.ref("games/" + gameID + "/gameInfo/" + playerID);
@@ -1029,9 +1034,16 @@ function drawCard(snapshot, playerTurn, playerID, gameID, res){
             currentPlayer: playerTurn
             
         });
-        var response = {
-            status: 'success',
-            message: 'Playing'
+        if (deckNullCheck != null) {
+            var response = {
+                status: 'success',
+                message: 'Playing'
+            }
+        } else {
+            var response = {
+                status: 'success',
+                message: 'Deck Has No More Cards'
+            }
         }
         res.updateGame(gameID);
         console.log(JSON.stringify(response));
