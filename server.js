@@ -1549,6 +1549,7 @@ function makeCPUMoveCheck (playerTurn, gameID, socketWrapper){
             } else {
                 console.log("Give player ID to CPU method rather than userID");
             }
+            socketWrapper.route = null;
             makeCPUMoveInternal(snapshot, hand, topCard, attackCount, playerTurn, userID, gameID, socketWrapper);
         }
     });
@@ -1747,7 +1748,9 @@ io.on('connection', function(socket){
         
         //this takes the place of the response send method
         send(data){
-            this.socket.emit(this.route, data);
+            if (this.route != null){
+                this.socket.emit(this.route, data);
+            }
         }
         
         //these two methods are also included for convenience

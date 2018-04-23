@@ -257,6 +257,8 @@ var app = angular.module('gameApp', [])
             window.location.href = "/lobby.html";
         } else {
             $scope.message = response.error;
+            $scope.deleteCookie("GAME_ID");
+            window.location.href = "/lobby.html";
         }
     });
     
