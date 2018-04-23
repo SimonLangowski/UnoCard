@@ -983,12 +983,14 @@ function updateBasedOnCard(snapshot, playerTurn, userID, gameID, playedCard, dec
     } else if (playedCard.number == 12) {
         attackCount += 3;
     } else if (playedCard.number == 13) {
+        specialBlueCard(snapshot, playerTurn, userID, gameID, playedCard, deck, hand);
         //Draw 2 Cards For Everyone (6)
-        //Change Number of Cards in ech players hands and hands count
+        //Change Number of Cards in each players hands and hands count
         //Check if drawing cards leads to loss
     } else if (playedCard.number == 14) {
         attackCount = 0;
     } else if (playedCard.number == 15) {
+        specialGreenCard(snapshot, playerTurn, userID, gameID, playedCard, deck, hand);
         //Get Rid of All Green Cards
         //Check if Someone has won
         //Change Number of Cards in each players hands, and hands
@@ -1095,6 +1097,14 @@ function updatePlacings(snapshot, userID, gameID, playerTurn) {
             considerOrder.splice(minIndex, 1);
         }
     }
+}
+
+function specialGreenCard(snapshot, playerTurn, userID, gameID, playedCard, deck, hand) {
+
+}
+
+function specialBlueCard(snapshot, playerTurn, userID, gameID, playedCard, deck, hand) {
+    
 }
 
 function getPlaceBasedOnNumber(number) {
