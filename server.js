@@ -1131,6 +1131,118 @@ function getPlayerNumberBasedOnID(playerID) {
 
 }
 
+//checks if cpu and schedules cpu turn in one second
+function makeCPUMoveCheck (playerID, gameID, socketWrapper){
+    var currentGameRef = database.ref("games/" + gameID);
+    currentGameRef.once("value").then(function (snapshot) {
+        var isCPU = false;
+        if (playerID == 1){
+            isCPU = snapshot.child("gameInfo").child("playerOne").child("isCPU").val();
+        } else if (playerID == 2){
+            isCPU = snapshot.child("gameInfo").child("playerTwo").child("isCPU").val();
+        } else if (playerID == 3){
+            isCPU = snapshot.child("gameInfo").child("playerThree").child("isCPU").val();
+        } else if (playerID == 4){
+            isCPU = snapshot.child("gameInfo").child("playerFour").child("isCPU").val();
+        } else {
+            console.log("Give player ID to CPU method rather than userID");
+        }
+        if (isCPU){
+            var topCard = snapshot.child("gameInfo").child("topCard").val();
+            var attackCount = snapshot.child("gameInfo").child("attackCount").val();
+            var hand;
+            var userID;
+            if (playerID == 1){
+                userID = snapshot.child("gameInfo").child("playerOne").child("userID").val();
+                hand = snapshot.child("gameInfo").child("playerOne").child("hand").val();
+            } else if (playerID == 2){
+                userID = snapshot.child("gameInfo").child("playerTwo").child("userID").val();
+                hand = snapshot.child("gameInfo").child("playerTwo").child("hand").val();
+            } else if (playerID == 3){
+                userID = snapshot.child("gameInfo").child("playerThree").child("userID").val();
+                hand = snapshot.child("gameInfo").child("playerThree").child("hand").val();
+            } else if (playerID == 4){
+                userID = snapshot.child("gameInfo").child("playerFour").child("userID").val();
+                hand = snapshot.child("gameInfo").child("playerFour").child("hand").val();
+            } else {
+                console.log("Give player ID to CPU method rather than userID");
+            }
+            setTimeout(makeCpuMoveInternal(hand, topCard, attackCount, userID, gameID, socketWrapper), 1000);
+        }
+    });
+}
+
+//makes the cpu's move
+function makeCPUMoveInternal(hand, topCard, attackCount, userID, gameID, socketWrapper){
+    validHand = calculateValidCards(hand, topCard, attackCount);
+    var card;
+    if (validHand.length == 0){
+        card = -1;
+    } else if (validHand.length == 1){
+        card = validHand[0];
+    } else if (userID.includes("s")){
+        card = calculateBestMove(hand, validHand);
+    } else {
+        card = makeRandomMove(validHand);
+    }
+    if ((card != -1) && ((card.number == 10) || (card.number == 15))){
+        //choose most common color in hand for wild cards
+        card.setColor = countColors(hand)[0].color;
+    }
+    playCardCheck(userID, gameID, card, socketWrapper);
+}
+
+function calculateValidCards(hand, topCard, attackCount){
+    validCards = [];
+    var i = 0;
+    for (i = 0; i < hand.length; i++){
+        if(gameLogic.validateCard(topCard, hand[i], attackCount)){
+            validCards.pushBack(hand[i]);
+        }
+    }
+    return validCards;
+}
+
+//prioritizes common colors in hand and non special effects cards
+//but probably shouldn't play green cards cause they're likely to go away
+function calculateBestMove(hand, validHand){
+    
+}
+
+//makes a move randomly
+function makeRandomMove(validHand){
+    var choice = Math.floor(Math.random() * validHand.length);
+    return validHand[choice];
+}
+
+//returns a list of the colors in order of count
+function countColors(hand){
+    var i = 0;
+    var counts = [
+    {color: "red", count: 0},
+    {color: "yellow", count: 0},
+    {color: "green", count: 0},    
+    {color: "blue", count: 0}        
+    ]
+    for (i = 0; i < hand.length; i++){
+        if (hands[i].color == "red"){
+            counts[0].count++;
+        } else if (hands[i].color == "yellow"){
+            counts[1].count++;
+        } else if (hands[i].color == "green"){
+            counts[2].count++;
+        } else if (hands[i].color == "blue"){
+            counts[3].count++;
+        }
+    }
+    counts.sort(compare_card_color_counts);
+    return counts;
+}
+
+function compare_card_color_counts(a, b){
+    return a.count - b.count;
+}
+
 app.use(express.static('public'))
 
 app.route('/profiles/:userId').get(function(req, res){
