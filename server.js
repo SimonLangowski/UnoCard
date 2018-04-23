@@ -1358,7 +1358,7 @@ function calculateValidCards(hand, topCard, attackCount){
     var i = 0;
     for (i = 0; i < hand.length; i++){
         if(gameLogic.validateCard(topCard, hand[i], attackCount)){
-            validCards.pushBack(hand[i]);
+            validCards.push(hand[i]);
         }
     }
     return validCards;
