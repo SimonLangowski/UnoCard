@@ -100,6 +100,13 @@ module.exports = {
     putCardIntoDeck: function (deck, card) {
         deck.push(card);
         module.exports.shuffle(deck);
+    },
+
+    putCardsIntoDeck: function (deck, cards, numCards) {
+        for (i = 0; i < numCards; i++) {
+            deck.push(cards.pop());
+        }
+        module.exports.shuffle(deck);
     }
     
 };
