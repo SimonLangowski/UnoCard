@@ -42,6 +42,11 @@ var app = angular.module('lobbyApp', [])
             for (var i = 0; i < $scope.lobbies.length; i++){
                 if (($scope.lobbies[i].gameID === $scope.currentLobby) && ($scope.lobbies[i].isStarted)){
                     $scope.goToGame();
+                } else if ($scope.lobbies[i].gameID === $scope.currentLobby){
+                    if (!$scope.lobbies[i].names.includes($scope.userID)){
+                        $scope.message = "You've been kicked!";
+                        $scope.currentLobby = 0;
+                    }
                 }
             }
         }),
@@ -86,6 +91,20 @@ var app = angular.module('lobbyApp', [])
         }
     })
     
+    $scope.kickFromLobby = function(userId, gameId){
+        var data = {
+            userID: userId,
+            gameID: gameId
+        }
+        socket.emit('/lobby/kick', data);
+    }
+    socket.on('/lobby/kick', function(response){
+        if (response.status === "success"){
+            $scope.message = "User removed";
+        } else {
+            $scope.message = response.error;
+        }
+    })
     
     $scope.leaveLobby = function(gameId){
         var data = {

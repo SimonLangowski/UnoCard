@@ -1519,6 +1519,13 @@ io.on('connection', function(socket){
         var userID = data.userID;
         lobbyLeaveCheck(userID, gameID, new SocketWrapper(socket, '/lobby/leave'));
     });
+    
+    socket.on('/lobby/kick', function (data) {
+        console.log(data);
+        var gameID = data.gameID;
+        var userID = data.userID;
+        lobbyLeaveCheck(userID, gameID, new SocketWrapper(socket, '/lobby/kick'));
+    });
 
     //Party Leader User Asking To Start Game
     socket.on('/lobby/startgame', function (data) {

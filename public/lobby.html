@@ -28,12 +28,15 @@
         </div>
         <div ng-repeat="name in lobby.names" class="right">
             <span class="name" ng-bind="name"></span>
+            <button type="button" class="btn btn-danger right" ng-click="kickFromLobby(name, lobby.gameID)" ng-show="(lobby.partyLeader == userID) && (name != userID)">Kick</button>          
         </div>
         <span ng-show="lobby.isStarted">Game in progress</span>
         <button type="button" class="btn btn-primary right" ng-click="joinLobby(lobby.gameID)" ng-show="(currentLobby == 0) && (!lobby.isStarted)">Join lobby</button>
         <button type="button" class="btn btn-primary right" ng-click="leaveLobby(lobby.gameID)" ng-show="currentLobby == lobby.gameID">Leave lobby</button>
-        <button type="button" class="btn btn-primary right" ng-click="createCpu(lobby.gameID)" ng-show="(lobby.names.length < 4) && (lobby.partyLeader == userID)">Add Computer Player</button>
-        <button type="button" class="btn btn-primary right" ng-click="startGame(lobby.gameID)" ng-show="(lobby.names.length == 4) && (lobby.partyLeader == userID)">Start game</button>
+        <button type="button" class="btn btn-primary right" ng-click="startGame(lobby.gameID)" ng-show="lobby.partyLeader == userID">Start game</button>
+        <br>
+        <span ng-bind="lobby.names.length"></span>/4 players<br>
+        <span ng-show="(currentLobby == lobby.gameID) && (lobby.names.length < 4)">Note: Your party will be filled with computer players</span>
          
     </div>
     <br>
