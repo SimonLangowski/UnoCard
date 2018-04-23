@@ -59,7 +59,7 @@ Attack Count: <span ng-bind="data.table.attackCount"></span>
 <div class="messageBox" ng-show="(data.table.attackCount > 0) && (data.table.turnPlayerId == data.table.myPlayerId)">
 You must draw or play an Attack Card
 </div>
-<div class="messageBox" ng-show="data.table.topCard.number == 10">
+<div class="messageBox" ng-show="(data.table.topCard.number == 10) || (data.table.topCard.number == 15)">
 The chosen color is <span ng-bind="data.table.topCard.setColor"></span>
 </div>
 <div class="messageBox">
