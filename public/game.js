@@ -30,6 +30,8 @@ var app = angular.module('gameApp', [])
     $scope.auth.gameID = 0;
     
     $scope.message = "Loading...";
+    $scope.message2 = "";
+    $scope.message2TurnsRemaining = 0;
     
     $scope.init = function(){
         $scope.auth.userID = $scope.getCookie("USER_ID");
@@ -142,6 +144,17 @@ var app = angular.module('gameApp', [])
     socket.on("GameUpdate", function(gameID){
         if (gameID === $scope.auth.gameID){
             $scope.getBoard();
+            if ($scope.message2TurnsRemaining > 0){
+                $scope.message2TurnsRemaining--;
+            }
+        }
+    });
+    
+    socket.on("GameUpdateHand", function(response){
+        if (response.gameID === $scope.auth.gameID){
+            $scope.message2 = response.message;
+            $scope.message2TurnsRemaining = 2;
+            $scope.getHand();
         }
     });
     

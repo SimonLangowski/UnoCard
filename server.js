@@ -1183,10 +1183,12 @@ function updateBasedOnCard(snapshot, playerTurn, userID, gameID, playedCard, dec
         attackCount += 3;
     } else if (playedCard.number == 13) {
         possibleSkip = specialBlueCard(snapshot, playerTurn, userID, gameID, playedCard, deck, hand);
+        socket.updateHands(gameID, "Two cards were gifted");
     } else if (playedCard.number == 14) {
         attackCount = 0;
     } else if (playedCard.number == 15) {
         specialGreenCard(snapshot, playerTurn, userID, gameID, playedCard, deck, hand);
+        socket.updateHands(gameID, "Green Cards were removed");
     } else if (playedCard.number == 16) {
         attackCount += 5;
     }
@@ -1761,6 +1763,14 @@ io.on('connection', function(socket){
         updateGame(gameID){
             socket.broadcast.emit("GameUpdate", gameID);
             this.socket.emit("GameUpdate", gameID);
+        }
+        updateHands(gameID, message){
+            var data = {
+                gameID: gameID,
+                message: message
+            }
+            socket.broadcast.emit("GameUpdateHand", data);
+            this.socket.emit("GameUpdateHand", data);
         }
         
         start(gameID){
