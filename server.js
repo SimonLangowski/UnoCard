@@ -375,6 +375,7 @@ function lobbyLeaveCheck(userID, gameID, res) {
                         currentGameRef.update({
                             names: players
                         });
+                        moreStepsIfGameStarted(snapshot, userID, gameID);
                     }
                     var response = {
                         status: 'success',
@@ -417,6 +418,69 @@ function lobbyLeaveCheck(userID, gameID, res) {
             res.send(response);
         }
     });
+}
+
+function moreStepsIfGameStarted(snapshot, userID, gameID) {
+    if (snapshot.child(gameID).child("isStarted").val() == true) {
+        var player = getPlayerBasedOnUserID(snapshot, userID, gameID);
+        var deck = snapshot.child(gameID).child("gameInfo").child("deck").val();
+        var hand = snapshot.child(gameID).child("gameInfo").child(player).child("hand").val();
+        var gameInfoRef = database.ref("games/" + gameID + "/gameInfo");
+        var playerRef = database.ref("games/" + gameID + "/gameInfo/" + player);
+        gameLogic.putHandIntoDeck(deck, hand);
+        var emptyArray = [];
+        gameInfoRef.update({
+            deck: deck
+        });
+        playerRef.update({
+            hasLost: true,
+            cardCount: 0,
+            hand: emptyArray
+        })
+        var placeToUpdate;
+        if (snapshot.child(gameID).child("gameInfo").child("fourthPlace").val() == null) {
+            placeToUpdate = "fourthPlace";
+        } else if (snapshot.child(gameID).child("gameInfo").child("thirdPlace").val() == null) {
+            placeToUpdate = "thirdPlace";
+        } else {
+            placeToUpdate = "secondPlace";
+        }
+        if (placeToUpdate == "secondPlace") {
+            var remaining = snapshot.child(gameID).child(names).val();
+            remaining.splice(snapshot.child(gameID).child("gameInfo").child("fourthPlace").val(), 1);
+            remaining.splice(snapshot.child(gameID).child("gameInfo").child("thirdPlace").val(), 1);
+            remaining.splice(userID, 1);
+            gameInfoRef.update({
+                finished: true,
+                firstPlace: remaining[0]
+            });
+        }
+        if (snapshot.child(gameID).child("gameInfo").child("currentTurn").val() == getPlayerIDBasedOnName(player)) {
+            var playerTurn = getPlayerIDBasedOnName(player);
+            if (snapshot.child(gameID).child("gameInfo").child("playDirection").val() == "increasing") {
+                while (true) {
+                    playerTurn++;
+                    if (playerTurn > 4)
+                        playerTurn = 1;
+                    if (snapshot.child(gameID).child("gameInfo").child(getPlayerNumberBasedOnID(playerTurn)).
+                        child("hasLost").val() == false)
+                        break;
+                }
+            } else {
+                while (true) {
+                    playerTurn--;
+                    if (playerTurn < 1)
+                        playerTurn = 4;
+                    if (snapshot.child(gameID).child("gameInfo").child(getPlayerNumberBasedOnID(playerTurn)).
+                        child("hasLost").val() == false)
+                        break;
+                }
+            }
+            gameInfoRef.update({
+                currentTurn: playerTurn
+            });
+        }
+    }
 }
 
 function startGameCheck(userID, gameID, res) {
@@ -1292,6 +1356,30 @@ function getPlayerNumberBasedOnID(playerID) {
 
 }
 
+function getPlayerBasedOnUserID(snapshot, userID, gameID) {
+    if (snapshot.child(gameID).child("gameInfo").child("playerOne").child("userID").val() == userID) {
+        return "playerOne";
+    } else if (snapshot.child(gameID).child("gameInfo").child("playerTwo").child("userID").val() == userID) {
+        return "playerTwo";
+    } else if (snapshot.child(gameID).child("gameInfo").child("playerThree").child("userID").val() == userID) {
+        return "playerThree";
+    } else {
+        return "playerFour";
+    }
+}
+
+function getPlayerIDBasedOnName(player) {
+    if (player == "playerOne") {
+        return 1;
+    } else if (player == "playerTwo") {
+        return 2;
+    } else if (player == "playerThree") {
+        return 3;
+    } else {
+        return 4;
+    }
+}
+
 //checks if cpu and schedules cpu turn in one second
 function makeCPUMoveCheck (playerID, gameID, socketWrapper){
     var currentGameRef = database.ref("games/" + gameID);
@@ -1564,7 +1652,7 @@ io.on('connection', function(socket){
         delete playedCard.$$hashKey;
         playCardCheck(userID, gameID, playedCard, new SocketWrapper(socket, '/game/play'));
     });
-    
+
     socket.on('disconnect', function(){
         console.log(socket.id + " disconnected");
        //can store the sockets (they're just numbers) when they call register if you want to make them auto lose when they disconnect 
