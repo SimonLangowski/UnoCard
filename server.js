@@ -346,7 +346,6 @@ function getCurrentLobby(userID, res){
     )
 }
 
-
 function lobbyLeaveCheck(userID, gameID, res) {
     var userRef = database.ref("users");
     userRef.once("value").then(function (snapshot) {
@@ -823,10 +822,11 @@ function playCardCheck(userID, gameID, playedCard, res) {
                         var currentGameInfoRef = database.ref("games/" + gameID + "/gameInfo/");
                         gameLogic.putHandIntoDeck(deck, hand);
                         var currentPlayerRef = database.ref("games/" + gameID + "/gameInfo/" + playerID);
+                        var emptyArray = [];
                         currentPlayerRef.update({
                             hasLost: true,
                             cardCount: 0,
-                            hand: null
+                            hand: emptyArray
                         });
                         var loop = playerTurn;
                         if (snapshot.child("games").child(gameID).child("gameInfo").child("playDirection").val() == "increasing") {
@@ -915,6 +915,7 @@ function playCardCheck(userID, gameID, playedCard, res) {
 }
 
 function updateBasedOnCard(snapshot, playerTurn, userID, gameID, playedCard, deck, hand) {
+    var possibleSkip = [];
     var attackCount = snapshot.child("games").child(gameID).child("gameInfo").child("attackCount").val();
     var direction = snapshot.child("games").child(gameID).child("gameInfo").child("playDirection").val();
     var currentGameInfoRef = database.ref("games/" + gameID + "/gameInfo/");
@@ -984,17 +985,11 @@ function updateBasedOnCard(snapshot, playerTurn, userID, gameID, playedCard, dec
     } else if (playedCard.number == 12) {
         attackCount += 3;
     } else if (playedCard.number == 13) {
-        specialBlueCard(snapshot, playerTurn, userID, gameID, playedCard, deck, hand);
-        //Draw 2 Cards For Everyone (6)
-        //Change Number of Cards in each players hands and hands count
-        //Check if drawing cards leads to loss
+        possibleSkip = specialBlueCard(snapshot, playerTurn, userID, gameID, playedCard, deck, hand);
     } else if (playedCard.number == 14) {
         attackCount = 0;
     } else if (playedCard.number == 15) {
         specialGreenCard(snapshot, playerTurn, userID, gameID, playedCard, deck, hand);
-        //Get Rid of All Green Cards
-        //Check if Someone has won
-        //Change Number of Cards in each players hands, and hands
     } else if (playedCard.number == 16) {
         attackCount += 5;
     }
@@ -1004,7 +999,7 @@ function updateBasedOnCard(snapshot, playerTurn, userID, gameID, playedCard, dec
         attackCount: attackCount,
         playDirection: direction
     });
-    if (playedCard.number != 8 && playedCard.number != 9 && playedCard.number != 7) {
+    if (playedCard.number != 8 && playedCard.number != 9 && playedCard.number != 7 && possibleSkip.length == 0) {
         //Can Update Turn Normally
         if (snapshot.child("games").child(gameID).child("gameInfo").child("playDirection").val() == "increasing") {
             while (true) {
@@ -1027,9 +1022,37 @@ function updateBasedOnCard(snapshot, playerTurn, userID, gameID, playedCard, dec
         }
         currentGameInfoRef.update({
             currentPlayer: playerTurn
-
         });
-    } 
+    } else if (playedCard.number == 13 && possibleSkip.length != 0) {
+        //Update Based on Special Draw 2 Card
+        var loop = playerTurn;
+        if (snapshot.child("games").child(gameID).child("gameInfo").child("playDirection").val() == "increasing") {
+            while (true) {
+                playerTurn++;
+                if (playerTurn > 4)
+                    playerTurn = 1;
+                if (playerTurn == loop)
+                    break;
+                if (snapshot.child("games").child(gameID).child("gameInfo").child(getPlayerNumberBasedOnID(playerTurn)).
+                    child("hasLost").val() == false && possibleSkip.indexOf(getPlayerNumberBasedOnID(playerTurn)) == -1)
+                    break;
+            }
+        } else {
+            while (true) {
+                playerTurn--;
+                if (playerTurn < 1)
+                    playerTurn = 4;
+                if (playerTurn == loop)
+                    break;
+                if (snapshot.child("games").child(gameID).child("gameInfo").child(getPlayerNumberBasedOnID(playerTurn)).
+                    child("hasLost").val() == false && possibleSkip.indexOf(getPlayerNumberBasedOnID(playerTurn)) == -1)
+                    break;
+            }
+        }
+        currentGameInfoRef.update({
+            currentPlayer: playerTurn
+        });
+    }
     
 }
 
@@ -1053,11 +1076,11 @@ function updatePlacings(snapshot, userID, gameID, playerTurn) {
                 considerOrder.push(getPlayerNumberBasedOnID(playerTurn));
         }
         while (considerOrder.length > 0) {
-            var min = snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[0]).child("handCount").val();
+            var min = snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[0]).child("cardCount").val();
             var minIndex = 0;
             for (i = 0; i < considerOrder.length; i++) {
-                if (snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[i]).child("handCount").val() < min) {
-                    min = snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[i]).child("handCount").val();
+                if (snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[i]).child("cardCount").val() < min) {
+                    min = snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[i]).child("cardCount").val();
                     minIndex = i;
                 }
             }
@@ -1082,11 +1105,11 @@ function updatePlacings(snapshot, userID, gameID, playerTurn) {
                 considerOrder.push(getPlayerNumberBasedOnID(playerTurn));
         }
         while (considerOrder.length > 0) {
-            var min = snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[0]).child("handCount").val();
+            var min = snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[0]).child("cardCount").val();
             var minIndex = 0;
             for (i = 0; i < considerOrder.length; i++) {
-                if (snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[i]).child("handCount").val() < min) {
-                    min = snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[i]).child("handCount").val();
+                if (snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[i]).child("cardCount").val() < min) {
+                    min = snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[i]).child("cardCount").val();
                     minIndex = i;
                 }
             }
@@ -1101,15 +1124,153 @@ function updatePlacings(snapshot, userID, gameID, playerTurn) {
 }
 
 function specialGreenCard(snapshot, playerTurn, userID, gameID, playedCard, deck, hand) {
-
+    var gameInfoRef = database.ref("games/" + gameID + "/gameInfo");
+    var considerOrder = [];
+    var loop = playerTurn;
+    considerOrder.push(getPlayerNumberBasedOnID(playerTurn));
+    var playerHands = [];
+    playerHands.push(hand);
+    while (true) {
+        playerTurn++;
+        if (playerTurn > 4)
+            playerTurn = 1;
+        if (playerTurn == loop) {
+            break;
+        }
+        if (snapshot.child("games").child(gameID).child("gameInfo").child(getPlayerNumberBasedOnID(playerTurn)).child("hasLost").val() == false) {
+            considerOrder.push(getPlayerNumberBasedOnID(playerTurn));
+            playerHands.push(snapshot.child("games").child(gameID).child("gameInfo").
+                child(getPlayerNumberBasedOnID(playerTurn)).child("hand").val());
+        }
+    }
+    for (i = 0; i < considerOrder.length; i++) {
+        var gamePlayerRef = database.ref("games/" + gameID + "/gameInfo/" + considerOrder[i]);
+        var greenCards = [];
+        for (j = 0; j < playerHands[i].length; j++) {
+            if (playerHands[i][j].color == "green") {
+                greenCards.push(playerHands[i][j]);
+                playerHands.splice(j, 1);
+            }
+        }
+        gameLogic.putCardsIntoDeck(deck, greenCards, greenCards.length);
+        gameInfoRef.update({
+            deck: deck
+        })
+        gamePlayerRef.update({
+            hand: playerHands[i],
+            cardCount: playerHands[i].length
+        })
+    }
+    var someoneWon = false;
+    for (i = 0; i < considerOrder.length; i++) {
+        if (playerHands[i].length == 0) {
+            someoneWon = true;
+        }
+    }
+    if (someoneWon == true) {
+        gameInfoRef.update({
+            finished: true
+        });
+        //Update Rankings
+        var number = 1;
+        while (considerOrder.length > 0) {
+            var min = playerHands[0].length;
+            var minIndex = 0;
+            for (i = 0; i < considerOrder.length; i++) {
+                if (playerHands[i].length < min) {
+                    min = playerHands[i].length;
+                    minIndex = i;
+                }
+            }
+            gameInfoRef.update({
+                [getPlaceBasedOnNumber(number)]: snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[minIndex]).
+                    child("userID").val()
+            });
+            considerOrder.splice(minIndex, 1);
+            playerHands.splice(minIndex, 1);
+            number++;
+        }
+    }
 }
 
 function specialBlueCard(snapshot, playerTurn, userID, gameID, playedCard, deck, hand) {
-    
+    var considerOrder = [];
+    var loop = playerTurn;
+    while (true) {
+        playerTurn++;
+        if (playerTurn > 4)
+            playerTurn = 1;
+        if (playerTurn == loop) {
+            break;
+        }
+        if (snapshot.child("games").child(gameID).child("gameInfo").child(getPlayerNumberBasedOnID(playerTurn)).child("hasLost").val() == false)
+            considerOrder.push(getPlayerNumberBasedOnID(playerTurn));
+    }
+    var current4Place = snapshot.child("games").child(gameID).child("gameInfo").child("fourthPlace").val();
+    var current3Place = snapshot.child("games").child(gameID).child("gameInfo").child("thirdPlace").val();
+    var current2Place = snapshot.child("games").child(gameID).child("gameInfo").child("secondPlace").val();
+    var skip = [];
+    for (i = 0; i < considerOrder.length; i++) {
+        var currentPlayerRef = database.ref("games/" + gameID + "/gameInfo/" + considerOrder[i]);
+        var gameInfoRef = database.ref("games/" + gameID + "/gameInfo");
+        var currentHand = snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[i]).child("hand").val();
+        if (snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[i]).child("cardCount").val() + 2 <= 16) {
+            if (deck.length >= 2) {
+                gameLogic.drawCard(deck, currentHand, 2);
+            } else {
+                gameLogic.drawCard(deck, currentHand, deck.length);
+            }
+            currentPlayerRef.update({
+                hand: currentHand,
+                cardCount: currentHand.length
+            });
+            gameInfoRef.update({
+                deck: deck
+            });
+        } else {
+            gameLogic.putHandIntoDeck(deck, currentHand);
+            var emptyArray = [];
+            currentPlayerRef.update({
+                hasLost: true,
+                cardCount: 0,
+                hand: emptyArray
+            });
+            gameInfoRef.update({
+                deck: deck
+            })
+            var placeToUpdate;
+            if (current4Place == null) {
+                placeToUpdate = "fourthPlace";
+            } else if (current3Place == null) {
+                placeToUpdate = "thirdPlace";
+            } else {
+                placeToUpdate = "secondPlace";
+            }
+            if (placeToUpdate == "secondPlace") {
+                var remaining = snapshot.child("games").child(gameID).child(names).val();
+                remaining.splice(current4Place, 1);
+                remaining.splice(current3Place, 1);
+                remaining.splice(userID, 1);
+                gameInfoRef.update({
+                    finished: true,
+                    secondPlace: remaining[0],
+                    firstPlace: userID
+                });
+            } else {
+                gameInfoRef.update({
+                    [placeToUpdate]: snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[i]).child("userID").val()
+                });
+            }
+            skip.push(considerOrder[i]);
+        }
+    }
+    return skip;
 }
 
 function getPlaceBasedOnNumber(number) {
-    if (number == 2) {
+    if (number == 1) {
+        return "firstPlace";
+    } else if (number == 2) {
         return "secondPlace";
     } else if (number == 3) {
         return "thirdPlace";
