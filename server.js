@@ -483,6 +483,12 @@ function setUpNewGame(gameID) {
     currentGameRef.once("value").then(function (snapshot) {
         var deck = gameLogic.getNewDeck();
         gameLogic.shuffle(deck);
+        var topCard = deck[0];
+        var i = 1;
+        while (!(topCard.number >= 1 && topCard.number <= 6)) {
+            topCard = deck[i];
+        }
+        deck.splice(i, 1);
         var handOne = [];
         gameLogic.drawCard(deck, handOne, 7);
         var handTwo = [];
@@ -491,12 +497,6 @@ function setUpNewGame(gameID) {
         gameLogic.drawCard(deck, handThree, 7);
         var handFour = [];
         gameLogic.drawCard(deck, handFour, 7);
-        var topCard = deck[0];
-        var i = 1;
-        while (!(topCard.number >= 1 && topCard.number <= 6)) {
-            topCard = deck[i];
-        }
-        deck.splice(i, 1);
         currentGameRef.update({
             gameInfo: {
                 finished: false,
