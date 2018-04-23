@@ -1427,13 +1427,11 @@ function makeCPUMoveInternal(hand, topCard, attackCount, userID, gameID, socketW
     var card;
     if (validHand.length == 0){
         card = -1;
-    } else if (validHand.length == 1){
-        card = validHand[0];
-    } else if (userID.includes("s")){
-        card = calculateBestMove(hand, validHand);
     } else {
+        card = calculateBestMove(hand, validHand);
+    } /*else {
         card = makeRandomMove(validHand);
-    }
+    }*/
     if ((card != -1) && ((card.number == 10) || (card.number == 15))){
         //choose most common color in hand for wild cards
         card.setColor = countColors(hand)[0].color;
@@ -1442,11 +1440,11 @@ function makeCPUMoveInternal(hand, topCard, attackCount, userID, gameID, socketW
 }
 
 function calculateValidCards(hand, topCard, attackCount){
-    validCards = [];
+    var validCards = [];
     var i = 0;
     for (i = 0; i < hand.length; i++){
         if(gameLogic.validateCard(topCard, hand[i], attackCount)){
-            validCards.pushBack(hand[i]);
+            validCards.push(hand[i]);
         }
     }
     return validCards;
@@ -1455,7 +1453,49 @@ function calculateValidCards(hand, topCard, attackCount){
 //prioritizes common colors in hand and non special effects cards
 //but probably shouldn't play green cards cause they're likely to go away
 function calculateBestMove(hand, validHand){
-    
+    var colorFrequencies = countColors(hand);
+    var i = 0;
+    var j = 0;
+    var numberCards = [];
+    var lowSpecialCards = [];
+    var highSpecialCards = [];
+    for (i = 0; i < validHand.length; i++){
+        if (validHand[i].number <= 6){
+            numberCards.push(validHand[i]);
+        } else if (validHand[i].number <= 10){
+            lowSpecialCards.push(validHand[i]);
+        } else {
+            highSpecialCards.push(validHand[i]);
+        }
+    }
+    //priority 1 - numbers
+        //break number with most common color
+    for (j = 0; j < colorFrequencies.length; j++){
+        for (i = 0; i < numberCards.length; i++){
+            if (numberCards[i].color == colorFrequencies[j].color){
+                return numberCards[i];
+            }
+        }
+    }
+    //priority 2 - not attack or special cards
+        //break with most common color
+    for (j = 0; j < colorFrequencies.length; j++){
+        for (i = 0; i < lowSpecialCards.length; i++){
+            if (lowSpecialCards[i].color == colorFrequencies[j].color){
+                return lowSpecialCards[i];
+            }
+        }
+    }
+    //priority 3 anything you can play
+        //break with most common color
+    for (j = 0; j < colorFrequencies.length; j++){
+        for (i = 0; i < highSpecialCards.length; i++){
+            if (highSpecialCards[i].color == colorFrequencies[j].color){
+                return highSpecialCards[i];
+            }
+        }
+    }
+    return validHand[0]; //the purple card will never match color
 }
 
 //makes a move randomly
@@ -1484,12 +1524,10 @@ function countColors(hand){
             counts[3].count++;
         }
     }
-    counts.sort(compare_card_color_counts);
+    counts.sort(function(a,b){
+        return -(a.count - b.count);
+    });
     return counts;
-}
-
-function compare_card_color_counts(a, b){
-    return a.count - b.count;
 }
 
 app.use(express.static('public'))
