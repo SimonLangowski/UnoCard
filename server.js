@@ -1437,7 +1437,7 @@ function countColors(hand){
         }
     }
     counts.sort(function(a,b){
-        return a.count - b.count;
+        return -(a.count - b.count);
     });
     return counts;
 }
