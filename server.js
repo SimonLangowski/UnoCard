@@ -628,6 +628,7 @@ function getBoard(userID, gameID, res) {
                 console.log(JSON.stringify(response));
                 res.send(JSON.stringify(response));
             } else {
+                var playerTurn = snapshot.child("games").child(gameID).child("gameInfo").child("currentPlayer").val();
                 var response = {
                     status: 'success',
                     message: null,
@@ -637,20 +638,20 @@ function getBoard(userID, gameID, res) {
                     player2CardCount: snapshot.child("games").child(gameID).child("gameInfo").child("playerTwo").child("cardCount").val(),
                     player3CardCount: snapshot.child("games").child(gameID).child("gameInfo").child("playerThree").child("cardCount").val(),
                     player4CardCount: snapshot.child("games").child(gameID).child("gameInfo").child("playerFour").child("cardCount").val(),
+                    playerTurnID: playerTurn
                 }
-                var playerTurn = snapshot.child("games").child(gameID).child("gameInfo").child("currentPlayer").val();
                 if (playerTurn == 1) {
                     response.message = "It's " + snapshot.child("games").child(gameID).child("gameInfo").child("playerOne").child("userID").val() +
-                        " turn";
+                        "\'s turn";
                 } else if (playerTurn == 2) {
                     response.message = "It's " + snapshot.child("games").child(gameID).child("gameInfo").child("playerTwo").child("userID").val() +
-                        " turn";
+                        "\'s turn";
                 } else if (playerTurn == 3) {
                     response.message = "It's " + snapshot.child("games").child(gameID).child("gameInfo").child("playerThree").child("userID").val() +
-                        " turn";
+                        "\'s turn";
                 } else {
                     response.message = "It's " + snapshot.child("games").child(gameID).child("gameInfo").child("playerFour").child("userID").val() +
-                        " turn";
+                        "\'s turn";
                 }
                 console.log(JSON.stringify(response));
                 res.send(JSON.stringify(response));
@@ -721,7 +722,7 @@ function playCardCheck(userID, gameID, playedCard, res) {
             var topCard = snapshot.child("games").child(gameID).child("gameInfo").child("topCard").val();
             var attackCount = snapshot.child("games").child(gameID).child("gameInfo").child("attackCount").val();
             if (userID == currentPlayerUserID) {
-                if (playedCard != -1 && (topCard == null || gameLogic.validateCard(topCard, playedCard, attackCount))) {
+                if (playedCard != -1 && (gameLogic.validateCard(topCard, playedCard, attackCount))) {
                     //Player Played A Card
                     var deck = snapshot.child("games").child(gameID).child("gameInfo").child("deck").val();
                     var hand = snapshot.child("games").child(gameID).child("gameInfo").child(playerID).child("hand").val();
@@ -915,6 +916,7 @@ function playCardCheck(userID, gameID, playedCard, res) {
 function updateBasedOnCard(snapshot, playerTurn, userID, gameID, playedCard, deck, hand) {
     var attackCount = snapshot.child("games").child(gameID).child("gameInfo").child("attackCount").val();
     var direction = snapshot.child("games").child(gameID).child("gameInfo").child("playDirection").val();
+    var currentGameInfoRef = database.ref("games/" + gameID + "/gameInfo/");
     if ((playedCard.number >= 1 && playedCard.number <= 7) || playedCard.number == 10) {
         //No Additional Effects
     } else if (playedCard.number == 8) {
@@ -981,19 +983,20 @@ function updateBasedOnCard(snapshot, playerTurn, userID, gameID, playedCard, dec
     } else if (playedCard.number == 12) {
         attackCount += 3;
     } else if (playedCard.number == 13) {
+        specialBlueCard(snapshot, playerTurn, userID, gameID, playedCard, deck, hand);
         //Draw 2 Cards For Everyone (6)
-        //Change Number of Cards in ech players hands and hands count
+        //Change Number of Cards in each players hands and hands count
         //Check if drawing cards leads to loss
     } else if (playedCard.number == 14) {
         attackCount = 0;
     } else if (playedCard.number == 15) {
+        specialGreenCard(snapshot, playerTurn, userID, gameID, playedCard, deck, hand);
         //Get Rid of All Green Cards
         //Check if Someone has won
         //Change Number of Cards in each players hands, and hands
     } else if (playedCard.number == 16) {
         attackCount += 5;
     }
-    var currentGameInfoRef = database.ref("games/" + gameID + "/gameInfo/");
     if (attackCount > 12)
         attackCount = 12;
     currentGameInfoRef.update({
@@ -1094,6 +1097,14 @@ function updatePlacings(snapshot, userID, gameID, playerTurn) {
             considerOrder.splice(minIndex, 1);
         }
     }
+}
+
+function specialGreenCard(snapshot, playerTurn, userID, gameID, playedCard, deck, hand) {
+
+}
+
+function specialBlueCard(snapshot, playerTurn, userID, gameID, playedCard, deck, hand) {
+    
 }
 
 function getPlaceBasedOnNumber(number) {
