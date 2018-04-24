@@ -981,6 +981,10 @@ function playCard(snapshot, userID, playerID, playerTurn, gameID, playedCard, to
         })
         updateBasedOnCard(snapshot, playerTurn, userID, gameID, playedCard, deck, hand, res);
     } else {
+        var currentGameInfoRef = database.ref("games/" + gameID + "/gameInfo/");
+        currentGameInfoRef.update({
+            topCard: playedCard
+        });
         updatePlacings(snapshot, userID, gameID, playerTurn);
     }
     var response = {
@@ -1297,6 +1301,7 @@ function updatePlacings(snapshot, userID, gameID, playerTurn) {
                 considerOrder.push(getPlayerNumberBasedOnID(playerTurn));
         }
         while (considerOrder.length > 0) {
+            console.log(considerOrder);
             var min = snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[0]).child("cardCount").val();
             var minIndex = 0;
             for (var i = 0; i < considerOrder.length; i++) {
@@ -1306,6 +1311,8 @@ function updatePlacings(snapshot, userID, gameID, playerTurn) {
                 }
             }
             var number = (4 - considerOrder.length) + 1;
+            console.log(getPlaceBasedOnNumber(number) + ": " + snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[minIndex]).
+                child("userID").val());
             currentGameInfoRef.update({
                 [getPlaceBasedOnNumber(number)]: snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[minIndex]).
                     child("userID").val()
