@@ -1,0 +1,1 @@
+ssh -i ./amazon-key.pem ec2-user@18.219.244.201
