@@ -814,6 +814,13 @@ function getBoard(userID, gameID, res) {
                 var response = {
                     status: 'finished',
                     message: 'Game Finished'
+                    topCard: snapshot.child("games").child(gameID).child("gameInfo").child("topCard").val(),
+                    attackCount: snapshot.child("games").child(gameID).child("gameInfo").child("attackCount").val(),
+                    player1CardCount: snapshot.child("games").child(gameID).child("gameInfo").child("playerOne").child("cardCount").val(),
+                    player2CardCount: snapshot.child("games").child(gameID).child("gameInfo").child("playerTwo").child("cardCount").val(),
+                    player3CardCount: snapshot.child("games").child(gameID).child("gameInfo").child("playerThree").child("cardCount").val(),
+                    player4CardCount: snapshot.child("games").child(gameID).child("gameInfo").child("playerFour").child("cardCount").val(),
+                    playerTurnID: playerTurn
                 }
                 console.log(JSON.stringify(response));
                 res.send(JSON.stringify(response));
