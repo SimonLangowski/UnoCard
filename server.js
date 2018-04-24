@@ -865,8 +865,8 @@ function calculateResults(userID, gameID, res) {
             var placeTwo = snapshot.child("games").child(gameID).child("gameInfo").child("secondPlace").val();
             var placeThree = snapshot.child("games").child(gameID).child("gameInfo").child("thirdPlace").val();
             var placeFour = snapshot.child("games").child(gameID).child("gameInfo").child("fourthPlace").val();
-            var resultsString = "1st Place: " + placeOne + "\n2nd Place: " + placeTwo + "\n3rd Place: " + placeThree +
-                "\n4th Place: " + placeFour;
+            var resultsString = "1st Place: " + placeOne + "<br>2nd Place: " + placeTwo + "<br>3rd Place: " + placeThree +
+                "<br>4th Place: " + placeFour;
             var response = {
                 status: null,
                 results: resultsString
@@ -995,6 +995,7 @@ function drawCard(snapshot, playerTurn, playerID, gameID, res){
     var hand = snapshot.child("games").child(gameID).child("gameInfo").child(playerID).child("hand").val();
     if (snapshot.child("games").child(gameID).child("gameInfo").child("attackCount").val() != 0)
         drawNumber = snapshot.child("games").child(gameID).child("gameInfo").child("attackCount").val();
+    console.log(snapshot.child("games").child(gameID).child("gameInfo").child(playerID).child("cardCount").val() + drawNumber);
     if (snapshot.child("games").child(gameID).child("gameInfo").child(playerID).child("cardCount").val() + drawNumber <= 16) {
         //Player Has To Draw Cards and Hand Doesn't have More than 16 Cards
         var deckNullCheck = snapshot.child("games").child(gameID).child("gameInfo").child("deck").val();
