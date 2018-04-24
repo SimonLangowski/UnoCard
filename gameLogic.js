@@ -91,7 +91,8 @@ module.exports = {
     },
 
     putHandIntoDeck: function (deck, hand) {
-        for (i = 0; i < hand.length; i++) {
+        var number = hand.length;
+        for (i = 0; i < number; i++) {
             deck.push(hand.pop());
         }
         module.exports.shuffle(deck);

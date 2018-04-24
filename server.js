@@ -421,7 +421,7 @@ function lobbyLeaveCheck(userID, gameID, res) {
 }
 
 function moreStepsIfGameStarted(snapshot, userID, gameID) {
-    if (snapshot.child(gameID).child("isStarted").val() == true) {
+    if (snapshot.child(gameID).child("isStarted").val() == true && snapshot.child(gameID).child("isFinished").val() == false) {
         var player = getPlayerBasedOnUserID(snapshot, userID, gameID);
         var deck = snapshot.child(gameID).child("gameInfo").child("deck").val();
         if (deck == null)
@@ -865,11 +865,14 @@ function calculateResults(userID, gameID, res) {
             var placeTwo = snapshot.child("games").child(gameID).child("gameInfo").child("secondPlace").val();
             var placeThree = snapshot.child("games").child(gameID).child("gameInfo").child("thirdPlace").val();
             var placeFour = snapshot.child("games").child(gameID).child("gameInfo").child("fourthPlace").val();
-            var resultsString = "1st Place: " + placeOne + "\n2nd Place: " + placeTwo + "\n3rd Place: " + placeThree +
-                "\n4th Place: " + placeFour;
+            var results = [];
+            results.push(placeOne);
+            results.push(placeTwo);
+            results.push(placeThree);
+            results.push(placeFour);
             var response = {
                 status: null,
-                results: resultsString
+                results: results
             }
             if (placeOne == userID) {
                 response.status = "victory";
@@ -993,9 +996,13 @@ function drawCard(snapshot, playerTurn, playerID, gameID, res, userID){
     //Player Has To Draw Card(s)
     var drawNumber = 1;
     var deck = snapshot.child("games").child(gameID).child("gameInfo").child("deck").val();
+    if (deck == null) {
+        deck = [];
+    }
     var hand = snapshot.child("games").child(gameID).child("gameInfo").child(playerID).child("hand").val();
     if (snapshot.child("games").child(gameID).child("gameInfo").child("attackCount").val() != 0)
         drawNumber = snapshot.child("games").child(gameID).child("gameInfo").child("attackCount").val();
+    console.log(snapshot.child("games").child(gameID).child("gameInfo").child(playerID).child("cardCount").val() + drawNumber);
     if (snapshot.child("games").child(gameID).child("gameInfo").child(playerID).child("cardCount").val() + drawNumber <= 16) {
         //Player Has To Draw Cards and Hand Doesn't have More than 16 Cards
         var deckNullCheck = snapshot.child("games").child(gameID).child("gameInfo").child("deck").val();
