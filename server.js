@@ -421,7 +421,7 @@ function lobbyLeaveCheck(userID, gameID, res) {
 }
 
 function moreStepsIfGameStarted(snapshot, userID, gameID) {
-    if (snapshot.child(gameID).child("isStarted").val() == true) {
+    if (snapshot.child(gameID).child("isStarted").val() == true && snapshot.child(gameID).child("isFinished").val() == false) {
         var player = getPlayerBasedOnUserID(snapshot, userID, gameID);
         var deck = snapshot.child(gameID).child("gameInfo").child("deck").val();
         if (deck == null)
