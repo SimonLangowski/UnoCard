@@ -964,7 +964,7 @@ function playCard(snapshot, userID, playerID, playerTurn, gameID, playedCard, to
             });
         }
         var indexOfCard;
-        for (i = 0; i < hand.length; i++) {
+        for (var i = 0; i < hand.length; i++) {
             if (hand[i].color == playedCard.color && hand[i].number == playedCard.number) {
                 indexOfCard = i;
             }
@@ -1289,7 +1289,7 @@ function updatePlacings(snapshot, userID, gameID, playerTurn) {
         while (considerOrder.length > 0) {
             var min = snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[0]).child("cardCount").val();
             var minIndex = 0;
-            for (i = 0; i < considerOrder.length; i++) {
+            for (var i = 0; i < considerOrder.length; i++) {
                 if (snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[i]).child("cardCount").val() < min) {
                     min = snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[i]).child("cardCount").val();
                     minIndex = i;
@@ -1318,7 +1318,7 @@ function updatePlacings(snapshot, userID, gameID, playerTurn) {
         while (considerOrder.length > 0) {
             var min = snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[0]).child("cardCount").val();
             var minIndex = 0;
-            for (i = 0; i < considerOrder.length; i++) {
+            for (var i = 0; i < considerOrder.length; i++) {
                 if (snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[i]).child("cardCount").val() < min) {
                     min = snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[i]).child("cardCount").val();
                     minIndex = i;
@@ -1354,13 +1354,16 @@ function specialGreenCard(snapshot, playerTurn, userID, gameID, playedCard, deck
                 child(getPlayerNumberBasedOnID(playerTurn)).child("hand").val());
         }
     }
-    for (i = 0; i < considerOrder.length; i++) {
+    for (var i = 0; i < considerOrder.length; i++) {
+        console.log(considerOrder[i] + ":");
+        console.log("BEFORE:" + JSON.stringify(playerHands[i]) + "\n\n");
         var gamePlayerRef = database.ref("games/" + gameID + "/gameInfo/" + considerOrder[i]);
         var greenCards = [];
-        for (j = 0; j < playerHands[i].length; j++) {
+        for (var j = 0; j < playerHands[i].length; j++) {
             if (playerHands[i][j].color == "green") {
                 greenCards.push(playerHands[i][j]);
-                playerHands.splice(j, 1);
+                playerHands[i].splice(j, 1);
+                j--;
             }
         }
         gameLogic.putCardsIntoDeck(deck, greenCards, greenCards.length);
@@ -1373,7 +1376,7 @@ function specialGreenCard(snapshot, playerTurn, userID, gameID, playedCard, deck
         })
     }
     var someoneWon = false;
-    for (i = 0; i < considerOrder.length; i++) {
+    for (var i = 0; i < considerOrder.length; i++) {
         if (playerHands[i].length == 0) {
             someoneWon = true;
         }
@@ -1387,7 +1390,7 @@ function specialGreenCard(snapshot, playerTurn, userID, gameID, playedCard, deck
         while (considerOrder.length > 0) {
             var min = playerHands[0].length;
             var minIndex = 0;
-            for (i = 0; i < considerOrder.length; i++) {
+            for (var i = 0; i < considerOrder.length; i++) {
                 if (playerHands[i].length < min) {
                     min = playerHands[i].length;
                     minIndex = i;
@@ -1409,6 +1412,7 @@ function specialBlueCard(snapshot, playerTurn, userID, gameID, playedCard, deck,
     var loop = playerTurn;
     while (true) {
         playerTurn++;
+        console.log("PlayerTurn: " + playerTurn);
         if (playerTurn > 4)
             playerTurn = 1;
         if (playerTurn == loop) {
@@ -1421,7 +1425,7 @@ function specialBlueCard(snapshot, playerTurn, userID, gameID, playedCard, deck,
     var current3Place = snapshot.child("games").child(gameID).child("gameInfo").child("thirdPlace").val();
     var current2Place = snapshot.child("games").child(gameID).child("gameInfo").child("secondPlace").val();
     var skip = [];
-    for (i = 0; i < considerOrder.length; i++) {
+    for (var i = 0; i < considerOrder.length; i++) {
         var currentPlayerRef = database.ref("games/" + gameID + "/gameInfo/" + considerOrder[i]);
         var gameInfoRef = database.ref("games/" + gameID + "/gameInfo");
         var currentHand = snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[i]).child("hand").val();
@@ -1448,7 +1452,7 @@ function specialBlueCard(snapshot, playerTurn, userID, gameID, playedCard, deck,
             });
             gameInfoRef.update({
                 deck: deck
-            })
+            });
             var placeToUpdate;
             if (current4Place == null) {
                 placeToUpdate = "fourthPlace";
@@ -1475,6 +1479,7 @@ function specialBlueCard(snapshot, playerTurn, userID, gameID, playedCard, deck,
             skip.push(considerOrder[i]);
         }
     }
+    
     return skip;
 }
 
