@@ -865,11 +865,14 @@ function calculateResults(userID, gameID, res) {
             var placeTwo = snapshot.child("games").child(gameID).child("gameInfo").child("secondPlace").val();
             var placeThree = snapshot.child("games").child(gameID).child("gameInfo").child("thirdPlace").val();
             var placeFour = snapshot.child("games").child(gameID).child("gameInfo").child("fourthPlace").val();
-            var resultsString = "1st Place: " + placeOne + "<br>2nd Place: " + placeTwo + "<br>3rd Place: " + placeThree +
-                "<br>4th Place: " + placeFour;
+            var results = [];
+            results.push(placeOne);
+            results.push(placeTwo);
+            results.push(placeThree);
+            results.push(placeFour);
             var response = {
                 status: null,
-                results: resultsString
+                results: results
             }
             if (placeOne == userID) {
                 response.status = "victory";
