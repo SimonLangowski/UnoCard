@@ -607,8 +607,8 @@ function setUpNewGame(gameID, numCPUs) {
                     }
                 }
             });
-        } else if (numCPUs == 1){
-                        currentGameRef.update({
+        } else if (numCPUs == 1) {
+            currentGameRef.update({
                 gameInfo: {
                     finished: false,
                     deck: deck,
@@ -1494,10 +1494,12 @@ function specialBlueCard(snapshot, playerTurn, userID, gameID, playedCard, deck,
             }
             if (placeToUpdate == "secondPlace") {
                 var remaining = snapshot.child("games").child(gameID).child("names").val();
-                if(remaining.indexOf(current4Place) > -1)
+                if (remaining.indexOf(current4Place) > -1) {
                     remaining.splice(current4Place, 1);
-                if(remaining.indexOf(current3Place) > -1)
+                }
+                if (remaining.indexOf(current3Place) > -1) {
                     remaining.splice(current3Place, 1);
+                }
                 remaining.splice(userID, 1);
                 gameInfoRef.update({
                     finished: true,
@@ -1508,6 +1510,10 @@ function specialBlueCard(snapshot, playerTurn, userID, gameID, playedCard, deck,
                 gameInfoRef.update({
                     [placeToUpdate]: snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[i]).child("userID").val()
                 });
+                if (placeToUpdate == "fourthPlace")
+                    current4Place = snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[i]).child("userID").val();
+                if (placeToUpdate == "thirdPlace")
+                    current3Place = snapshot.child("games").child(gameID).child("gameInfo").child(considerOrder[i]).child("userID").val();
             }
             skip.push(considerOrder[i]);
         }
