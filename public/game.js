@@ -249,10 +249,11 @@ var app = angular.module('gameApp', [])
             gameID: $scope.auth.gameID};
         $http.post('/game/results', auth)
         .then(function(response){
+            $scope.message2TurnsRemaining = 2;
             $scope.message2 = "1st: " + response.data.results[0];
             $scope.message = "2nd: " + response.data.results[1];
             $scope.result3 = "3rd: " + response.data.results[2];
-            $scope.result4 = "4th: " + response.data.results[4];
+            $scope.result4 = "4th: " + response.data.results[3];
             $scope.deleteCookie("GAME_ID"); //remove cookie to allow making other games
             $scope.showResult = response.data.status;
         }),
