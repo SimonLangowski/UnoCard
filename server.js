@@ -813,7 +813,7 @@ function getBoard(userID, gameID, res) {
             if (snapshot.child("games").child(gameID).child("gameInfo").child("finished").val() == true) {
                 var response = {
                     status: 'finished',
-                    message: 'Game Finished'
+                    message: 'Game Finished',
                     topCard: snapshot.child("games").child(gameID).child("gameInfo").child("topCard").val(),
                     attackCount: snapshot.child("games").child(gameID).child("gameInfo").child("attackCount").val(),
                     player1CardCount: snapshot.child("games").child(gameID).child("gameInfo").child("playerOne").child("cardCount").val(),
