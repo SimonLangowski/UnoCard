@@ -993,6 +993,9 @@ function drawCard(snapshot, playerTurn, playerID, gameID, res, userID){
     //Player Has To Draw Card(s)
     var drawNumber = 1;
     var deck = snapshot.child("games").child(gameID).child("gameInfo").child("deck").val();
+    if (deck == null) {
+        deck = [];
+    }
     var hand = snapshot.child("games").child(gameID).child("gameInfo").child(playerID).child("hand").val();
     if (snapshot.child("games").child(gameID).child("gameInfo").child("attackCount").val() != 0)
         drawNumber = snapshot.child("games").child(gameID).child("gameInfo").child("attackCount").val();
