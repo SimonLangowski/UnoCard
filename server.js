@@ -375,8 +375,7 @@ function lobbyLeaveCheck(userID, gameID, res) {
                         currentGameRef.update({
                             names: players
                         });
-                        moreStepsIfGameStarted(snapshot, userID, gameID);
-                        res.updateGame(gameID);
+                        moreStepsIfGameStarted(snapshot, userID, gameID, res);
                     }
                     var response = {
                         status: 'success',
@@ -421,7 +420,7 @@ function lobbyLeaveCheck(userID, gameID, res) {
     });
 }
 
-function moreStepsIfGameStarted(snapshot, userID, gameID) {
+function moreStepsIfGameStarted(snapshot, userID, gameID, res) {
     if (snapshot.child(gameID).child("isStarted").val() == true && snapshot.child(gameID).child("gameInfo").child("finished").val() == false) {
         var player = getPlayerBasedOnUserID(snapshot, userID, gameID);
         var deck = snapshot.child(gameID).child("gameInfo").child("deck").val();
@@ -493,6 +492,8 @@ function moreStepsIfGameStarted(snapshot, userID, gameID) {
             });
         }
     }
+    res.updateGame(gameID);
+    setTimeout(makeCPUMoveCheck.bind(null, playerTurn, gameID, res), 1000);
 }
 
 function startGameCheck(userID, gameID, res) {
