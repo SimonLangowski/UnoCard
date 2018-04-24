@@ -376,6 +376,7 @@ function lobbyLeaveCheck(userID, gameID, res) {
                             names: players
                         });
                         moreStepsIfGameStarted(snapshot, userID, gameID);
+                        res.updateGame(gameID);
                     }
                     var response = {
                         status: 'success',
@@ -421,13 +422,15 @@ function lobbyLeaveCheck(userID, gameID, res) {
 }
 
 function moreStepsIfGameStarted(snapshot, userID, gameID) {
-    if (snapshot.child(gameID).child("isStarted").val() == true && snapshot.child(gameID).child("isFinished").val() == false) {
+    if (snapshot.child(gameID).child("isStarted").val() == true && snapshot.child(gameID).child("gameInfo").child("finished").val() == false) {
         var player = getPlayerBasedOnUserID(snapshot, userID, gameID);
         var deck = snapshot.child(gameID).child("gameInfo").child("deck").val();
         if (deck == null)
             deck = [];
+        if (hand == null)
+            hand = [];
         var hand = snapshot.child(gameID).child("gameInfo").child(player).child("hand").val();
-        var gameInfoRef = database.ref("games/" + gameID + "/gameInfo");
+        var gameInfoRef = database.ref("games/" + gameID + "/gameInfo/");
         var playerRef = database.ref("games/" + gameID + "/gameInfo/" + player);
         gameLogic.putHandIntoDeck(deck, hand);
         var emptyArray = [];
@@ -448,16 +451,23 @@ function moreStepsIfGameStarted(snapshot, userID, gameID) {
             placeToUpdate = "secondPlace";
         }
         if (placeToUpdate == "secondPlace") {
-            var remaining = snapshot.child(gameID).child(names).val();
-            remaining.splice(snapshot.child(gameID).child("gameInfo").child("fourthPlace").val(), 1);
-            remaining.splice(snapshot.child(gameID).child("gameInfo").child("thirdPlace").val(), 1);
+            var remaining = snapshot.child(gameID).child("names").val();
+            if (remaining.indexOf(snapshot.child(gameID).child("gameInfo").child("fourthPlace").val()) > -1)
+                remaining.splice(snapshot.child(gameID).child("gameInfo").child("fourthPlace").val(), 1);
+            if (remaining.indexOf(snapshot.child(gameID).child("gameInfo").child("thirdPlace").val()) > -1)
+                remaining.splice(snapshot.child(gameID).child("gameInfo").child("thirdPlace").val(), 1);
             remaining.splice(userID, 1);
             gameInfoRef.update({
                 finished: true,
-                firstPlace: remaining[0]
+                firstPlace: remaining[0],
+                secondPlace: userID
+            });
+        } else {
+            gameInfoRef.update({
+                [placeToUpdate]: userID
             });
         }
-        if (snapshot.child(gameID).child("gameInfo").child("currentTurn").val() == getPlayerIDBasedOnName(player)) {
+        if (snapshot.child(gameID).child("gameInfo").child("currentPlayer").val() == getPlayerIDBasedOnName(player)) {
             var playerTurn = getPlayerIDBasedOnName(player);
             if (snapshot.child(gameID).child("gameInfo").child("playDirection").val() == "increasing") {
                 while (true) {
@@ -479,7 +489,7 @@ function moreStepsIfGameStarted(snapshot, userID, gameID) {
                 }
             }
             gameInfoRef.update({
-                currentTurn: playerTurn
+                currentPlayer: playerTurn
             });
         }
     }
@@ -1123,9 +1133,11 @@ function drawCard(snapshot, playerTurn, playerID, gameID, res, userID){
 
         });
         if (placeToUpdate == "secondPlace") {
-            var remaining = snapshot.child("games").child(gameID).child(names).val();
-            remaining.splice(snapshot.child("games").child(gameID).child("gameInfo").child("fourthPlace").val(), 1);
-            remaining.splice(snapshot.child("games").child(gameID).child("gameInfo").child("thirdPlace").val(), 1);
+            var remaining = snapshot.child("games").child(gameID).child("names").val();
+            if (remaining.indexOf(snapshot.child(gameID).child("gameInfo").child("fourthPlace").val()) > -1)
+                remaining.splice(snapshot.child("games").child(gameID).child("gameInfo").child("fourthPlace").val(), 1);
+            if (remaining.indexOf(snapshot.child(gameID).child("gameInfo").child("thirdPlace").val()) > -1)
+                remaining.splice(snapshot.child("games").child(gameID).child("gameInfo").child("thirdPlace").val(), 1);
             remaining.splice(userID, 1);
             currentGameInfoRef.update({
                 finished: true,
@@ -1481,9 +1493,11 @@ function specialBlueCard(snapshot, playerTurn, userID, gameID, playedCard, deck,
                 placeToUpdate = "secondPlace";
             }
             if (placeToUpdate == "secondPlace") {
-                var remaining = snapshot.child("games").child(gameID).child(names).val();
-                remaining.splice(current4Place, 1);
-                remaining.splice(current3Place, 1);
+                var remaining = snapshot.child("games").child(gameID).child("names").val();
+                if(remaining.indexOf(current4Place) > -1)
+                    remaining.splice(current4Place, 1);
+                if(remaining.indexOf(current3Place) > -1)
+                    remaining.splice(current3Place, 1);
                 remaining.splice(userID, 1);
                 gameInfoRef.update({
                     finished: true,
