@@ -1013,7 +1013,6 @@ function drawCard(snapshot, playerTurn, playerID, gameID, res, userID){
     var hand = snapshot.child("games").child(gameID).child("gameInfo").child(playerID).child("hand").val();
     if (snapshot.child("games").child(gameID).child("gameInfo").child("attackCount").val() != 0)
         drawNumber = snapshot.child("games").child(gameID).child("gameInfo").child("attackCount").val();
-    console.log(snapshot.child("games").child(gameID).child("gameInfo").child(playerID).child("cardCount").val() + drawNumber);
     if (snapshot.child("games").child(gameID).child("gameInfo").child(playerID).child("cardCount").val() + drawNumber <= 16) {
         //Player Has To Draw Cards and Hand Doesn't have More than 16 Cards
         var deckNullCheck = snapshot.child("games").child(gameID).child("gameInfo").child("deck").val();
@@ -1379,8 +1378,6 @@ function specialGreenCard(snapshot, playerTurn, userID, gameID, playedCard, deck
         }
     }
     for (var i = 0; i < considerOrder.length; i++) {
-        console.log(considerOrder[i] + ":");
-        console.log("BEFORE:" + JSON.stringify(playerHands[i]) + "\n\n");
         var gamePlayerRef = database.ref("games/" + gameID + "/gameInfo/" + considerOrder[i]);
         var greenCards = [];
         for (var j = 0; j < playerHands[i].length; j++) {
@@ -1436,7 +1433,6 @@ function specialBlueCard(snapshot, playerTurn, userID, gameID, playedCard, deck,
     var loop = playerTurn;
     while (true) {
         playerTurn++;
-        console.log("PlayerTurn: " + playerTurn);
         if (playerTurn > 4)
             playerTurn = 1;
         if (playerTurn == loop) {
@@ -1593,6 +1589,9 @@ function makeCPUMoveCheck (playerTurn, gameID, socketWrapper){
                 console.log("Give player ID to CPU method rather than userID");
             }
             socketWrapper.route = null;
+            if (hand == null) {
+                hand = [];
+            }
             makeCPUMoveInternal(snapshot, hand, topCard, attackCount, playerTurn, userID, gameID, socketWrapper);
         }
     });
