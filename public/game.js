@@ -159,6 +159,13 @@ var app = angular.module('gameApp', [])
         }
     });
     
+    socket.on("MessageUpdate", function(response){
+       if (response.gameID === $scope.auth.gameID){
+            $scope.message2 = response.message;
+            $scope.message2TurnsRemaining = 2;
+       }       
+    });
+    
     $scope.getBoard = function(){
         //make request to server
         var auth = {userID: $scope.auth.userID,

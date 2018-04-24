@@ -915,7 +915,7 @@ function playCardCheck(userID, gameID, playedCard, res) {
                 if (playedCard != -1 && (gameLogic.validateCard(topCard, playedCard, attackCount))) {
                     playCard(snapshot, userID, playerID, playerTurn, gameID, playedCard, topCard, res);
                 } else if (playedCard == -1){
-                    drawCard(snapshot, playerTurn, playerID, gameID, res);
+                    drawCard(snapshot, playerTurn, playerID, gameID, res, userID);
                 } else {
                     var response = {
                         status: 'failure',
@@ -962,6 +962,7 @@ function playCard(snapshot, userID, playerID, playerTurn, gameID, playedCard, to
             currentGameInfoRef.update({
                 deck: deck
             });
+            res.messageUpdate(gameID, userID + " passed");
         }
         var indexOfCard;
         for (var i = 0; i < hand.length; i++) {
@@ -988,7 +989,7 @@ function playCard(snapshot, userID, playerID, playerTurn, gameID, playedCard, to
     res.send(response);
 }
 
-function drawCard(snapshot, playerTurn, playerID, gameID, res){
+function drawCard(snapshot, playerTurn, playerID, gameID, res, userID){
     //Player Has To Draw Card(s)
     var drawNumber = 1;
     var deck = snapshot.child("games").child(gameID).child("gameInfo").child("deck").val();
@@ -1040,11 +1041,13 @@ function drawCard(snapshot, playerTurn, playerID, gameID, res){
                 status: 'success',
                 message: 'Playing'
             }
+            res.messageUpdate(gameID, userID + " drew from the deck");
         } else {
             var response = {
                 status: 'success',
                 message: 'Deck Has No More Cards'
             }
+            res.messageUpdate(gameID, "The deck is out of cards");
         }
         res.updateGame(gameID);
         console.log(JSON.stringify(response));
@@ -1582,7 +1585,7 @@ function makeCPUMoveInternal(snapshot, hand, topCard, attackCount, playerTurn, u
     var card;
     if (validHand.length == 0){
         card = -1;
-        drawCard(snapshot, playerTurn, playerID, gameID, socketWrapper);
+        drawCard(snapshot, playerTurn, playerID, gameID, socketWrapper, userID);
     } else {
         card = calculateBestMove(hand, validHand);
         if ((card.number == 10) || (card.number == 15)){
@@ -1789,6 +1792,14 @@ io.on('connection', function(socket){
             }
             socket.broadcast.emit("GameUpdateHand", data);
             this.socket.emit("GameUpdateHand", data);
+        }
+        messageUpdate(gameID, message){
+            var data = {
+                gameID: gameID,
+                message: message
+            }
+            socket.broadcast.emit("MessageUpdate", data);
+            this.socket.emit("MessageUpdate", data);
         }
         
         start(gameID){
