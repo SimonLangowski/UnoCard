@@ -69,8 +69,12 @@ The chosen color is <span ng-bind="data.table.topCard.setColor"></span>
 <span ng-bind="message"></span>
 </div>
 <div class = "messageBox" ng-show="showResult == 'defeat' ">
+<span ng-bind="result3"></span><br>
+<span ng-bind="result4"></span><br>
 Better luck next time... <button type="button" class="btn btn-primary smallMargin" ng-click="quit()">Return to lobby</button>
 </div>
+<span ng-bind="result3"></span><br>
+<span ng-bind="result4"></span><br>
 <div class = "messageBox" ng-show="showResult == 'victory' ">
 Congratulations! <button type="button" class="btn btn-primary smallMargin" ng-click="quit()">Return to lobby</button>
 </div>

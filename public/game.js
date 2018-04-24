@@ -33,6 +33,8 @@ var app = angular.module('gameApp', [])
     $scope.message2 = "";
     $scope.message2TurnsRemaining = 0;
     $scope.showResult = "";
+    $scope.result3 = "";
+    $scope.result4 = "";
     
     $scope.init = function(){
         $scope.auth.userID = $scope.getCookie("USER_ID");
@@ -247,7 +249,10 @@ var app = angular.module('gameApp', [])
             gameID: $scope.auth.gameID};
         $http.post('/game/results', auth)
         .then(function(response){
-            $scope.message = response.data.results;
+            $scope.message2 = "1st: " + response.data.results[0];
+            $scope.message = "2nd: " + response.data.results[1];
+            $scope.result3 = "3rd: " + response.data.results[2];
+            $scope.result4 = "4th: " + response.data.results[4];
             $scope.deleteCookie("GAME_ID"); //remove cookie to allow making other games
             $scope.showResult = response.data.status;
         }),
