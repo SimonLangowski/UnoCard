@@ -1296,7 +1296,7 @@ function updateBasedOnCard(snapshot, playerTurn, userID, gameID, playedCard, dec
             currentPlayer: playerTurn
         });
     }
-    setTimeout(makeCPUMoveCheck.bind(null, playerTurn, gameID, socket), 1000);
+    setTimeout(makeCPUMoveCheck.bind(null, playerTurn, gameID, socket), 3000);
 }
 
 function updatePlacings(snapshot, userID, gameID, playerTurn) {
