@@ -901,7 +901,7 @@ function calculateResults(userID, gameID, res) {
 }
 
 function playCardCheck(userID, gameID, playedCard, res) {
-    //validateDeck(gameID);
+    validateDeck(gameID);
     var ref = database.ref();
     ref.once("value").then(function (snapshot) {
         if (snapshot.child("users").child(userID).child("lobbyID").val() == gameID) {
@@ -1009,7 +1009,7 @@ function playCard(snapshot, userID, playerID, playerTurn, gameID, playedCard, to
         status: 'success',
         message: 'Playing'
     }
-    //validateDeck(gameID);
+    validateDeck(gameID);
     res.updateGame(gameID);
     console.log(JSON.stringify(response));
     res.send(response);
@@ -1077,7 +1077,7 @@ function drawCard(snapshot, playerTurn, playerID, gameID, res, userID){
             }
             res.messageUpdate(gameID, "The deck is out of cards");
         }
-        //validateDeck(gameID);
+        validateDeck(gameID);
         res.updateGame(gameID);
         console.log(JSON.stringify(response));
         res.send(response);
@@ -1151,7 +1151,7 @@ function drawCard(snapshot, playerTurn, playerID, gameID, res, userID){
             status: 'success',
             message: 'Lost'
         }
-        //validateDeck(gameID);
+        validateDeck(gameID);
         res.updateGame(gameID);
         console.log(JSON.stringify(response));
         res.send(response);
