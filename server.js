@@ -441,10 +441,10 @@ function moreStepsIfGameStarted(snapshot, userID, gameID, res) {
         if (placeToUpdate == "secondPlace") {
             var remaining = snapshot.child(gameID).child("names").val();
             if (remaining.indexOf(snapshot.child(gameID).child("gameInfo").child("fourthPlace").val()) > -1)
-                remaining.splice(snapshot.child(gameID).child("gameInfo").child("fourthPlace").val(), 1);
+                remaining.splice(remaining.indexOf(snapshot.child(gameID).child("gameInfo").child("fourthPlace").val()), 1);
             if (remaining.indexOf(snapshot.child(gameID).child("gameInfo").child("thirdPlace").val()) > -1)
-                remaining.splice(snapshot.child(gameID).child("gameInfo").child("thirdPlace").val(), 1);
-            remaining.splice(userID, 1);
+                remaining.splice(remaining.indexOf(snapshot.child(gameID).child("gameInfo").child("thirdPlace").val()), 1);
+            remaining.splice(remaining.indexOf(userID), 1);
             gameInfoRef.update({
                 finished: true,
                 firstPlace: remaining[0],
@@ -1138,10 +1138,10 @@ function drawCard(snapshot, playerTurn, playerID, gameID, res, userID){
         if (placeToUpdate == "secondPlace") {
             var remaining = snapshot.child("games").child(gameID).child("names").val();
             if (remaining.indexOf(snapshot.child(gameID).child("gameInfo").child("fourthPlace").val()) > -1)
-                remaining.splice(snapshot.child("games").child(gameID).child("gameInfo").child("fourthPlace").val(), 1);
+                remaining.splice(remaining.indexOf(snapshot.child("games").child(gameID).child("gameInfo").child("fourthPlace").val()), 1);
             if (remaining.indexOf(snapshot.child(gameID).child("gameInfo").child("thirdPlace").val()) > -1)
-                remaining.splice(snapshot.child("games").child(gameID).child("gameInfo").child("thirdPlace").val(), 1);
-            remaining.splice(userID, 1);
+                remaining.splice(remaining.indexOf(snapshot.child("games").child(gameID).child("gameInfo").child("thirdPlace").val()), 1);
+            remaining.splice(remaining.indexOf(userID), 1);
             currentGameInfoRef.update({
                 finished: true,
                 firstPlace: remaining[0]
@@ -1499,12 +1499,12 @@ function specialBlueCard(snapshot, playerTurn, userID, gameID, playedCard, deck,
             if (placeToUpdate == "secondPlace") {
                 var remaining = snapshot.child("games").child(gameID).child("names").val();
                 if (remaining.indexOf(current4Place) > -1) {
-                    remaining.splice(current4Place, 1);
+                    remaining.splice(remaining.indexOf(current4Place), 1);
                 }
                 if (remaining.indexOf(current3Place) > -1) {
-                    remaining.splice(current3Place, 1);
+                    remaining.splice(remaining.indexOf(current3Place), 1);
                 }
-                remaining.splice(userID, 1);
+                remaining.splice(remaining.indexOf(userID), 1);
                 gameInfoRef.update({
                     finished: true,
                     secondPlace: remaining[0],
