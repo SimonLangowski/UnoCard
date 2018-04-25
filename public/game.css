@@ -47,7 +47,7 @@ body {
 .messageBox {
     text-align: center;  
     background: rgba(1,1,1,0.1);
-    max-width: 300px;
+    width: 300px;
     font-size: 125%;
     float: center;
     margin: auto;

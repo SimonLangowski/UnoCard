@@ -30,6 +30,7 @@
     cards
     <img ng-src="/drawingResources/{{data.table.acrossCount}}.png" height="100px">
 </div>
+<br>
 <div>
     <div class = "left smallMargin">
     <span ng-bind="data.table.leftName"></span>
@@ -51,11 +52,11 @@
         <img src="/drawingResources/cardFaceDown.png" height="100px" alt="Draw card pile" ng-click="drawCard()"></nobr>
     </div>    
 </div>
+
 <br>
 <div class="attackBox" ng-show="data.table.attackCount > 0">
 Attack Count: <span ng-bind="data.table.attackCount"></span>
 </div>
-<br>
 <div class="messageBox" ng-show="(data.table.attackCount > 0) && (data.table.turnPlayerId == data.table.myPlayerId)">
 You must draw or play an Attack Card
 </div>
@@ -72,14 +73,29 @@ The chosen color is <span ng-bind="data.table.topCard.setColor"></span>
 <span ng-bind="message3"></span>
 </div>
 <div class = "messageBox" ng-show="showResult == 'defeat' ">
+<span ng-bind="result1"></span><br>
+<span ng-bind="result2"></span><br>
+<span ng-bind="result3"></span><br>
 <span ng-bind="result4"></span><br>
 Better luck next time... <button type="button" class="btn btn-primary smallMargin" ng-click="quit()">Return to lobby</button>
 </div>
 <div class = "messageBox" ng-show="showResult == 'victory' ">
+<span ng-bind="result1"></span><br>
+<span ng-bind="result2"></span><br>
+<span ng-bind="result3"></span><br>
 <span ng-bind="result4"></span><br>
 Congratulations! <button type="button" class="btn btn-primary smallMargin" ng-click="quit()">Return to lobby</button>
 </div>
+<div ng-show = "showColorChooser" class="colorChooseBox">
+    Choose wild card color: <br>
+    <button type="button" class="btn btn-danger center" ng-click="playPopup('red')">Red</button>
+    <button type="button" class="btn btn-warning center" ng-click="playPopup('yellow')">Yellow</button>
+    <button type="button" class="btn btn-success center" ng-click="playPopup('green')" ng-show="temp.number != 15">Green</button>
+    <button type="button" class="btn btn-primary center" ng-click="playPopup('blue')">Blue</button>
     <br>
+    <br>
+</div>
+<br>
 <div class="center">
     <span ng-bind="data.table.myName"></span>
     :
@@ -95,17 +111,8 @@ Congratulations! <button type="button" class="btn btn-primary smallMargin" ng-cl
     </div>
 </div>
 <br>
-<div ng-show = "showColorChooser" class="colorChooseBox">
-    Choose wild card color: <br>
-    <button type="button" class="btn btn-danger center" ng-click="playPopup('red')">Red</button>
-    <button type="button" class="btn btn-warning center" ng-click="playPopup('yellow')">Yellow</button>
-    <button type="button" class="btn btn-success center" ng-click="playPopup('green')" ng-show="temp.number != 15">Green</button>
-    <button type="button" class="btn btn-primary center" ng-click="playPopup('blue')">Blue</button>
-    <br>
-    <br>
-</div>
-<br>
-<br>
+
+
 </div>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
