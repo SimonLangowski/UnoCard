@@ -551,7 +551,7 @@ function setUpNewGame(gameID, numCPUs) {
         var deck = gameLogic.getNewDeck();
         gameLogic.shuffle(deck);
         var topCard = deck[0];
-        var i = 1;
+        var i = 0;
         while (!(topCard.number >= 1 && topCard.number <= 6)) {
             topCard = deck[i];
             i++;
@@ -911,6 +911,7 @@ function calculateResults(userID, gameID, res) {
 }
 
 function playCardCheck(userID, gameID, playedCard, res) {
+    //validateDeck(gameID);
     var ref = database.ref();
     ref.once("value").then(function (snapshot) {
         if (snapshot.child("users").child(userID).child("lobbyID").val() == gameID) {
@@ -1009,6 +1010,7 @@ function playCard(snapshot, userID, playerID, playerTurn, gameID, playedCard, to
         status: 'success',
         message: 'Playing'
     }
+    //validateDeck(gameID);
     res.updateGame(gameID);
     console.log(JSON.stringify(response));
     res.send(response);
@@ -1076,6 +1078,7 @@ function drawCard(snapshot, playerTurn, playerID, gameID, res, userID){
             }
             res.messageUpdate(gameID, "The deck is out of cards");
         }
+        //validateDeck(gameID);
         res.updateGame(gameID);
         console.log(JSON.stringify(response));
         res.send(response);
@@ -1149,6 +1152,7 @@ function drawCard(snapshot, playerTurn, playerID, gameID, res, userID){
             status: 'success',
             message: 'Lost'
         }
+        //validateDeck(gameID);
         res.updateGame(gameID);
         console.log(JSON.stringify(response));
         res.send(response);
@@ -1786,7 +1790,52 @@ app.post('/game/results', parser, function (req, res) {
     var userID = req.body.userID;
     var gameID = req.body.gameID;
     calculateResults(userID, gameID, res);
+
 });
+//Test If Deck Is Valid
+/*function validateDeck(gameID) {
+    var gameRef = database.ref("games/" + gameID + "/gameInfo");
+    gameRef.once("value").then(function (snapshot) {
+        var newDeck = gameLogic.getNewDeck();
+        var deck = snapshot.child("deck").val();
+        var topCard = snapshot.child("topCard").val();
+        var playerOneHand = snapshot.child("playerOne").child("hand").val();
+        var playerTwoHand = snapshot.child("playerTwo").child("hand").val();
+        var playerThreeHand = snapshot.child("playerThree").child("hand").val();
+        var playerFourHand = snapshot.child("playerFour").child("hand").val();
+        var oldDeck = [];
+        gameLogic.putCardIntoDeck(oldDeck, topCard);
+        if (deck != null)
+            gameLogic.putCardsIntoDeck(oldDeck, deck, deck.length);
+        if (playerOneHand != null)
+            gameLogic.putCardsIntoDeck(oldDeck, playerOneHand, playerOneHand.length);
+        if (playerTwoHand != null)
+            gameLogic.putCardsIntoDeck(oldDeck, playerTwoHand, playerTwoHand.length);
+        if (playerThreeHand != null)
+            gameLogic.putCardsIntoDeck(oldDeck, playerThreeHand, playerThreeHand.length);
+        if (playerFourHand != null)
+            gameLogic.putCardsIntoDeck(oldDeck, playerFourHand, playerFourHand.length);
+        for (var i = 0; i < newDeck.length; i++) {
+            for (var j = 0; j < oldDeck.length; j++) {
+                if (newDeck[i].number == oldDeck[j].number && newDeck[i].color == oldDeck[j].color) {
+                    newDeck.splice(i, 1);
+                    oldDeck.splice(j, 1);
+                    i--;
+                    break;
+                }
+            }
+        }
+        if (newDeck.length != 0) {
+            console.log("MISSING:\n");
+            console.log(JSON.stringify(newDeck));
+            console.log("DUPLICATE:\n");
+            console.log(JSON.stringify(oldDeck));
+            throw new Error("DECK NOT VALID");
+        } else {
+            console.log("VALID DECK");
+        }
+    });
+}*/
 
 app.all("/", (req, res) => {
     res.redirect(301, "/login.html");
