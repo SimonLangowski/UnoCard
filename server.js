@@ -56,18 +56,7 @@ function signInCheck(usrname, passwd, res) {
     var usersRef = database.ref("users");
     usersRef.once("value").then(function (snapshot) {
         if (snapshot.child(usrname).exists()){
-            /*if (snapshot.child(usrname).child("signedIn").val() == 'true'){
-                //User Already Signed In
-                var response = {
-                    status: 'failure',
-                    error: 'User Already Signed In'
-                }
-                console.log(JSON.stringify(response));
-                res.send(JSON.stringify(response));
-                return;
-            }*/
             var hash = snapshot.child(usrname).child("password").val();
-            //console.log(hash);
             if (bcrypt.compareSync(passwd, hash)){
                 //User Exists And Not Already Signed In
                  var currentUserRef = database.ref("users/" + usrname);
@@ -512,7 +501,6 @@ function startGameCheck(userID, gameID, res) {
                         status: 'success',
                         message: 'Game Start'
                     }
-                    //res.updateAllLobbies();
                     setUpNewGame(gameID, 4 - snapshot.child(gameID).child("names").val().length);
                     res.start(gameID);
                     console.log(JSON.stringify(response));
@@ -1647,9 +1635,7 @@ function makeCPUMoveInternal(snapshot, hand, topCard, attackCount, playerTurn, u
             card.setColor = countColors(hand)[0].color;
         }
         playCard(snapshot, userID, playerID, playerTurn, gameID, card, topCard, socketWrapper);
-    } /*else {
-        card = makeRandomMove(validHand);
-    }*/
+    }
     console.log(userID + " played " + JSON.stringify(card));
 }
 
@@ -1804,7 +1790,7 @@ app.post('/game/results', parser, function (req, res) {
 
 });
 //Test If Deck Is Valid
-/*function validateDeck(gameID) {
+function validateDeck(gameID) {
     var gameRef = database.ref("games/" + gameID + "/gameInfo");
     gameRef.once("value").then(function (snapshot) {
         var newDeck = gameLogic.getNewDeck();
@@ -1849,7 +1835,7 @@ app.post('/game/results', parser, function (req, res) {
             console.log("VALID DECK");
         }
     });
-}*/
+}
 
 app.all("/", (req, res) => {
     res.redirect(301, "/login.html");
