@@ -551,12 +551,14 @@ function setUpNewGame(gameID, numCPUs) {
         var deck = gameLogic.getNewDeck();
         gameLogic.shuffle(deck);
         var topCard = deck[0];
+        var topCardIndex = 0;
         var i = 0;
         while (!(topCard.number >= 1 && topCard.number <= 6)) {
             topCard = deck[i];
+            topCardIndex = i;
             i++;
         }
-        deck.splice(i, 1);
+        deck.splice(topCardIndex, 1);
         var handOne = [];
         gameLogic.drawCard(deck, handOne, 7);
         var handTwo = [];
@@ -915,33 +917,42 @@ function playCardCheck(userID, gameID, playedCard, res) {
     var ref = database.ref();
     ref.once("value").then(function (snapshot) {
         if (snapshot.child("users").child(userID).child("lobbyID").val() == gameID) {
-            var playerID;
-            var playerTurn = snapshot.child("games").child(gameID).child("gameInfo").child("currentPlayer").val();
-            var currentPlayerUserID;
-            if (playerTurn == 1) {
-                currentPlayerUserID = snapshot.child("games").child(gameID).child("gameInfo").child("playerOne").child("userID").val();
-                playerID = "playerOne";
-            } else if (playerTurn == 2) {
-                currentPlayerUserID = snapshot.child("games").child(gameID).child("gameInfo").child("playerTwo").child("userID").val();
-                playerID = "playerTwo";
-            } else if (playerTurn == 3) {
-                currentPlayerUserID = snapshot.child("games").child(gameID).child("gameInfo").child("playerThree").child("userID").val();
-                playerID = "playerThree";
-            } else {
-                currentPlayerUserID = snapshot.child("games").child(gameID).child("gameInfo").child("playerFour").child("userID").val();
-                playerID = "playerFour";
-            }
-            var topCard = snapshot.child("games").child(gameID).child("gameInfo").child("topCard").val();
-            var attackCount = snapshot.child("games").child(gameID).child("gameInfo").child("attackCount").val();
-            if (userID == currentPlayerUserID) {
-                if (playedCard != -1 && (gameLogic.validateCard(topCard, playedCard, attackCount))) {
-                    playCard(snapshot, userID, playerID, playerTurn, gameID, playedCard, topCard, res);
-                } else if (playedCard == -1){
-                    drawCard(snapshot, playerTurn, playerID, gameID, res, userID);
+            if (snapshot.child("games").child(gameID).child("gameInfo").child("finished").val() == false) {
+                var playerID;
+                var playerTurn = snapshot.child("games").child(gameID).child("gameInfo").child("currentPlayer").val();
+                var currentPlayerUserID;
+                if (playerTurn == 1) {
+                    currentPlayerUserID = snapshot.child("games").child(gameID).child("gameInfo").child("playerOne").child("userID").val();
+                    playerID = "playerOne";
+                } else if (playerTurn == 2) {
+                    currentPlayerUserID = snapshot.child("games").child(gameID).child("gameInfo").child("playerTwo").child("userID").val();
+                    playerID = "playerTwo";
+                } else if (playerTurn == 3) {
+                    currentPlayerUserID = snapshot.child("games").child(gameID).child("gameInfo").child("playerThree").child("userID").val();
+                    playerID = "playerThree";
+                } else {
+                    currentPlayerUserID = snapshot.child("games").child(gameID).child("gameInfo").child("playerFour").child("userID").val();
+                    playerID = "playerFour";
+                }
+                var topCard = snapshot.child("games").child(gameID).child("gameInfo").child("topCard").val();
+                var attackCount = snapshot.child("games").child(gameID).child("gameInfo").child("attackCount").val();
+                if (userID == currentPlayerUserID) {
+                    if (playedCard != -1 && (gameLogic.validateCard(topCard, playedCard, attackCount))) {
+                        playCard(snapshot, userID, playerID, playerTurn, gameID, playedCard, topCard, res);
+                    } else if (playedCard == -1) {
+                        drawCard(snapshot, playerTurn, playerID, gameID, res, userID);
+                    } else {
+                        var response = {
+                            status: 'failure',
+                            error: 'You Can\'t Play That Card'
+                        }
+                        console.log(JSON.stringify(response));
+                        res.send(response);
+                    }
                 } else {
                     var response = {
                         status: 'failure',
-                        error: 'You Can\'t Play That Card'
+                        error: 'It\'s Not Your Turn'
                     }
                     console.log(JSON.stringify(response));
                     res.send(response);
@@ -949,7 +960,7 @@ function playCardCheck(userID, gameID, playedCard, res) {
             } else {
                 var response = {
                     status: 'failure',
-                    error: 'It\'s Not Your Turn'
+                    error: 'Game Finished'
                 }
                 console.log(JSON.stringify(response));
                 res.send(response);
@@ -1815,6 +1826,9 @@ app.post('/game/results', parser, function (req, res) {
             gameLogic.putCardsIntoDeck(oldDeck, playerThreeHand, playerThreeHand.length);
         if (playerFourHand != null)
             gameLogic.putCardsIntoDeck(oldDeck, playerFourHand, playerFourHand.length);
+        if (oldDeck.length != 53) {
+            throw new Error("DECK LENGTH NOT 53");
+        }
         for (var i = 0; i < newDeck.length; i++) {
             for (var j = 0; j < oldDeck.length; j++) {
                 if (newDeck[i].number == oldDeck[j].number && newDeck[i].color == oldDeck[j].color) {
