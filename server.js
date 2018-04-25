@@ -482,7 +482,7 @@ function moreStepsIfGameStarted(snapshot, userID, gameID, res) {
         }
     }
     res.updateGame(gameID);
-    setTimeout(makeCPUMoveCheck.bind(null, playerTurn, gameID, res), 1000);
+    setTimeout(makeCPUMoveCheck.bind(null, playerTurn, gameID, res), 3000);
 }
 
 function startGameCheck(userID, gameID, res) {
@@ -1152,7 +1152,7 @@ function drawCard(snapshot, playerTurn, playerID, gameID, res, userID){
         console.log(JSON.stringify(response));
         res.send(response);
     }
-    setTimeout(makeCPUMoveCheck.bind(null, playerTurn, gameID, res), 1000);
+    setTimeout(makeCPUMoveCheck.bind(null, playerTurn, gameID, res), 3000);
 }
 
 function updateBasedOnCard(snapshot, playerTurn, userID, gameID, playedCard, deck, hand, socket) {
