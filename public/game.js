@@ -200,7 +200,8 @@ var app = angular.module('gameApp', [])
         .then(function(response){
             if (response.data.hand == null){
                 $scope.data.table.hand = [[]];
-                $scope.message3 = "You've been knocked out";
+                if(response.data.finished == false)
+                    $scope.message3 = "You've been knocked out";
             } else {
                 $scope.calculateHandRows(response.data.hand);
             }

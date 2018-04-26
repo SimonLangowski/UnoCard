@@ -780,10 +780,12 @@ function searchForHand(userID, gameID, res) {
             var nameTwo = snapshot.child("games").child(gameID).child("gameInfo").child("playerTwo").child("userID").val();
             var nameThree = snapshot.child("games").child(gameID).child("gameInfo").child("playerThree").child("userID").val();
             var nameFour = snapshot.child("games").child(gameID).child("gameInfo").child("playerFour").child("userID").val();
+            var gameFinished = snapshot.child("games").child(gameID).child("gameInfo").child("finished").val();
             var response = {
                 status: 'success',
                 message: 'Hand',
-                hand: null
+                hand: null,
+                finished: gameFinished
             }
             if (nameOne == userID) {
                 response.hand = snapshot.child("games").child(gameID).child("gameInfo").child("playerOne").child("hand").val();
@@ -999,8 +1001,14 @@ function playCard(snapshot, userID, playerID, playerTurn, gameID, playedCard, to
         updateBasedOnCard(snapshot, playerTurn, userID, gameID, playedCard, deck, hand, res);
     } else {
         var currentGameInfoRef = database.ref("games/" + gameID + "/gameInfo/");
+        var currentPlayerRef = database.ref("games/" + gameID + "/gameInfo/" + playerID);
         currentGameInfoRef.update({
             topCard: playedCard
+        });
+        var emptyHand = []
+        currentPlayerRef.update({
+            hand: emptyHand,
+            cardCount: 0
         });
         updatePlacings(snapshot, userID, gameID, playerTurn);
     }
