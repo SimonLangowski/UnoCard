@@ -1003,7 +1003,8 @@ function playCard(snapshot, userID, playerID, playerTurn, gameID, playedCard, to
         var currentGameInfoRef = database.ref("games/" + gameID + "/gameInfo/");
         var currentPlayerRef = database.ref("games/" + gameID + "/gameInfo/" + playerID);
         currentGameInfoRef.update({
-            topCard: playedCard
+            topCard: playedCard,
+            attackCount: 0
         });
         var emptyHand = []
         currentPlayerRef.update({
@@ -1423,7 +1424,8 @@ function specialGreenCard(snapshot, playerTurn, userID, gameID, playedCard, deck
     }
     if (someoneWon == true) {
         gameInfoRef.update({
-            finished: true
+            finished: true,
+            attackCount: 0
         });
         //Update Rankings
         var number = 1;
