@@ -4,7 +4,10 @@ angular.module('loginApp', [])
     $scope.formData.isError = false; //set to no error message
     $scope.formData.isSuccess = false;
     $scope.register = function(){
-        
+        if (!$scope.login.$valid){
+            $scope.formData.isError = true;
+            $scope.formData.message = "Please fill in fields";
+        } else {
             $http.post('/register', $scope.formData)
             .then(function(response) {
                 if (response.data.status === "success"){
@@ -21,11 +24,14 @@ angular.module('loginApp', [])
             (function(response) {
                 console.log('Error: ' + response);
             });
-           
+        }
     };
     
     $scope.signIn = function(){
-        
+        if (!$scope.login.$valid){
+            $scope.formData.isError = true;
+            $scope.formData.message = "Please fill in fields";
+        } else {
             $http.post('/signIn', $scope.formData)
             .then(function(response) {
                 if (response.data.status === "success"){
@@ -45,6 +51,7 @@ angular.module('loginApp', [])
             (function(data) {
                 console.log('Error: ' + data);
             });
+        }
         
     }
     
