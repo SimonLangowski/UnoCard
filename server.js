@@ -1636,9 +1636,13 @@ function makeCPUMoveInternal(snapshot, hand, topCard, attackCount, playerTurn, u
         drawCard(snapshot, playerTurn, playerID, gameID, socketWrapper, userID);
     } else {
         card = calculateBestMove(hand, validHand);
-        if ((card.number == 10) || (card.number == 15)){
+        if (card.number == 10){
             //choose most common color in hand for wild cards
-            card.setColor = countColors(hand)[0].color;
+            card.setColor = countColors(hand, true)[0].color;
+        }
+        if (card.number == 15) {
+            //chose most common color without green for special green card
+            card.setColor = countColors(hand, false)[0].colors
         }
         playCard(snapshot, userID, playerID, playerTurn, gameID, card, topCard, socketWrapper);
     }
@@ -1711,29 +1715,51 @@ function makeRandomMove(validHand){
 }
 
 //returns a list of the colors in order of count
-function countColors(hand){
-    var i = 0;
-    var counts = [
-    {color: "red", count: 0},
-    {color: "yellow", count: 0},
-    {color: "green", count: 0},    
-    {color: "blue", count: 0}        
-    ]
-    for (i = 0; i < hand.length; i++){
-        if (hand[i].color == "red"){
-            counts[0].count++;
-        } else if (hand[i].color == "yellow"){
-            counts[1].count++;
-        } else if (hand[i].color == "green"){
-            counts[2].count++;
-        } else if (hand[i].color == "blue"){
-            counts[3].count++;
+function countColors(hand, withGreen) {
+    if (withGreen == true) {
+        var i = 0;
+        var counts = [
+            { color: "red", count: 0 },
+            { color: "yellow", count: 0 },
+            { color: "green", count: 0 },
+            { color: "blue", count: 0 }
+        ]
+        for (i = 0; i < hand.length; i++) {
+            if (hand[i].color == "red") {
+                counts[0].count++;
+            } else if (hand[i].color == "yellow") {
+                counts[1].count++;
+            } else if (hand[i].color == "green") {
+                counts[2].count++;
+            } else if (hand[i].color == "blue") {
+                counts[3].count++;
+            }
         }
+        counts.sort(function (a, b) {
+            return -(a.count - b.count);
+        });
+        return counts;
+    } else {
+        var i = 0;
+        var counts = [
+            { color: "red", count: 0 },
+            { color: "yellow", count: 0 },
+            { color: "blue", count: 0 }
+        ]
+        for (i = 0; i < hand.length; i++) {
+            if (hand[i].color == "red") {
+                counts[0].count++;
+            } else if (hand[i].color == "yellow") {
+                counts[1].count++;
+            } else if (hand[i].color == "blue") {
+                counts[2].count++;
+            }
+        }
+        counts.sort(function (a, b) {
+            return -(a.count - b.count);
+        });
+        return counts;
     }
-    counts.sort(function(a,b){
-        return -(a.count - b.count);
-    });
-    return counts;
 }
 
 app.use(express.static('public'))
