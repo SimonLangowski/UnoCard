@@ -559,6 +559,7 @@ function setUpNewGame(gameID, numCPUs) {
             currentGameRef.update({
                 gameInfo: {
                     finished: false,
+                    numCPU: 0,
                     deck: deck,
                     playDirection: "increasing",
                     currentPlayer: 1,
@@ -602,6 +603,7 @@ function setUpNewGame(gameID, numCPUs) {
             currentGameRef.update({
                 gameInfo: {
                     finished: false,
+                    numCPU: 1,
                     deck: deck,
                     playDirection: "increasing",
                     currentPlayer: 1,
@@ -645,6 +647,7 @@ function setUpNewGame(gameID, numCPUs) {
             currentGameRef.update({
                 gameInfo: {
                     finished: false,
+                    numCPU: 2,
                     deck: deck,
                     playDirection: "increasing",
                     currentPlayer: 1,
@@ -688,6 +691,7 @@ function setUpNewGame(gameID, numCPUs) {
             currentGameRef.update({
                 gameInfo: {
                     finished: false,
+                    numCPU: 3,
                     deck: deck,
                     playDirection: "increasing",
                     currentPlayer: 1,
@@ -1143,6 +1147,10 @@ function drawCard(snapshot, playerTurn, playerID, gameID, res, userID){
         });
         if (placeToUpdate == "secondPlace") {
             var remaining = snapshot.child("games").child(gameID).child("names").val();
+            var numCPU = snapshot.child("games").child(gameID).child("numCPU").val();
+            for (var i = 1; i <= numCPU; i++) {
+                remaining.push("CPU" + i);
+            }
             if (remaining.indexOf(snapshot.child(gameID).child("gameInfo").child("fourthPlace").val()) > -1)
                 remaining.splice(remaining.indexOf(snapshot.child("games").child(gameID).child("gameInfo").child("fourthPlace").val()), 1);
             if (remaining.indexOf(snapshot.child(gameID).child("gameInfo").child("thirdPlace").val()) > -1)
@@ -1504,6 +1512,10 @@ function specialBlueCard(snapshot, playerTurn, userID, gameID, playedCard, deck,
             }
             if (placeToUpdate == "secondPlace") {
                 var remaining = snapshot.child("games").child(gameID).child("names").val();
+                var numCPU = snapshot.child("games").child(gameID).child("numCPU").val();
+                for (var i = 1; i <= numCPU; i++) {
+                    remaining.push("CPU" + i);
+                }
                 if (remaining.indexOf(current4Place) > -1) {
                     remaining.splice(remaining.indexOf(current4Place), 1);
                 }
