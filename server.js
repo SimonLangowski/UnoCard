@@ -1642,7 +1642,7 @@ function makeCPUMoveInternal(snapshot, hand, topCard, attackCount, playerTurn, u
         }
         if (card.number == 15) {
             //chose most common color without green for special green card
-            card.setColor = countColors(hand, false)[0].colors
+            card.setColor = countColors(hand, false)[0].color;
         }
         playCard(snapshot, userID, playerID, playerTurn, gameID, card, topCard, socketWrapper);
     }
