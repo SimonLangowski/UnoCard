@@ -616,8 +616,8 @@ function setUpPlayerOrder(snapshot, numCPUs) {
         players.push("CPU" + i);
     }
     for (var i = 0; i < players.length; i++) {
-        if (players[i] != "CPU1" && players[i] != "CPU2" && players[i] != "CPU3") {
-            humanPlayers.push(i + 1);
+        if (isPlayerCPU(players[i]) == false) {
+            humanPlayers.push(i);
         }
     }
     gameLogic.shuffle(players);
@@ -626,7 +626,7 @@ function setUpPlayerOrder(snapshot, numCPUs) {
         playerTwo: players[1],
         playerThree: players[2],
         playerFour: players[3],
-        firstTurn: humanPlayers[Math.floor(Math.random() * humanPlayers.length)]
+        firstTurn: humanPlayers[Math.floor(Math.random() * humanPlayers.length)] + 1
     }
     return playerOrder;
 }
