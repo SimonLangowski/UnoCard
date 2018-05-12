@@ -555,11 +555,12 @@ function setUpNewGame(gameID, numCPUs) {
         gameLogic.drawCard(deck, handThree, 7);
         var handFour = [];
         gameLogic.drawCard(deck, handFour, 7);
-        if (numCPUs == 0){
+        var playerOrder = setUpPlayerOrder(snapshot, numCPUs);
+        if (numCPUs >= 0 && numCPUs <= 3){
             currentGameRef.update({
                 gameInfo: {
                     finished: false,
-                    numCPU: 0,
+                    numCPU: numCPUs,
                     deck: deck,
                     playDirection: "increasing",
                     currentPlayer: 1,
@@ -570,171 +571,63 @@ function setUpNewGame(gameID, numCPUs) {
                     thirdPlace: null,
                     fourthPlace: null,
                     playerOne: {
-                        userID: snapshot.child("names").val()[0],
+                        userID: playerOrder.playerOne,
                         hasLost: false,
-                        isCPU: false,
+                        isCPU: isPlayerCPU(playerOrder.playerOne),
                         cardCount: 7,
                         hand: handOne
                     },
                     playerTwo: {
-                        userID: snapshot.child("names").val()[1],
+                        userID: playerOrder.playerTwo,
                         hasLost: false,
-                        isCPU: false,
+                        isCPU: isPlayerCPU(playerOrder.playerTwo),
                         cardCount: 7,
                         hand: handTwo
                     },
                     playerThree: {
-                        userID: snapshot.child("names").val()[2],
+                        userID: playerOrder.playerThree,
                         hasLost: false,
-                        isCPU: false,
+                        isCPU: isPlayerCPU(playerOrder.playerThree),
                         cardCount: 7,
                         hand: handThree
                     },
                     playerFour: {
-                        userID: snapshot.child("names").val()[3],
+                        userID: playerOrder.playerFour,
                         hasLost: false,
-                        isCPU: false,
+                        isCPU: isPlayerCPU(playerOrder.playerFour),
                         cardCount: 7,
                         hand: handFour
                     }
                 }
             });
-        } else if (numCPUs == 1) {
-            currentGameRef.update({
-                gameInfo: {
-                    finished: false,
-                    numCPU: 1,
-                    deck: deck,
-                    playDirection: "increasing",
-                    currentPlayer: 1,
-                    attackCount: 0,
-                    topCard: topCard,
-                    firstPlace: null,
-                    secondPlace: null,
-                    thirdPlace: null,
-                    fourthPlace: null,
-                    playerOne: {
-                        userID: snapshot.child("names").val()[0],
-                        hasLost: false,
-                        isCPU: false,
-                        cardCount: 7,
-                        hand: handOne
-                    },
-                    playerTwo: {
-                        userID: snapshot.child("names").val()[1],
-                        hasLost: false,
-                        isCPU: false,
-                        cardCount: 7,
-                        hand: handTwo
-                    },
-                    playerThree: {
-                        userID: snapshot.child("names").val()[2],
-                        hasLost: false,
-                        isCPU: false,
-                        cardCount: 7,
-                        hand: handThree
-                    },
-                    playerFour: {
-                        userID: "CPU1",
-                        hasLost: false,
-                        isCPU: true,
-                        cardCount: 7,
-                        hand: handFour
-                    }
-                }
-            });
-        } else if (numCPUs == 2){
-            currentGameRef.update({
-                gameInfo: {
-                    finished: false,
-                    numCPU: 2,
-                    deck: deck,
-                    playDirection: "increasing",
-                    currentPlayer: 1,
-                    attackCount: 0,
-                    topCard: topCard,
-                    firstPlace: null,
-                    secondPlace: null,
-                    thirdPlace: null,
-                    fourthPlace: null,
-                    playerOne: {
-                        userID: snapshot.child("names").val()[0],
-                        hasLost: false,
-                        isCPU: false,
-                        cardCount: 7,
-                        hand: handOne
-                    },
-                    playerTwo: {
-                        userID: "CPU1",
-                        hasLost: false,
-                        isCPU: true,
-                        cardCount: 7,
-                        hand: handTwo
-                    },
-                    playerThree: {
-                        userID: snapshot.child("names").val()[1],
-                        hasLost: false,
-                        isCPU: false,
-                        cardCount: 7,
-                        hand: handThree
-                    },
-                    playerFour: {
-                        userID: "CPU2",
-                        hasLost: false,
-                        isCPU: true,
-                        cardCount: 7,
-                        hand: handFour
-                    }
-                }
-            });    
-        } else if (numCPUs == 3){
-            currentGameRef.update({
-                gameInfo: {
-                    finished: false,
-                    numCPU: 3,
-                    deck: deck,
-                    playDirection: "increasing",
-                    currentPlayer: 1,
-                    attackCount: 0,
-                    topCard: topCard,
-                    firstPlace: null,
-                    secondPlace: null,
-                    thirdPlace: null,
-                    fourthPlace: null,
-                    playerOne: {
-                        userID: snapshot.child("names").val()[0],
-                        hasLost: false,
-                        isCPU: false,
-                        cardCount: 7,
-                        hand: handOne
-                    },
-                    playerTwo: {
-                        userID: "CPU1",
-                        hasLost: false,
-                        isCPU: true,
-                        cardCount: 7,
-                        hand: handTwo
-                    },
-                    playerThree: {
-                        userID: "CPU2",
-                        hasLost: false,
-                        isCPU: true,
-                        cardCount: 7,
-                        hand: handThree
-                    },
-                    playerFour: {
-                        userID: "CPU3",
-                        hasLost: false,
-                        isCPU: true,
-                        cardCount: 7,
-                        hand: handFour
-                    }
-                }
-            });   
         } else {
             console.log("Invalid number of CPUs");
         }
     });
+}
+
+function setUpPlayerOrder(snapshot, numCPUs) {
+    var players = [];
+    for (var i = 4 - numCPUs; i > 0; i--) {
+        players.push(snapshot.child("names").val()[i-1]);
+    }
+    for (var i = numCPUs; i > 0; i--) {
+        players.push("CPU" + i);
+    }
+    gameLogic.shuffle(players);
+    var playerOrder = {
+        playerOne: players[0],
+        playerTwo: players[1],
+        playerThree: players[2],
+        playerFour: players[3]
+    }
+    return playerOrder;
+}
+
+function isPlayerCPU(player) {
+    if (player == "CPU1" || player == "CPU2" || player == "CPU3")
+        return true;
+    return false;
 }
 
 function setUpPlayer(userID, gameID, res) {
