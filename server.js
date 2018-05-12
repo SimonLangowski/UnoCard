@@ -563,7 +563,7 @@ function setUpNewGame(gameID, numCPUs) {
                     numCPU: numCPUs,
                     deck: deck,
                     playDirection: "increasing",
-                    currentPlayer: 1,
+                    currentPlayer: playerOrder.firstTurn,
                     attackCount: 0,
                     topCard: topCard,
                     firstPlace: null,
@@ -608,18 +608,25 @@ function setUpNewGame(gameID, numCPUs) {
 
 function setUpPlayerOrder(snapshot, numCPUs) {
     var players = [];
+    var humanPlayers = [];
     for (var i = 4 - numCPUs; i > 0; i--) {
-        players.push(snapshot.child("names").val()[i-1]);
+        players.push(snapshot.child("names").val()[i - 1]);
     }
     for (var i = numCPUs; i > 0; i--) {
         players.push("CPU" + i);
+    }
+    for (var i = 0; i < players.length; i++) {
+        if (players[i] != "CPU1" && players[i] != "CPU2" && players[i] != "CPU3") {
+            humanPlayers.push(i + 1);
+        }
     }
     gameLogic.shuffle(players);
     var playerOrder = {
         playerOne: players[0],
         playerTwo: players[1],
         playerThree: players[2],
-        playerFour: players[3]
+        playerFour: players[3],
+        firstTurn: humanPlayers[Math.floor(Math.random() * humanPlayers.length)]
     }
     return playerOrder;
 }
