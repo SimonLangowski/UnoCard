@@ -615,12 +615,12 @@ function setUpPlayerOrder(snapshot, numCPUs) {
     for (var i = numCPUs; i > 0; i--) {
         players.push("CPU" + i);
     }
+    gameLogic.shuffle(players);
     for (var i = 0; i < players.length; i++) {
         if (isPlayerCPU(players[i]) == false) {
             humanPlayers.push(i);
         }
     }
-    gameLogic.shuffle(players);
     var playerOrder = {
         playerOne: players[0],
         playerTwo: players[1],
